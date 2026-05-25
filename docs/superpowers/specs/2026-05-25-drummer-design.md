@@ -57,7 +57,7 @@ drummer/                          # Repo root
 │   └── e2e/                      # Playwright, full running instance
 ├── docs/
 │   ├── decisions/                # Architecture Decision Records (ADRs)
-│   ├── specs/                    # Brainstorming design docs (here)
+│   └── superpowers/specs/        # Brainstorming design docs (here)
 │   └── tutorial/                 # User-facing tutorial content
 ├── TODO.md
 ├── ROADMAP.md
@@ -79,7 +79,7 @@ drummer/                          # Repo root
 | YAML frontmatter | `python-frontmatter` |
 | Data validation | Pydantic v2 |
 | Database | SQLite via `aiosqlite` + SQLAlchemy (async) |
-| MCP server | `mcp` SDK or `fastapi-mcp` |
+| MCP server | `fastapi-mcp` |
 | Python linting | Ruff (strict) + Pyright (strict) |
 | JS linting | Biome (opinionated defaults) |
 | Testing | Pytest + `pytest-asyncio` + Playwright |
@@ -450,7 +450,7 @@ docs/decisions/            # ADRs — record why, not just what
   001-quickjs-scripting.md
   002-yaml-frontmatter-format.md
   ...
-docs/specs/                # Brainstorming design docs
+docs/superpowers/specs/    # Brainstorming design docs
 TODO.md                    # Current sprint only — nothing backlogged here
 ROADMAP.md                 # High-level milestone view
 ```
