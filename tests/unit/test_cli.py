@@ -36,3 +36,9 @@ def test_attribution_option_exists():
     result = runner.invoke(app, ["--attribution"])
     assert result.exit_code == 0
     assert "Metropolitan Museum" in result.output
+
+
+def test_version_flag():
+    result = runner.invoke(app, ["--version"])
+    assert result.exit_code == 0
+    assert "0.1.0" in result.output

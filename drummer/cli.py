@@ -11,7 +11,7 @@ _ATTRIBUTION = (
     "The Met makes its Open Access data available for unrestricted use."
 )
 
-app = typer.Typer(name="drummer", help="Drummer — a local REST client.", no_args_is_help=True)
+app = typer.Typer(name="drummer", help="Drummer — a local REST client.")
 
 
 @app.callback(invoke_without_command=True)
@@ -26,12 +26,13 @@ def main(
 ) -> None:
     if attribution:
         typer.echo(_ATTRIBUTION)
-        raise typer.Exit
+        raise typer.Exit()
     if version:
         typer.echo(f"Drummer {__version__}")
-        raise typer.Exit
+        raise typer.Exit()
     if ctx.invoked_subcommand is None:
         typer.echo(ctx.get_help())
+        raise typer.Exit()
 
 
 @app.command()
