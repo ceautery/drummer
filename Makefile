@@ -1,23 +1,30 @@
-export PATH := venv/bin:$(PATH)
+VENV    := $(CURDIR)/venv
+PYTHON  := $(VENV)/bin/python
+RUFF    := $(VENV)/bin/ruff
+PYRIGHT := $(VENV)/bin/pyright
+PYTEST  := $(VENV)/bin/pytest
 
-.PHONY: install lint format check test test-e2e
+.PHONY: install lint format check test test-file test-e2e
 
 install:
 	pip install -e ".[dev]"
 
 lint:
-	ruff check .
-	ruff format --check .
-	pyright drummer
+	$(RUFF) check .
+	$(RUFF) format --check .
+	$(PYRIGHT) drummer
 
 format:
-	ruff format .
-	ruff check --fix .
+	$(RUFF) format .
+	$(RUFF) check --fix .
 
 test:
-	pytest tests/unit tests/integration -q
+	$(PYTEST) tests/unit tests/integration -q
+
+test-file:
+	$(PYTEST) $(FILE) -v
 
 test-e2e:
-	pytest tests/e2e -v
+	$(PYTEST) tests/e2e -v
 
 check: lint test
