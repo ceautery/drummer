@@ -67,6 +67,12 @@ def parse_request_file(path: Path) -> RequestFile:
     return RequestFile(frontmatter=fm, body=post.content, path=path)
 
 
+def write_request_file(request: RequestFile) -> None:
+    fm_dict = request.frontmatter.model_dump(exclude_defaults=True, exclude_none=True, mode="json")
+    post = frontmatter.Post(request.body, **fm_dict)
+    request.path.write_text(frontmatter.dumps(post), encoding="utf-8")
+
+
 __all__ = [
     "AuthConfig",
     "AuthType",
@@ -77,4 +83,5 @@ __all__ = [
     "RequestFile",
     "RequestFrontmatter",
     "parse_request_file",
+    "write_request_file",
 ]

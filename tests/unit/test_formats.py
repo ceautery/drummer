@@ -12,6 +12,7 @@ from drummer.core.storage.formats import (
     RequestFile,
     RequestFrontmatter,
     parse_request_file,
+    write_request_file,
 )
 
 
@@ -150,3 +151,62 @@ graphql:
     assert result.frontmatter.graphql is not None
     assert "GetUser" in result.frontmatter.graphql.query
     assert result.frontmatter.graphql.variables == {"id": placeholder_id}
+
+
+def test_write_request_file_creates_file(tmp_path: Path) -> None:
+    req_file = tmp_path / "request.md"
+    fm = RequestFrontmatter(name="Test", url="https://example.com")
+    request = RequestFile(frontmatter=fm, body="Test body.", path=req_file)
+    write_request_file(request)
+    assert req_file.exists()
+    text = req_file.read_text(encoding="utf-8")
+    assert "name: Test" in text
+    assert "Test body." in text
+
+
+def test_write_request_file_omits_defaults(tmp_path: Path) -> None:
+    req_file = tmp_path / "request.md"
+    fm = RequestFrontmatter(name="Simple")
+    request = RequestFile(frontmatter=fm, body="", path=req_file)
+    write_request_file(request)
+    text = req_file.read_text(encoding="utf-8")
+    assert "method:" not in text  # "GET" is default — omitted
+    assert "encoding:" not in text  # "utf-8" is default — omitted
+    assert "skip:" not in text  # False is default — omitted
+
+
+def test_write_request_file_roundtrip(tmp_path: Path) -> None:
+    req_file = tmp_path / "request.md"
+    fm = RequestFrontmatter(
+        name="Round Trip",
+        method="POST",
+        url="https://example.com/api",
+        headers={"Content-Type": "application/json"},
+        tags=["test", "roundtrip"],
+    )
+    original = RequestFile(frontmatter=fm, body="Some notes.", path=req_file)
+    write_request_file(original)
+    loaded = parse_request_file(req_file)
+    assert loaded.frontmatter.name == "Round Trip"
+    assert loaded.frontmatter.method == "POST"
+    assert loaded.frontmatter.url == "https://example.com/api"
+    assert loaded.frontmatter.headers == {"Content-Type": "application/json"}
+    assert loaded.frontmatter.tags == ["test", "roundtrip"]
+    assert "Some notes." in loaded.body
+
+
+def test_write_request_file_roundtrip_with_auth(tmp_path: Path) -> None:
+    req_file = tmp_path / "request.md"
+    placeholder = "my-token"
+    fm = RequestFrontmatter(
+        name="Auth Request",
+        url="https://api.example.com/data",
+        auth=AuthConfig(type=AuthType.BEARER, token=placeholder),
+        cookies=CookieConfig(mode=CookieMode.DISABLED),
+    )
+    original = RequestFile(frontmatter=fm, body="", path=req_file)
+    write_request_file(original)
+    loaded = parse_request_file(req_file)
+    assert loaded.frontmatter.auth.type == AuthType.BEARER
+    assert loaded.frontmatter.auth.token == placeholder
+    assert loaded.frontmatter.cookies.mode == CookieMode.DISABLED
