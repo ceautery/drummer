@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.env
+
+# Frontend (Phase 5)
+node_modules/
+frontend/dist/
+drummer/api/static/
+
+# Brainstorm artifacts
+.superpowers/
+
+# macOS
+.DS_Store
+
+# Editor
+.idea/
+.vscode/
+
+# Test artifacts
+.pytest_cache/
+htmlcov/
+.coverage
+playwright-report/
+test-results/
