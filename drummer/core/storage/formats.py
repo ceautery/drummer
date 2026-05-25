@@ -2,7 +2,6 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Literal
 
-import frontmatter
 from pydantic import BaseModel, Field
 
 HttpMethod = Literal["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE"]
@@ -70,5 +69,4 @@ __all__ = [
     "HttpMethod",
     "RequestFile",
     "RequestFrontmatter",
-    "frontmatter",
 ]
