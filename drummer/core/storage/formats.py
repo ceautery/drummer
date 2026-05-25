@@ -62,8 +62,7 @@ class RequestFile(BaseModel):
 
 
 def parse_request_file(path: Path) -> RequestFile:
-    with path.open("r", encoding="utf-8") as f:
-        post = frontmatter.load(f)
+    post = frontmatter.load(path)
     fm = RequestFrontmatter.model_validate(post.metadata)
     return RequestFile(frontmatter=fm, body=post.content, path=path)
 

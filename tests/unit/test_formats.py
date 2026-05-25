@@ -95,15 +95,13 @@ def test_parse_request_file_minimal(tmp_path: Path) -> None:
 
 
 def test_parse_request_file_full(tmp_path: Path) -> None:
-    scheme = "Bear" + "er"
-    auth_header_value = f"{scheme} {{{{token}}}}"
-    content = f"""\
+    content = """\
 ---
 name: List Users
 method: GET
-url: "{{{{base_url}}}}/api/users"
+url: "{{base_url}}/api/users"
 headers:
-  Authorization: "{auth_header_value}"
+  Authorization: "Bearer {{token}}"
 params:
   page: "1"
 tags: [users, list]
@@ -117,7 +115,7 @@ Fetches paginated users.
     assert result.frontmatter.name == "List Users"
     assert result.frontmatter.method == "GET"
     assert result.frontmatter.url == "{{base_url}}/api/users"
-    assert result.frontmatter.headers == {"Authorization": auth_header_value}
+    assert result.frontmatter.headers == {"Authorization": "Bearer {{token}}"}
     assert result.frontmatter.params == {"page": "1"}
     assert result.frontmatter.tags == ["users", "list"]
     assert "Fetches paginated users" in result.body
