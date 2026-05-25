@@ -57,5 +57,8 @@ ignore = [
 "tests/**" = ["S101", "ANN"]   # assert + missing annotations fine in tests
 "drummer/cli.py" = ["FBT"]     # Typer CLI requires bool flag parameters
 
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
+
 [tool.ruff.format]
 skip-magic-trailing-comma = true
