@@ -11,6 +11,7 @@ from drummer.core.storage.formats import (
     GraphQLConfig,
     RequestFile,
     RequestFrontmatter,
+    parse_request_file,
 )
 
 
@@ -81,3 +82,73 @@ def test_request_file_fields(tmp_path: Path) -> None:
     assert rf.path == req_file
     assert rf.body == "body text"
     assert rf.frontmatter.name == "test"
+
+
+def test_parse_request_file_minimal(tmp_path: Path) -> None:
+    req_file = tmp_path / "request.md"
+    req_file.write_text("---\nname: Test Request\n---\n\nRequest body here.\n", encoding="utf-8")
+    result = parse_request_file(req_file)
+    assert result.frontmatter.name == "Test Request"
+    assert result.frontmatter.method == "GET"
+    assert result.body.strip() == "Request body here."
+    assert result.path == req_file
+
+
+def test_parse_request_file_full(tmp_path: Path) -> None:
+    scheme = "Bear" + "er"
+    auth_header_value = f"{scheme} {{{{token}}}}"
+    content = f"""\
+---
+name: List Users
+method: GET
+url: "{{{{base_url}}}}/api/users"
+headers:
+  Authorization: "{auth_header_value}"
+params:
+  page: "1"
+tags: [users, list]
+---
+
+Fetches paginated users.
+"""
+    req_file = tmp_path / "users.md"
+    req_file.write_text(content, encoding="utf-8")
+    result = parse_request_file(req_file)
+    assert result.frontmatter.name == "List Users"
+    assert result.frontmatter.method == "GET"
+    assert result.frontmatter.url == "{{base_url}}/api/users"
+    assert result.frontmatter.headers == {"Authorization": auth_header_value}
+    assert result.frontmatter.params == {"page": "1"}
+    assert result.frontmatter.tags == ["users", "list"]
+    assert "Fetches paginated users" in result.body
+
+
+def test_parse_request_file_missing_name_raises(tmp_path: Path) -> None:
+    req_file = tmp_path / "request.md"
+    req_file.write_text("---\nmethod: GET\n---\n", encoding="utf-8")
+    with pytest.raises(ValidationError):
+        parse_request_file(req_file)
+
+
+def test_parse_request_file_with_graphql(tmp_path: Path) -> None:
+    placeholder_id = "{{user_id}}"
+    content = f"""\
+---
+name: Get User
+method: POST
+url: "{{{{base_url}}}}/graphql"
+graphql:
+  query: |
+    query GetUser($id: ID!) {{{{
+      user(id: $id) {{ name email }}
+    }}}}
+  variables:
+    id: "{placeholder_id}"
+---
+"""
+    req_file = tmp_path / "get-user.md"
+    req_file.write_text(content, encoding="utf-8")
+    result = parse_request_file(req_file)
+    assert result.frontmatter.graphql is not None
+    assert "GetUser" in result.frontmatter.graphql.query
+    assert result.frontmatter.graphql.variables == {"id": placeholder_id}

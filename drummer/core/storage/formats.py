@@ -2,6 +2,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Literal
 
+import frontmatter
 from pydantic import BaseModel, Field
 
 HttpMethod = Literal["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE"]
@@ -60,6 +61,13 @@ class RequestFile(BaseModel):
     path: Path
 
 
+def parse_request_file(path: Path) -> RequestFile:
+    with path.open("r", encoding="utf-8") as f:
+        post = frontmatter.load(f)
+    fm = RequestFrontmatter.model_validate(post.metadata)
+    return RequestFile(frontmatter=fm, body=post.content, path=path)
+
+
 __all__ = [
     "AuthConfig",
     "AuthType",
@@ -69,4 +77,5 @@ __all__ = [
     "HttpMethod",
     "RequestFile",
     "RequestFrontmatter",
+    "parse_request_file",
 ]
