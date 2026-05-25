@@ -48,8 +48,6 @@ line-length = 100
 select = ["ALL"]
 ignore = [
     "D",      # docstrings — concise code over coverage
-    "ANN101", # missing type annotation for self
-    "ANN102", # missing type annotation for cls
     "COM812", # trailing comma — conflicts with formatter
     "ISC001", # implicit string concat — conflicts with formatter
     "ERA001", # commented-out code — too aggressive
