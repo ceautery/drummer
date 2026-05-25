@@ -21,17 +21,11 @@ jobs:
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
-      - name: Ruff lint
-        run: ruff check .
-
-      - name: Ruff format check
-        run: ruff format --check .
-
-      - name: Pyright type check
-        run: pyright drummer
+      - name: Lint
+        run: make lint
 
       - name: Unit + Integration tests
-        run: pytest tests/unit tests/integration -v
+        run: make test
 
   e2e:
     name: E2E (Playwright)

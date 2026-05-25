@@ -1,3 +1,5 @@
+export PATH := venv/bin:$(PATH)
+
 .PHONY: install lint format check test test-e2e
 
 install:

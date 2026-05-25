@@ -5,6 +5,5 @@
   "venv": "venv",
   "include": ["drummer"],
   "exclude": ["tests", "frontend", ".venv", "venv"],
-  "reportUnknownMemberType": "none",
-  "_reportUnknownMemberType_reason": "Typer's type stubs return Unknown for Option/Argument/decorators — not a code error"
+  "reportUnknownMemberType": "none"
 }
