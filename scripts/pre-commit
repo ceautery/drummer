@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Activate venv if present
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# When installed as .git/hooks/pre-commit, project root is two levels up
+# When run from scripts/, project root is one level up
+if [ -f "${SCRIPT_DIR}/../../venv/bin/activate" ]; then
+    # shellcheck disable=SC1091
+    source "${SCRIPT_DIR}/../../venv/bin/activate"
+elif [ -f "${SCRIPT_DIR}/../venv/bin/activate" ]; then
+    # shellcheck disable=SC1091
+    source "${SCRIPT_DIR}/../venv/bin/activate"
+fi
+
+echo "▶ Running pre-commit checks (make check)..."
+make check
+echo "✓ All checks passed."
