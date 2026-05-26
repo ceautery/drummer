@@ -36,3 +36,9 @@ async def test_update_environment_variables(client: AsyncClient) -> None:
 async def test_get_missing_environment_returns_404(client: AsyncClient) -> None:
     response = await client.get("/api/environments/staging")
     assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+async def test_update_missing_environment_returns_404(client: AsyncClient) -> None:
+    payload = {"name": "staging", "variables": {"base_url": "https://staging.example.com"}}
+    response = await client.put("/api/environments/staging", json=payload)
+    assert response.status_code == HTTPStatus.NOT_FOUND

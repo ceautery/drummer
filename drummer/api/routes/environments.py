@@ -30,8 +30,11 @@ class EnvironmentDetail(BaseModel):
     variables: dict[str, str] = Field(default_factory=dict)
 
 
-def _env_path(project_dir: Path, name: str) -> Path:
-    return project_dir / ".drummer" / "environments" / f"{name}.yaml"
+def _safe_env_path(project_dir: Path, name: str) -> Path:
+    env_path = (project_dir / ".drummer" / "environments" / f"{name}.yaml").resolve()
+    if not env_path.is_relative_to(project_dir.resolve()):
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Invalid environment name")
+    return env_path
 
 
 @router.get("/environments")
@@ -44,7 +47,7 @@ async def list_environments_route(project_dir: ProjectDir) -> list[EnvironmentSu
 
 @router.get("/environments/{name}")
 async def get_environment_route(name: str, project_dir: ProjectDir) -> EnvironmentDetail:
-    env_path = _env_path(project_dir, name)
+    env_path = _safe_env_path(project_dir, name)
     if not env_path.exists():
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=_ENV_NOT_FOUND)
     env = load_environment(env_path)
@@ -55,7 +58,7 @@ async def get_environment_route(name: str, project_dir: ProjectDir) -> Environme
 async def update_environment_route(
     name: str, body: EnvironmentDetail, project_dir: ProjectDir
 ) -> EnvironmentDetail:
-    env_path = _env_path(project_dir, name)
+    env_path = _safe_env_path(project_dir, name)
     if not env_path.exists():
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=_ENV_NOT_FOUND)
     env = Environment(name=name, variables=body.variables)
