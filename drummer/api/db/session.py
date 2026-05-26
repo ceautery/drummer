@@ -1,0 +1,15 @@
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+from drummer.api.db.models import Base
+
+
+def async_session_factory(db_url: str) -> async_sessionmaker[AsyncSession]:
+    engine = create_async_engine(db_url)
+    return async_sessionmaker(engine, expire_on_commit=False)
+
+
+async def init_db(db_url: str) -> None:
+    engine = create_async_engine(db_url)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    await engine.dispose()
