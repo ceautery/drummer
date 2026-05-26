@@ -104,8 +104,7 @@ def test_list_requests_finds_valid_files(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     paths = list_requests(tmp_path)
-    names = {p.name for p in paths}
-    assert names == {"get-users.md", "login.md"}
+    assert sorted(p.name for p in paths) == ["get-users.md", "login.md"]
 
 
 def test_list_requests_skips_non_request_md(tmp_path: Path) -> None:
