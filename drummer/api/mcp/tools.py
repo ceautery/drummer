@@ -26,6 +26,22 @@ from drummer.core.storage.project import (
 from drummer.core.variables import resolve
 
 
+def _safe_path(project_dir: Path, user_path: str) -> Path:
+    resolved = (project_dir / user_path).resolve()
+    if not resolved.is_relative_to(project_dir.resolve()):
+        msg = f"Path outside project directory: {user_path}"
+        raise ValueError(msg)
+    return resolved
+
+
+def _safe_env_path(project_dir: Path, env_name: str) -> Path:
+    env_path = (project_dir / ".drummer" / "environments" / f"{env_name}.yaml").resolve()
+    if not env_path.is_relative_to(project_dir.resolve()):
+        msg = f"Invalid environment name: {env_name}"
+        raise ValueError(msg)
+    return env_path
+
+
 async def list_requests_impl(project_dir: Path) -> list[dict[str, str]]:
     files = list_request_files(project_dir)
     return [
@@ -40,14 +56,14 @@ async def list_requests_impl(project_dir: Path) -> list[dict[str, str]]:
 
 
 async def get_request_impl(project_dir: Path, path: str) -> dict[str, object]:
-    rf = parse_request_file(project_dir / path)
+    rf = parse_request_file(_safe_path(project_dir, path))
     return rf.frontmatter.model_dump(mode="json")
 
 
 async def create_request_impl(
     project_dir: Path, path: str, name: str, method: str = "GET", url: str = ""
 ) -> dict[str, str]:
-    full_path = project_dir / path
+    full_path = _safe_path(project_dir, path)
     ensure_request_dir(full_path)
     fm = RequestFrontmatter.model_validate({"name": name, "method": method, "url": url})
     write_request_file(RequestFile(frontmatter=fm, body="", path=full_path))
@@ -55,7 +71,7 @@ async def create_request_impl(
 
 
 async def update_request_impl(project_dir: Path, path: str, **kwargs: object) -> dict[str, str]:
-    full_path = project_dir / path
+    full_path = _safe_path(project_dir, path)
     rf = parse_request_file(full_path)
     updates = {k: v for k, v in kwargs.items() if v is not None}
     updated_fm = rf.frontmatter.model_copy(update=updates)
@@ -74,8 +90,8 @@ async def send_request_impl(
     ctx: _SendContext, path: str, environment: str = "", overrides: dict[str, str] | None = None
 ) -> dict[str, object]:
     env_name = environment or ctx.active_environment
-    request_file = parse_request_file(ctx.project_dir / path)
-    env_path = ctx.project_dir / ".drummer" / "environments" / f"{env_name}.yaml"
+    request_file = parse_request_file(_safe_path(ctx.project_dir, path))
+    env_path = _safe_env_path(ctx.project_dir, env_name)
     env = load_environment(env_path)
     variables: dict[str, str] = {**env.variables, **(overrides or {})}
     resolved = resolve(request_file, variables)
@@ -112,7 +128,7 @@ async def list_environments_impl(project_dir: Path) -> list[dict[str, str]]:
 
 
 async def get_environment_impl(project_dir: Path, name: str) -> dict[str, str]:
-    env_path = project_dir / ".drummer" / "environments" / f"{name}.yaml"
+    env_path = _safe_env_path(project_dir, name)
     env = load_environment(env_path)
     return env.variables
 
@@ -120,7 +136,7 @@ async def get_environment_impl(project_dir: Path, name: str) -> dict[str, str]:
 async def set_variable_impl(
     project_dir: Path, environment: str, key: str, value: str
 ) -> dict[str, str]:
-    env_path = project_dir / ".drummer" / "environments" / f"{environment}.yaml"
+    env_path = _safe_env_path(project_dir, environment)
     env = load_environment(env_path)
     updated = Environment(name=environment, variables={**env.variables, key: value})
     save_environment(updated, project_dir)
