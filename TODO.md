@@ -1,5 +1,5 @@
 # TODO
 
-Current sprint: **Phase 3 — HTTP Engine** ✅ Complete
+Current sprint: **Phase 4 — API + MCP** ✅ Complete
 
-Phase 4 plan not yet written.
+Phase 5 plan not yet written.
