@@ -19,6 +19,7 @@ dependencies = [
     "fastapi-mcp>=0.3",
     "chardet>=5.2",
     "pyyaml>=6",
+    "sse-starlette>=0.10",
     "typer>=0.12",
 ]
 
