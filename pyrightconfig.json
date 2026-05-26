@@ -3,8 +3,8 @@
   "typeCheckingMode": "strict",
   "venvPath": ".",
   "venv": "venv",
+  "stubPath": "stubs",
   "include": ["drummer"],
   "exclude": ["tests", "frontend", ".venv", "venv"],
-  "reportUnknownMemberType": "none",
-  "reportMissingTypeStubs": "none"
+  "reportUnknownMemberType": "none"
 }
