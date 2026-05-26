@@ -1,8 +1,11 @@
+from pathlib import Path
 from typing import Annotated
 
 import typer
+import uvicorn
 
 from drummer import __version__
+from drummer.api.app import create_app
 
 _ATTRIBUTION = (
     "Drummer includes data from the Metropolitan Museum of Art Open Access collection.\n"
@@ -37,11 +40,22 @@ def main(
 
 @app.command()
 def serve(
-    port: Annotated[int, typer.Option("--port", "-p", help="Port to listen on.")] = 8000,
+    project: Annotated[str, typer.Option("--project", "-p", help="Path to the project folder.")],
+    port: Annotated[int, typer.Option("--port", help="Port to listen on.")] = 8000,
 ) -> None:
-    """Start the Drummer server and open the browser."""
-    typer.echo(f"Starting Drummer on http://localhost:{port} ...")
-    typer.echo("(Server not yet implemented — Phase 4)")
+    """Start the Drummer API server for PROJECT."""
+    project_dir = Path(project).expanduser().resolve()
+    if not (project_dir / ".drummer" / "project.yaml").exists():
+        typer.echo(
+            f"Error: {project_dir} is not a Drummer project (missing .drummer/project.yaml)",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
+    application = create_app(project_dir=project_dir)
+    typer.echo(f"Drummer serving {project_dir.name} on http://localhost:{port}")
+    host = "0.0.0.0"
+    uvicorn.run(application, host=host, port=port)
 
 
 @app.command()
