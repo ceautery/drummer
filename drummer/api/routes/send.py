@@ -1,12 +1,14 @@
 import json
 from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
+from http import HTTPStatus
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, cast
 from uuid import uuid4
 
 import httpx
-from fastapi import APIRouter, Depends, Request
+import yaml
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field, ValidationError
 from sse_starlette.sse import EventSourceResponse
 
@@ -27,6 +29,15 @@ ProjectDir = Annotated[Path, Depends(get_project_dir)]
 CookieJarDep = Annotated[CookieJar, Depends(get_cookie_jar)]
 
 
+def _safe_path(project_dir: Path, user_path: str) -> Path:
+    resolved = (project_dir / user_path).resolve()
+    if not resolved.is_relative_to(project_dir.resolve()):
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST, detail="Invalid path: outside project directory"
+        )
+    return resolved
+
+
 class SendRequest(BaseModel):
     path: str
     environment: str = ""
@@ -43,7 +54,7 @@ async def send_request_route(
 
     async def generate() -> AsyncGenerator[dict[str, str], None]:
         try:
-            req_path = project_dir / body.path
+            req_path = _safe_path(project_dir, body.path)
             request_file = parse_request_file(req_path)
             env_path = project_dir / ".drummer" / "environments" / f"{environment}.yaml"
             env = load_environment(env_path) if env_path.exists() else None
@@ -92,7 +103,14 @@ async def send_request_route(
 
             yield {"event": "done", "data": json.dumps({"history_id": record_id})}
 
-        except (OSError, ValueError, ValidationError, httpx.HTTPError, httpx.TransportError) as exc:
+        except (
+            OSError,
+            ValueError,
+            ValidationError,
+            httpx.HTTPError,
+            httpx.TransportError,
+            yaml.YAMLError,
+        ) as exc:
             yield {"event": "error", "data": json.dumps({"message": str(exc)})}
 
     return EventSourceResponse(generate())
