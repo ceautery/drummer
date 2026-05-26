@@ -8,6 +8,7 @@ from drummer.core.storage.project import (
     ProjectMeta,
     create_project,
     list_environments,
+    list_requests,
     load_environment,
     load_project,
     save_environment,
@@ -89,3 +90,63 @@ def test_list_environments_empty_dir(tmp_path: Path) -> None:
 def test_list_environments_missing_dir(tmp_path: Path) -> None:
     envs = list_environments(tmp_path)
     assert envs == []
+
+
+def test_list_requests_finds_valid_files(tmp_path: Path) -> None:
+    create_project(tmp_path, "Test")
+    (tmp_path / "get-users.md").write_text(
+        "---\nname: Get Users\nmethod: GET\nurl: https://api.example.com/users\n---\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "auth").mkdir()
+    (tmp_path / "auth" / "login.md").write_text(
+        "---\nname: Login\nmethod: POST\nurl: https://api.example.com/login\n---\n",
+        encoding="utf-8",
+    )
+    paths = list_requests(tmp_path)
+    names = {p.name for p in paths}
+    assert names == {"get-users.md", "login.md"}
+
+
+def test_list_requests_skips_non_request_md(tmp_path: Path) -> None:
+    create_project(tmp_path, "Test")
+    (tmp_path / "README.md").write_text("# My API\n\nNo frontmatter here.\n", encoding="utf-8")
+    (tmp_path / "request.md").write_text(
+        "---\nname: Valid Request\nmethod: GET\nurl: https://api.example.com\n---\n",
+        encoding="utf-8",
+    )
+    paths = list_requests(tmp_path)
+    assert len(paths) == 1
+    assert paths[0].name == "request.md"
+
+
+def test_list_requests_excludes_drummer_dir(tmp_path: Path) -> None:
+    create_project(tmp_path, "Test")
+    # Place a structurally valid .md inside .drummer/ — must be excluded
+    internal = tmp_path / ".drummer" / "notes.md"
+    internal.write_text(
+        "---\nname: Internal\nmethod: GET\nurl: https://api.example.com\n---\n", encoding="utf-8"
+    )
+    (tmp_path / "request.md").write_text(
+        "---\nname: Real Request\nmethod: GET\nurl: https://api.example.com\n---\n",
+        encoding="utf-8",
+    )
+    paths = list_requests(tmp_path)
+    assert len(paths) == 1
+    assert paths[0].name == "request.md"
+
+
+def test_list_requests_empty_project(tmp_path: Path) -> None:
+    create_project(tmp_path, "Empty")
+    paths = list_requests(tmp_path)
+    assert paths == []
+
+
+def test_list_requests_returns_sorted(tmp_path: Path) -> None:
+    create_project(tmp_path, "Test")
+    for name in ["c-request.md", "a-request.md", "b-request.md"]:
+        (tmp_path / name).write_text(
+            f"---\nname: {name}\nmethod: GET\nurl: https://api.example.com\n---\n", encoding="utf-8"
+        )
+    paths = list_requests(tmp_path)
+    assert [p.name for p in paths] == ["a-request.md", "b-request.md", "c-request.md"]
