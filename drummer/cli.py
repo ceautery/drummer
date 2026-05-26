@@ -42,6 +42,7 @@ def main(
 def serve(
     project: Annotated[str, typer.Option("--project", "-p", help="Path to the project folder.")],
     port: Annotated[int, typer.Option("--port", help="Port to listen on.")] = 8000,
+    host: Annotated[str, typer.Option("--host", help="Host address to bind to.")] = "127.0.0.1",
 ) -> None:
     """Start the Drummer API server for PROJECT."""
     project_dir = Path(project).expanduser().resolve()
@@ -53,8 +54,7 @@ def serve(
         raise typer.Exit(code=1)
 
     application = create_app(project_dir=project_dir)
-    typer.echo(f"Drummer serving {project_dir.name} on http://localhost:{port}")
-    host = "0.0.0.0"
+    typer.echo(f"Drummer serving {project_dir.name} on http://{host}:{port}")
     uvicorn.run(application, host=host, port=port)
 
 
