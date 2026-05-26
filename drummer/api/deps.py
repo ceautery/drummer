@@ -1,15 +1,22 @@
 from collections.abc import AsyncGenerator
+from http import HTTPStatus
 from pathlib import Path
 from typing import cast
 
-from fastapi import Request
+from fastapi import HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from drummer.core.cookies import CookieJar
 
 
 def get_project_dir(request: Request) -> Path:
-    return cast("Path", request.app.state.project_dir)
+    project_dir: Path | None = request.app.state.project_dir
+    if project_dir is None:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="No project loaded. POST /api/project to load one.",
+        )
+    return project_dir
 
 
 def get_cookie_jar(request: Request) -> CookieJar:

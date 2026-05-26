@@ -10,6 +10,7 @@ from drummer.api.mcp.tools import register_mcp_tools
 from drummer.api.routes import cookies as cookie_routes
 from drummer.api.routes import environments as env_routes
 from drummer.api.routes import history as history_routes
+from drummer.api.routes import project as project_routes
 from drummer.api.routes import requests as req_routes
 from drummer.api.routes import send as send_routes
 from drummer.core.cookies import CookieJar
@@ -17,7 +18,9 @@ from drummer.core.cookies import CookieJar
 _DEFAULT_DB = str(Path.home() / ".local" / "share" / "drummer" / "history.db")
 
 
-def create_app(project_dir: Path, db_url: str = f"sqlite+aiosqlite:///{_DEFAULT_DB}") -> FastAPI:
+def create_app(
+    project_dir: Path | None = None, db_url: str = f"sqlite+aiosqlite:///{_DEFAULT_DB}"
+) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
         await init_db(db_url)
@@ -30,6 +33,7 @@ def create_app(project_dir: Path, db_url: str = f"sqlite+aiosqlite:///{_DEFAULT_
     app.state.db_factory = async_session_factory(db_url)
     app.state.transport = None  # overridden in tests
 
+    app.include_router(project_routes.router, prefix="/api")
     app.include_router(req_routes.router, prefix="/api")
     app.include_router(env_routes.router, prefix="/api")
     app.include_router(send_routes.router, prefix="/api")
