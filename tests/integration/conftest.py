@@ -70,7 +70,7 @@ def parse_sse(text: str) -> list[dict[str, object]]:
             current["event"] = line[len("event:") :].strip()
         elif line.startswith("data:"):
             current["data"] = json.loads(line[len("data:") :].strip())
-        elif line == "" and current:
+        elif line.strip() == "" and current:
             events.append(current)
             current = {}
     if current:
