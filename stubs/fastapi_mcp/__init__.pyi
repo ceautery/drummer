@@ -1,4 +1,9 @@
+from collections.abc import Callable
+from typing import Any, TypeVar
+
 from fastapi import APIRouter, FastAPI
+
+_F = TypeVar("_F", bound=Callable[..., Any])
 
 class FastApiMCP:
     def __init__(
@@ -21,3 +26,4 @@ class FastApiMCP:
         self, router: FastAPI | APIRouter | None = None, mount_path: str = "/sse"
     ) -> None: ...
     def setup_server(self) -> None: ...
+    def tool(self) -> Callable[[_F], _F]: ...
