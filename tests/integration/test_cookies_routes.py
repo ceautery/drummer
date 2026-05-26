@@ -24,6 +24,7 @@ async def test_clear_cookies(project_dir: Path) -> None:
 
         del_resp = await ac.delete("/api/cookies")
         assert del_resp.status_code == HTTPStatus.OK
+        assert del_resp.json() == {"status": "cleared"}
 
         empty_resp = await ac.get("/api/cookies")
         assert empty_resp.json() == {}
