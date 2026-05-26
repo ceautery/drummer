@@ -23,6 +23,7 @@ class AuthType(StrEnum):
 
 class CookieConfig(BaseModel):
     mode: CookieMode = CookieMode.SESSION
+    cookies: dict[str, str] = Field(default_factory=dict)
 
 
 class AuthConfig(BaseModel):
