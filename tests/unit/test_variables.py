@@ -5,11 +5,6 @@ from drummer.core.storage.formats import AuthConfig, AuthType, RequestFile, Requ
 from drummer.core.variables import resolve, substitute
 
 
-def _make_request_file(tmp_path: Path, **kwargs: object) -> RequestFile:
-    fm = RequestFrontmatter(name="Test", **kwargs)  # type: ignore[arg-type]
-    return RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
-
-
 def test_substitute_replaces_known_var() -> None:
     result, warnings = substitute("{{base_url}}/users", {"base_url": "https://api.example.com"})
     assert result == "https://api.example.com/users"
@@ -36,24 +31,27 @@ def test_substitute_empty_string() -> None:
 
 
 def test_resolve_substitutes_url(tmp_path: Path) -> None:
-    rf = _make_request_file(tmp_path, url="{{base_url}}/users")
+    fm = RequestFrontmatter(name="Test", url="{{base_url}}/users")
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
     resolved = resolve(rf, {"base_url": "https://api.example.com"})
     assert resolved.url == "https://api.example.com/users"
     assert resolved.warnings == []
 
 
 def test_resolve_substitutes_header_values(tmp_path: Path) -> None:
-    rf = _make_request_file(
-        tmp_path, url="https://api.example.com", headers={"Authorization": "Bearer {{token}}"}
+    fm = RequestFrontmatter(
+        name="Test", url="https://api.example.com", headers={"Authorization": "Bearer {{token}}"}
     )
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
     resolved = resolve(rf, {"token": "secret"})
     assert resolved.headers["Authorization"] == "Bearer secret"
 
 
 def test_resolve_substitutes_params(tmp_path: Path) -> None:
-    rf = _make_request_file(
-        tmp_path, url="https://api.example.com", params={"tenant": "{{tenant_id}}"}
+    fm = RequestFrontmatter(
+        name="Test", url="https://api.example.com", params={"tenant": "{{tenant_id}}"}
     )
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
     resolved = resolve(rf, {"tenant_id": "acme"})
     assert resolved.params["tenant"] == "acme"
 
@@ -67,22 +65,24 @@ def test_resolve_substitutes_body(tmp_path: Path) -> None:
 
 def test_resolve_bearer_auth_header(tmp_path: Path) -> None:
     placeholder = "my-token"
-    rf = _make_request_file(
-        tmp_path,
+    fm = RequestFrontmatter(
+        name="Test",
         url="https://api.example.com",
         auth=AuthConfig(type=AuthType.BEARER, token=placeholder),
     )
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
     resolved = resolve(rf, {})
     assert resolved.headers["Authorization"] == f"Bearer {placeholder}"
 
 
 def test_resolve_bearer_auth_token_substituted(tmp_path: Path) -> None:
     placeholder = "{{token}}"
-    rf = _make_request_file(
-        tmp_path,
+    fm = RequestFrontmatter(
+        name="Test",
         url="https://api.example.com",
         auth=AuthConfig(type=AuthType.BEARER, token=placeholder),
     )
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
     resolved = resolve(rf, {"token": "secret123"})
     assert resolved.headers["Authorization"] == "Bearer secret123"
 
@@ -90,39 +90,48 @@ def test_resolve_bearer_auth_token_substituted(tmp_path: Path) -> None:
 def test_resolve_basic_auth_header(tmp_path: Path) -> None:
     username = "user"
     credential = "pass"
-    rf = _make_request_file(
-        tmp_path,
+    fm = RequestFrontmatter(
+        name="Test",
         url="https://api.example.com",
         auth=AuthConfig(type=AuthType.BASIC, username=username, password=credential),
     )
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
     resolved = resolve(rf, {})
     expected = "Basic " + base64.b64encode(f"{username}:{credential}".encode()).decode()
     assert resolved.headers["Authorization"] == expected
 
 
 def test_resolve_api_key_auth_header(tmp_path: Path) -> None:
-    rf = _make_request_file(
-        tmp_path,
+    fm = RequestFrontmatter(
+        name="Test",
         url="https://api.example.com",
         auth=AuthConfig(type=AuthType.API_KEY, key="X-API-Key", value="mykey"),
     )
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
     resolved = resolve(rf, {})
     assert resolved.headers["X-API-Key"] == "mykey"
 
 
 def test_resolve_no_auth_adds_no_authorization_header(tmp_path: Path) -> None:
-    rf = _make_request_file(tmp_path, url="https://api.example.com")
+    fm = RequestFrontmatter(name="Test", url="https://api.example.com")
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
     resolved = resolve(rf, {})
     assert "Authorization" not in resolved.headers
 
 
 def test_resolve_collects_warnings_across_fields(tmp_path: Path) -> None:
-    rf = _make_request_file(tmp_path, url="{{base_url}}/users", headers={"X-Tenant": "{{tenant}}"})
+    fm = RequestFrontmatter(
+        name="Test", url="{{base_url}}/users", headers={"X-Tenant": "{{tenant}}"}
+    )
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
     resolved = resolve(rf, {})
     assert set(resolved.warnings) == {"base_url", "tenant"}
 
 
 def test_resolve_deduplicates_warnings(tmp_path: Path) -> None:
-    rf = _make_request_file(tmp_path, url="{{base_url}}/path", headers={"X-Base": "{{base_url}}"})
+    fm = RequestFrontmatter(
+        name="Test", url="{{base_url}}/path", headers={"X-Base": "{{base_url}}"}
+    )
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
     resolved = resolve(rf, {})
     assert resolved.warnings.count("base_url") == 1
