@@ -1,14 +1,16 @@
 from http import HTTPStatus
 from pathlib import Path
 
+from httpx import AsyncClient
 
-async def test_list_requests_empty(client) -> None:
+
+async def test_list_requests_empty(client: AsyncClient) -> None:
     response = await client.get("/api/requests")
     assert response.status_code == HTTPStatus.OK
     assert response.json() == []
 
 
-async def test_create_and_get_request(client, project_dir: Path) -> None:
+async def test_create_and_get_request(client: AsyncClient, project_dir: Path) -> None:
     payload = {
         "path": "users/list.md",
         "name": "List Users",
@@ -29,7 +31,7 @@ async def test_create_and_get_request(client, project_dir: Path) -> None:
     assert data["body"] == "fetch all users"
 
 
-async def test_update_request(client) -> None:
+async def test_update_request(client: AsyncClient) -> None:
     await client.post(
         "/api/requests",
         json={
@@ -58,7 +60,7 @@ async def test_update_request(client) -> None:
     assert get_resp.json()["frontmatter"]["method"] == "POST"
 
 
-async def test_delete_request(client, project_dir: Path) -> None:
+async def test_delete_request(client: AsyncClient, project_dir: Path) -> None:
     await client.post(
         "/api/requests",
         json={
@@ -76,12 +78,12 @@ async def test_delete_request(client, project_dir: Path) -> None:
     assert not (project_dir / "temp.md").exists()
 
 
-async def test_get_missing_request_returns_404(client) -> None:
+async def test_get_missing_request_returns_404(client: AsyncClient) -> None:
     response = await client.get("/api/requests/does-not-exist.md")
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-async def test_list_requests_returns_summaries(client) -> None:
+async def test_list_requests_returns_summaries(client: AsyncClient) -> None:
     await client.post(
         "/api/requests",
         json={
@@ -106,8 +108,7 @@ async def test_list_requests_returns_summaries(client) -> None:
     )
     response = await client.get("/api/requests")
     items = response.json()
-    expected_count = 2
-    assert len(items) == expected_count
+    assert len(items) == len(["a.md", "b.md"])
     paths = {item["path"] for item in items}
     assert "a.md" in paths
     assert "b.md" in paths

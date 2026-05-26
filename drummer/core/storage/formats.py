@@ -74,6 +74,14 @@ def write_request_file(request: RequestFile) -> None:
     request.path.write_text(frontmatter.dumps(post), encoding="utf-8")
 
 
+def ensure_request_dir(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+
+def delete_request_file(path: Path) -> None:
+    path.unlink()
+
+
 __all__ = [
     "AuthConfig",
     "AuthType",
@@ -83,6 +91,8 @@ __all__ = [
     "HttpMethod",
     "RequestFile",
     "RequestFrontmatter",
+    "delete_request_file",
+    "ensure_request_dir",
     "parse_request_file",
     "write_request_file",
 ]

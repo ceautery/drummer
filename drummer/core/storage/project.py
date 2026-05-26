@@ -3,7 +3,7 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel, Field, ValidationError
 
-from drummer.core.storage.formats import parse_request_file
+from drummer.core.storage.formats import RequestFile, parse_request_file
 
 
 class ProjectMeta(BaseModel):
@@ -74,4 +74,18 @@ def list_requests(project_dir: Path) -> list[Path]:
         except (ValidationError, OSError, yaml.YAMLError):
             continue
         result.append(path)
+    return result
+
+
+def list_request_files(project_dir: Path) -> list[RequestFile]:
+    drummer_dir = (project_dir / ".drummer").resolve()
+    result: list[RequestFile] = []
+    for path in sorted(project_dir.rglob("*.md")):
+        if path.resolve().is_relative_to(drummer_dir):
+            continue
+        try:
+            rf = parse_request_file(path)
+        except (ValidationError, OSError, yaml.YAMLError):
+            continue
+        result.append(rf)
     return result
