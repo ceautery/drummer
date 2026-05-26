@@ -30,3 +30,6 @@ class CookieJar:
 
     def clear(self) -> None:
         self._store.clear()
+
+    def all_cookies(self) -> dict[str, dict[str, str]]:
+        return {hostname: dict(cookies) for hostname, cookies in self._store.items()}
