@@ -124,9 +124,10 @@ class SendRequest(BaseModel):
 
 The handler:
 1. Resolves the request via `variables.resolve()`
-2. Calls `engine.send(resolved, cookie_jar)`
-3. Writes a `ResponseHistoryRecord` to the db
-4. Emits SSE events and closes the stream
+2. Calls `engine.send(resolved, cookie_jar)` → `RequestResult`
+3. Emits `status`, `headers`, `body` events
+4. Writes a `ResponseHistoryRecord` to the db
+5. Emits `done` with the `history_id`, closes the stream
 
 **SSE event sequence (success):**
 
@@ -174,7 +175,7 @@ class ResponseHistoryRecord(Base):
     warnings: Mapped[str]          # JSON list[str]
 ```
 
-Headers are stored as `list[tuple[str, str]]` (JSON-encoded) to preserve duplicate header names (e.g. multiple `Set-Cookie` values). This also fixes the known header-flattening issue in `engine.py:68` (`dict(response.headers)` → `list(response.headers.multi_items())`).
+Headers are stored as `list[tuple[str, str]]` (JSON-encoded) to preserve duplicate header names (e.g. multiple `Set-Cookie` values). This also fixes the known header-flattening issue in `engine.py` where `dict(response.headers)` collapsed duplicates — fix by using `list(response.headers.multi_items())` instead, and update `RequestResult.headers` from `dict[str, str]` to `list[tuple[str, str]]`.
 
 `init_db()` runs `Base.metadata.create_all()` on startup. No migrations in Phase 4.
 
