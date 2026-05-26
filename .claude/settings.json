@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make check)",
+      "Bash(make check *)",
+      "Bash(make test)",
+      "Bash(make lint)",
+      "Bash(make *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git -C * add *)",
+      "Bash(git -C * commit *)",
+      "Bash(/Users/curtis/dev/claude_projects/drummer/venv/bin/ruff *)",
+      "Bash(/Users/curtis/dev/claude_projects/drummer/venv/bin/pyright *)",
+      "Bash(/Users/curtis/dev/claude_projects/drummer/venv/bin/python *)",
+      "Bash(/Users/curtis/dev/claude_projects/drummer/venv/bin/python3 *)",
+      "Bash(/Users/curtis/dev/claude_projects/drummer/venv/bin/pip *)",
+      "Bash(source venv/bin/activate && make check)",
+      "Bash(source venv/bin/activate && make test)",
+      "Bash(source venv/bin/activate && make lint)"
+    ]
+  }
+}
