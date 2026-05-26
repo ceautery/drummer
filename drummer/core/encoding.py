@@ -5,7 +5,7 @@ def detect_encoding(content_type: str, body_bytes: bytes) -> str:
     for part in content_type.split(";"):
         stripped = part.strip()
         if stripped.lower().startswith("charset="):
-            return stripped.split("=", 1)[1].strip()
+            return stripped.split("=", 1)[1].strip().strip('"')
     if body_bytes:
         detected = chardet.detect(body_bytes)
         encoding = detected.get("encoding")

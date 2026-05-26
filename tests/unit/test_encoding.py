@@ -11,6 +11,11 @@ def test_detect_encoding_charset_case_insensitive() -> None:
     assert result == "UTF-8"
 
 
+def test_detect_encoding_strips_quoted_charset() -> None:
+    result = detect_encoding('text/html; charset="utf-8"', b"")
+    assert result == "utf-8"
+
+
 def test_detect_encoding_falls_back_when_no_charset() -> None:
     body = b'{"hello": "world"}'
     result = detect_encoding("application/json", body)
