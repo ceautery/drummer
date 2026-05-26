@@ -4,7 +4,11 @@ from pydantic import ValidationError
 
 from drummer.core.cookies import CookieJar
 from drummer.core.engine import RequestResult, ResolvedRequest, send
-from drummer.core.storage.formats import CookieConfig, CookieMode, HttpMethod
+from drummer.core.storage.formats import CookieConfig, CookieMode
+
+_HTTP_OK = 200
+_HTTP_NOT_FOUND = 404
+_HTTP_INTERNAL_ERROR = 500
 
 
 def test_resolved_request_requires_name() -> None:
@@ -29,12 +33,11 @@ def test_resolved_request_defaults() -> None:
 
 
 def test_request_result_stores_all_fields() -> None:
-    status_code = 200
     elapsed_ms = 42.5
     warnings = ["missing_var"]
 
     result = RequestResult(
-        status_code=status_code,
+        status_code=_HTTP_OK,
         headers={"content-type": "application/json"},
         body='{"ok": true}',
         encoding="utf-8",
@@ -42,14 +45,17 @@ def test_request_result_stores_all_fields() -> None:
         url="https://example.com",
         warnings=warnings,
     )
-    assert result.status_code == status_code
+    assert result.status_code == _HTTP_OK
     assert result.elapsed_ms == elapsed_ms
     assert result.warnings == warnings
 
 
 class _MockTransport(httpx.AsyncBaseTransport):
     def __init__(
-        self, status_code: int = 200, headers: dict[str, str] | None = None, content: bytes = b""
+        self,
+        status_code: int = _HTTP_OK,
+        headers: dict[str, str] | None = None,
+        content: bytes = b"",
     ) -> None:
         self._status_code = status_code
         self._headers = headers or {}
@@ -66,18 +72,13 @@ class _MockTransport(httpx.AsyncBaseTransport):
 
 def _make_resolved(
     url: str = "https://api.example.com/users",
-    method: HttpMethod = "GET",
-    headers: dict[str, str] | None = None,
-    body: str = "",
     cookies: CookieConfig | None = None,
     warnings: list[str] | None = None,
 ) -> ResolvedRequest:
     return ResolvedRequest(
         name="Test",
-        method=method,
+        method="GET",
         url=url,
-        headers=headers or {},
-        body=body,
         cookies=cookies or CookieConfig(),
         warnings=warnings or [],
     )
@@ -85,12 +86,12 @@ def _make_resolved(
 
 async def test_send_returns_status_and_body() -> None:
     transport = _MockTransport(
-        status_code=200,
+        status_code=_HTTP_OK,
         headers={"content-type": "application/json; charset=utf-8"},
         content=b'{"users": []}',
     )
     result = await send(_make_resolved(), CookieJar(), transport=transport)
-    assert result.status_code == 200
+    assert result.status_code == _HTTP_OK
     assert result.body == '{"users": []}'
     assert result.encoding == "utf-8"
 
@@ -102,9 +103,9 @@ async def test_send_records_elapsed_ms() -> None:
 
 
 async def test_send_non_200_does_not_raise() -> None:
-    transport = _MockTransport(status_code=404, content=b"Not Found")
+    transport = _MockTransport(status_code=_HTTP_NOT_FOUND, content=b"Not Found")
     result = await send(_make_resolved(), CookieJar(), transport=transport)
-    assert result.status_code == 404
+    assert result.status_code == _HTTP_NOT_FOUND
     assert "Not Found" in result.body
 
 
@@ -133,6 +134,6 @@ async def test_send_disabled_cookies_not_accumulated() -> None:
 
 
 async def test_send_500_status_captured() -> None:
-    transport = _MockTransport(status_code=500, content=b"Internal Server Error")
+    transport = _MockTransport(status_code=_HTTP_INTERNAL_ERROR, content=b"Internal Server Error")
     result = await send(_make_resolved(), CookieJar(), transport=transport)
-    assert result.status_code == 500
+    assert result.status_code == _HTTP_INTERNAL_ERROR
