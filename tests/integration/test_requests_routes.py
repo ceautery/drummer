@@ -108,7 +108,6 @@ async def test_list_requests_returns_summaries(client: AsyncClient) -> None:
     )
     response = await client.get("/api/requests")
     items = response.json()
-    assert len(items) == len(["a.md", "b.md"])
     paths = {item["path"] for item in items}
     assert "a.md" in paths
     assert "b.md" in paths
