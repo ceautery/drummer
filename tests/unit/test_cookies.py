@@ -62,3 +62,11 @@ def test_cookie_with_attributes_strips_to_name_value() -> None:
     )
     cookies = jar.cookies_for_request("http://api.example.com/users", CookieMode.SESSION, {})
     assert cookies == {"session": "abc123"}
+
+
+def test_returned_session_dict_is_a_copy() -> None:
+    jar = CookieJar()
+    jar.update_from_response("http://x.com/", ["s=1"])
+    result = jar.cookies_for_request("http://x.com/", CookieMode.SESSION, {})
+    result["injected"] = "evil"
+    assert jar.cookies_for_request("http://x.com/", CookieMode.SESSION, {}) == {"s": "1"}

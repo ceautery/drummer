@@ -25,7 +25,8 @@ class CookieJar:
             name_value = header.split(";")[0].strip()
             if "=" in name_value:
                 name, _, value = name_value.partition("=")
-                self._store[hostname][name.strip()] = value.strip()
+                if name.strip():
+                    self._store[hostname][name.strip()] = value.strip()
 
     def clear(self) -> None:
         self._store.clear()
