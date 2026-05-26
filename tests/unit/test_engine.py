@@ -38,7 +38,7 @@ def test_request_result_stores_all_fields() -> None:
 
     result = RequestResult(
         status_code=_HTTP_OK,
-        headers={"content-type": "application/json"},
+        headers=[("content-type", "application/json")],
         body='{"ok": true}',
         encoding="utf-8",
         elapsed_ms=elapsed_ms,

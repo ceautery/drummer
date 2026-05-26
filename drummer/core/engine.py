@@ -22,7 +22,7 @@ class ResolvedRequest(BaseModel):
 
 class RequestResult(BaseModel):
     status_code: int
-    headers: dict[str, str]
+    headers: list[tuple[str, str]]
     body: str
     encoding: str
     elapsed_ms: float
@@ -65,7 +65,7 @@ async def send(
 
     return RequestResult(
         status_code=response.status_code,
-        headers=dict(response.headers),
+        headers=list(response.headers.multi_items()),
         body=body,
         encoding=encoding,
         elapsed_ms=elapsed_ms,
