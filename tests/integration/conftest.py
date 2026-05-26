@@ -7,7 +7,12 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from drummer.api.app import create_app
+from drummer.api.db.session import init_db
 from drummer.core.storage.project import create_project
+
+
+def _db_url(tmp_path: Path) -> str:
+    return f"sqlite+aiosqlite:///{tmp_path / 'test.db'}"
 
 
 @pytest_asyncio.fixture
@@ -18,7 +23,9 @@ async def project_dir(tmp_path: Path) -> Path:
 
 @pytest_asyncio.fixture
 async def client(project_dir: Path) -> AsyncGenerator[AsyncClient, None]:
-    application = create_app(project_dir=project_dir, db_url="sqlite+aiosqlite:///:memory:")
+    db_url = _db_url(project_dir)
+    application = create_app(project_dir=project_dir, db_url=db_url)
+    await init_db(db_url)
     async with AsyncClient(transport=ASGITransport(app=application), base_url="http://test") as ac:
         yield ac
 
@@ -45,7 +52,9 @@ class MockTransport(httpx.AsyncBaseTransport):
 
 @pytest_asyncio.fixture
 async def client_with_mock(project_dir: Path) -> AsyncGenerator[AsyncClient, None]:
-    application = create_app(project_dir=project_dir, db_url="sqlite+aiosqlite:///:memory:")
+    db_url = _db_url(project_dir)
+    application = create_app(project_dir=project_dir, db_url=db_url)
+    await init_db(db_url)
     application.state.transport = MockTransport(
         status_code=200, headers=[("content-type", "application/json")], content=b'{"ok": true}'
     )
