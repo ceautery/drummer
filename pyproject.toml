@@ -18,6 +18,7 @@ dependencies = [
     "sqlalchemy>=2.0",
     "fastapi-mcp>=0.3",
     "chardet>=5.2",
+    "pyyaml>=6",
     "typer>=0.12",
 ]
 
