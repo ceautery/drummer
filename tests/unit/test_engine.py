@@ -60,8 +60,10 @@ class _MockTransport(httpx.AsyncBaseTransport):
         self._status_code = status_code
         self._headers = headers or {}
         self._content = content
+        self.last_request: httpx.Request | None = None
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        self.last_request = request
         return httpx.Response(
             status_code=self._status_code,
             headers=self._headers,
@@ -131,6 +133,16 @@ async def test_send_disabled_cookies_not_accumulated() -> None:
     await send(resolved, jar, transport=transport)
     stored = jar.cookies_for_request("https://api.example.com/other", CookieMode.SESSION, {})
     assert stored == {}
+
+
+async def test_send_sends_session_cookies_in_request() -> None:
+    transport = _MockTransport(content=b"")
+    jar = CookieJar()
+    jar.update_from_response("https://api.example.com/login", ["session=abc123"])
+    await send(_make_resolved(url="https://api.example.com/users"), jar, transport=transport)
+    assert transport.last_request is not None
+    cookie_header = transport.last_request.headers.get("cookie", "")
+    assert "session=abc123" in cookie_header
 
 
 async def test_send_500_status_captured() -> None:

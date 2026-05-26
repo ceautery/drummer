@@ -40,7 +40,9 @@ async def send(
     )
     content = encode_body(resolved.body, resolved.encoding) if resolved.body else None
 
-    async with httpx.AsyncClient(transport=transport, cookies=cookies) as client:
+    async with httpx.AsyncClient(
+        transport=transport, cookies=cookies, follow_redirects=False
+    ) as client:
         start = time.monotonic()
         response = await client.request(
             method=resolved.method,
@@ -55,7 +57,8 @@ async def send(
         set_cookie_headers = [
             v for k, v in response.headers.multi_items() if k.lower() == "set-cookie"
         ]
-        cookie_jar.update_from_response(str(response.url), set_cookie_headers)
+        if set_cookie_headers:
+            cookie_jar.update_from_response(str(response.url), set_cookie_headers)
 
     encoding = detect_encoding(response.headers.get("content-type", ""), response.content)
     body = decode_body(response.content, encoding)
