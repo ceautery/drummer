@@ -58,6 +58,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "ANN", "S603"]
 "drummer/cli.py" = ["FBT", "RSE102"]  # Typer CLI: bool flags + idiomatic raise typer.Exit()
+"stubs/**" = ["ANN401", "N818", "UP035"]  # Stubs mirror third-party APIs; Any + legacy typing are required
 
 [tool.ruff.lint.isort]
 split-on-trailing-comma = false
