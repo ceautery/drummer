@@ -63,6 +63,7 @@ export interface RequestFrontmatter {
   auth: AuthConfig;
   pre_script: string;
   post_script: string;
+  script_timeout_ms: number | null;
   tags: string[];
   skip: boolean;
 }

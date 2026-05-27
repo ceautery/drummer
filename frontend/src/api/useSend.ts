@@ -72,8 +72,18 @@ export function useSend() {
             };
             response.setBody(p.body, p.encoding, p.elapsed_ms);
           } else if (event === "done") {
-            const p = payload as { history_id: string };
-            response.setDone(p.history_id);
+            const payload = JSON.parse(data) as {
+              history_id: string | null;
+              script_logs: string[];
+              script_error: string | null;
+              script_suggestion: string | null;
+            };
+            response.setDone(
+              payload.history_id,
+              payload.script_logs ?? [],
+              payload.script_error ?? null,
+              payload.script_suggestion ?? null,
+            );
             void queryClient.invalidateQueries({
               queryKey: ["history", requestPath],
             });
