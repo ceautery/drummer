@@ -6,7 +6,7 @@ import { WorkspaceView } from "./views/WorkspaceView";
 
 export default function App() {
   const { data: project, isLoading } = useProject();
-  const { setProject } = useProjectStore();
+  const setProject = useProjectStore((s) => s.setProject);
 
   useEffect(() => {
     if (project) setProject(project);

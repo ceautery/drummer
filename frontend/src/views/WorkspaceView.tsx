@@ -23,41 +23,67 @@ import { useSessionStore } from "../store/sessionStore";
 import type { HttpMethod, RequestTab, ResponseTab } from "../types";
 
 export function WorkspaceView() {
-  const projectStore = useProjectStore();
-  const requestStore = useRequestStore();
-  const responseStore = useResponseStore();
+  // ProjectStore selectors
+  const project = useProjectStore((s) => s.project);
+  const setRequests = useProjectStore((s) => s.setRequests);
+
+  // RequestStore selectors
+  const selectedPath = useRequestStore((s) => s.selectedPath);
+  const draft = useRequestStore((s) => s.draft);
+  const saved = useRequestStore((s) => s.saved);
+  const requestTab = useRequestStore((s) => s.activeTab);
+  const loadRequest = useRequestStore((s) => s.load);
+  const selectRequest = useRequestStore((s) => s.select);
+  const patchRequest = useRequestStore((s) => s.patch);
+  const discardRequest = useRequestStore((s) => s.discard);
+  const markSaved = useRequestStore((s) => s.markSaved);
+  const setRequestTab = useRequestStore((s) => s.setTab);
+  const isDirty = useRequestStore((s) => s.isDirty);
+
+  // ResponseStore selectors
+  const streaming = useResponseStore((s) => s.streaming);
+  const statusCode = useResponseStore((s) => s.statusCode);
+  const elapsedMs = useResponseStore((s) => s.elapsedMs);
+  const body = useResponseStore((s) => s.body);
+  const responseHeaders = useResponseStore((s) => s.responseHeaders);
+  const responseTab = useResponseStore((s) => s.activeTab);
+  const setResponseTab = useResponseStore((s) => s.setTab);
+
   const { variables } = useSessionStore();
 
   const { data: requests = [] } = useRequests({
-    enabled: projectStore.project !== null,
+    enabled: project !== null,
   });
-  const { data: requestDetail } = useRequest(requestStore.selectedPath);
+  const { data: requestDetail } = useRequest(selectedPath);
   const saveRequest = useSaveRequest();
   const { send, cancel } = useSend();
 
   // Load request into store when data arrives
   useEffect(() => {
-    if (requestDetail) requestStore.load(requestDetail);
-  }, [requestDetail, requestStore]);
+    if (requestDetail) loadRequest(requestDetail);
+  }, [requestDetail, loadRequest]);
 
   // Sync request list into projectStore
   useEffect(() => {
-    projectStore.setRequests(requests);
-  }, [requests, projectStore]);
+    setRequests(requests);
+  }, [requests, setRequests]);
 
   const handleRequestSelect = useCallback(
     (path: string) => {
-      requestStore.select(path);
+      if (selectedPath !== path && isDirty()) {
+        if (!window.confirm("You have unsaved changes. Discard them?")) return;
+        discardRequest();
+      }
+      selectRequest(path);
     },
-    [requestStore],
+    [selectedPath, isDirty, discardRequest, selectRequest],
   );
 
   const handleSend = useCallback(() => {
-    if (requestStore.selectedPath) void send(requestStore.selectedPath);
-  }, [requestStore.selectedPath, send]);
+    if (selectedPath) void send(selectedPath);
+  }, [selectedPath, send]);
 
   const handleSave = useCallback(async () => {
-    const { selectedPath, draft, saved, markSaved } = requestStore;
     if (!selectedPath || (!draft && !saved)) return;
     const detail = draft ?? saved;
     if (!detail) return;
@@ -66,7 +92,7 @@ export function WorkspaceView() {
       detail,
     });
     markSaved(result);
-  }, [requestStore, saveRequest]);
+  }, [selectedPath, draft, saved, saveRequest, markSaved]);
 
   const handleSaveRef = useRef(handleSave);
   useEffect(() => {
@@ -85,9 +111,7 @@ export function WorkspaceView() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  const current = requestStore.draft ?? requestStore.saved;
-  const requestTab = requestStore.activeTab;
-  const responseTab = responseStore.activeTab;
+  const current = draft ?? saved;
 
   const REQUEST_TABS: { id: RequestTab; label: string }[] = [
     { id: "params", label: "Params" },
@@ -107,9 +131,8 @@ export function WorkspaceView() {
   ];
 
   const contentType =
-    responseStore.responseHeaders.find(
-      ([k]) => k.toLowerCase() === "content-type",
-    )?.[1] ?? "";
+    responseHeaders.find(([k]) => k.toLowerCase() === "content-type")?.[1] ??
+    "";
 
   const sidebar = <Sidebar onRequestSelect={handleRequestSelect} />;
 
@@ -118,11 +141,11 @@ export function WorkspaceView() {
       <UrlBar
         method={current?.frontmatter.method ?? "GET"}
         url={current?.frontmatter.url ?? ""}
-        onMethodChange={(m: HttpMethod) => requestStore.patch({ method: m })}
-        onUrlChange={(url) => requestStore.patch({ url })}
+        onMethodChange={(m: HttpMethod) => patchRequest({ method: m })}
+        onUrlChange={(url) => patchRequest({ url })}
         onSend={handleSend}
         onCancel={cancel}
-        isStreaming={responseStore.streaming === "streaming"}
+        isStreaming={streaming === "streaming"}
         variables={variables}
       />
       <div className="flex gap-0 border-b px-2">
@@ -130,7 +153,7 @@ export function WorkspaceView() {
           <button
             key={tab.id}
             type="button"
-            onClick={() => requestStore.setTab(tab.id)}
+            onClick={() => setRequestTab(tab.id)}
             className={`px-3 py-1.5 text-xs border-b-2 ${
               requestTab === tab.id
                 ? "border-purple-600 text-purple-700"
@@ -155,17 +178,17 @@ export function WorkspaceView() {
   const responsePanel = (
     <div className="flex h-full flex-col">
       <ResponseMeta
-        statusCode={responseStore.statusCode}
-        elapsedMs={responseStore.elapsedMs}
-        bodyLength={responseStore.body?.length ?? null}
-        streaming={responseStore.streaming}
+        statusCode={statusCode}
+        elapsedMs={elapsedMs}
+        bodyLength={body?.length ?? null}
+        streaming={streaming}
       />
       <div className="flex gap-0 border-b px-2">
         {RESPONSE_TABS.map((tab) => (
           <button
             key={tab.id}
             type="button"
-            onClick={() => responseStore.setTab(tab.id)}
+            onClick={() => setResponseTab(tab.id)}
             className={`px-3 py-1.5 text-xs border-b-2 ${
               responseTab === tab.id
                 ? "border-purple-600 text-purple-700"
@@ -178,12 +201,12 @@ export function WorkspaceView() {
       </div>
       <div className="flex-1 overflow-auto">
         {responseTab === "body" && (
-          <BodyViewer body={responseStore.body} contentType={contentType} />
+          <BodyViewer body={body} contentType={contentType} />
         )}
         {responseTab === "headers" && (
-          <HeadersViewer headers={responseStore.responseHeaders} />
+          <HeadersViewer headers={responseHeaders} />
         )}
-        {responseTab === "raw" && <RawViewer body={responseStore.body} />}
+        {responseTab === "raw" && <RawViewer body={body} />}
         {responseTab === "script-output" && <ScriptOutput />}
         {responseTab === "history" && <HistoryDrawer />}
       </div>

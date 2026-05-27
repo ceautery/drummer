@@ -1,6 +1,5 @@
 import { useEnvironments } from "../../api/environments";
 import { useProjectStore } from "../../store/projectStore";
-import { useRequestStore } from "../../store/requestStore";
 import { useSessionStore } from "../../store/sessionStore";
 import { RequestTree } from "../tree/RequestTree";
 
@@ -9,18 +8,11 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onRequestSelect }: SidebarProps) {
-  const { project, requests } = useProjectStore();
-  const { selectedPath, isDirty, discard } = useRequestStore();
-  const { activeEnvironment, setActiveEnvironment } = useSessionStore();
+  const project = useProjectStore((s) => s.project);
+  const requests = useProjectStore((s) => s.requests);
+  const activeEnvironment = useSessionStore((s) => s.activeEnvironment);
+  const setActiveEnvironment = useSessionStore((s) => s.setActiveEnvironment);
   const { data: environments = [] } = useEnvironments();
-
-  const handleSelect = (path: string) => {
-    if (selectedPath !== path && isDirty()) {
-      if (!window.confirm("You have unsaved changes. Discard them?")) return;
-      discard();
-    }
-    onRequestSelect(path);
-  };
 
   return (
     <div className="flex h-full flex-col border-r bg-gray-50">
@@ -54,7 +46,7 @@ export function Sidebar({ onRequestSelect }: SidebarProps) {
       )}
 
       <div className="flex-1 overflow-y-auto px-1 py-1">
-        <RequestTree requests={requests} onSelect={handleSelect} />
+        <RequestTree requests={requests} onSelect={onRequestSelect} />
       </div>
     </div>
   );

@@ -15,10 +15,11 @@ async function* parseSSE(
     const { done, value } = await reader.read();
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
-    const blocks = buffer.split("\n\n");
+    // SSE blocks are separated by a blank line (LF or CRLF)
+    const blocks = buffer.split(/\r?\n\r?\n/);
     buffer = blocks.pop() ?? "";
     for (const block of blocks) {
-      const lines = block.trim().split("\n");
+      const lines = block.trim().split(/\r?\n/);
       let event = "message";
       let data = "";
       for (const line of lines) {

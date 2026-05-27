@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi_mcp import FastApiMCP
 
 from drummer.api.db.session import async_session_factory, init_db
@@ -16,6 +18,7 @@ from drummer.api.routes import send as send_routes
 from drummer.core.cookies import CookieJar
 
 _DEFAULT_DB = str(Path.home() / ".local" / "share" / "drummer" / "history.db")
+_STATIC_DIR = Path(__file__).parent / "static"
 
 
 def create_app(
@@ -43,5 +46,13 @@ def create_app(
     mcp = FastApiMCP(app)
     register_mcp_tools(mcp, app)
     mcp.mount_http()
+
+    if _STATIC_DIR.exists():
+        app.mount("/assets", StaticFiles(directory=_STATIC_DIR / "assets"), name="assets")
+
+        async def spa_fallback(_full_path: str) -> FileResponse:
+            return FileResponse(_STATIC_DIR / "index.html")
+
+        app.add_api_route("/{_full_path:path}", spa_fallback, include_in_schema=False)
 
     return app
