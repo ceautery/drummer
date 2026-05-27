@@ -32,3 +32,15 @@ def test_dm_response_in_prescript_suggests_move_to_post() -> None:
     result = suggest("dm.response is not available in pre-scripts")
     assert result is not None
     assert "post-script" in result.lower()
+
+
+def test_dm_request_read_only_extensible_suggests_pre_script() -> None:
+    result = suggest("TypeError: object is not extensible\n    at <anonymous> (<input>)\n")
+    assert result is not None
+    assert "pre-script" in result.lower()
+
+
+def test_dm_request_read_only_property_suggests_pre_script() -> None:
+    result = suggest("TypeError: 'url' is read-only\n    at <anonymous> (<input>)\n")
+    assert result is not None
+    assert "pre-script" in result.lower()

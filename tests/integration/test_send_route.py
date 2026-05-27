@@ -170,6 +170,7 @@ async def test_failing_pre_script_skips_http_send(project_dir: Path) -> None:
     assert "status" not in event_names
     done = next(e for e in events if e["event"] == "done")
     assert done["data"]["script_error"] is not None
+    assert done["data"]["history_id"] is None
 
 
 async def test_failing_post_script_still_returns_response(project_dir: Path) -> None:

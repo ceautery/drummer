@@ -154,3 +154,24 @@ def test_multiple_console_logs_captured_in_order() -> None:
         response_fields=None,
     )
     assert result.logs == ["a", "b", "c"]
+
+
+def test_dm_request_mutation_in_post_script_raises_error() -> None:
+    result = run_script(
+        "dm.request.headers['X-Test'] = 'bad';",
+        variables={},
+        request_fields=dict(_REQ),
+        response_fields={"status": 200, "headers": {}, "body": "{}"},
+    )
+    assert result.error is not None
+
+
+def test_console_log_captured_before_exception() -> None:
+    result = run_script(
+        "dm.console.log('before error'); throw new Error('oops');",
+        variables={},
+        request_fields=dict(_REQ),
+        response_fields=None,
+    )
+    assert result.error is not None
+    assert result.logs == ["before error"]

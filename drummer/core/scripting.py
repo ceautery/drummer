@@ -1,3 +1,4 @@
+import contextlib
 import json
 from typing import Any
 
@@ -135,6 +136,14 @@ Object.defineProperty(dm, 'response', {
 """
 
 _DM_SETUP_POST = """
+(function deepFreeze(obj) {
+    Object.freeze(obj);
+    Object.keys(obj).forEach(function(key) {
+        if (obj[key] && typeof obj[key] === 'object') {
+            deepFreeze(obj[key]);
+        }
+    });
+})(dm.request);
 dm.response = {
     status: __resp_status,
     headers: __resp_headers,
@@ -218,18 +227,26 @@ var dm = {
 };
 """)
 
-    ctx.eval(_DM_SETUP_POST if response_fields is not None else _DM_SETUP_PRE)
+    is_post = response_fields is not None
+    ctx.eval(_DM_SETUP_POST if is_post else _DM_SETUP_PRE)
 
+    # Post-scripts run in strict mode so that dm.request mutations (which are
+    # frozen) throw immediately instead of being silently ignored.
+    eval_script = f"(function(){{ 'use strict'; {script} }})();" if is_post else script
+
+    logs: list[str] = []
     ctx.set_time_limit(timeout_ms / 1000)
     try:
-        ctx.eval(script)
+        ctx.eval(eval_script)
     except quickjs.JSException as exc:
         ctx.set_time_limit(-1)
         error = str(exc)
-        return ScriptResult(logs=[], error=error, suggestion=suggest(error))
+        with contextlib.suppress(quickjs.JSException, ValueError):
+            logs = json.loads(str(ctx.eval("JSON.stringify(__logs)")))
+        return ScriptResult(logs=logs, error=error, suggestion=suggest(error))
     ctx.set_time_limit(-1)
 
-    logs: list[str] = json.loads(str(ctx.eval("JSON.stringify(__logs)")))
+    logs = json.loads(str(ctx.eval("JSON.stringify(__logs)")))
     env_mutations: dict[str, str] = json.loads(str(ctx.eval("JSON.stringify(__env_mutations)")))
     request_mutations: dict[str, Any] = json.loads(str(ctx.eval("JSON.stringify(__req)")))
 

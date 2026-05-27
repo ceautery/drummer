@@ -6,6 +6,10 @@ _PATTERNS: list[tuple[re.Pattern[str], str]] = [
         "dm.response is not available in pre-scripts — move this logic to a post-script.",
     ),
     (
+        re.compile(r"'[^']*' is read-only|object is not extensible", re.IGNORECASE),
+        "dm.request is read-only in post-scripts — move request mutations to a pre-script.",
+    ),
+    (
         re.compile(r"TypeError.*undefined.*not.*object", re.IGNORECASE),
         "Response may not be JSON — check Content-Type. Try dm.response.text() first.",
     ),

@@ -1,7 +1,12 @@
+import { useMemo } from "react";
 import { useResponseStore } from "../../store/responseStore";
 
 export function ScriptOutput() {
   const scriptLogs = useResponseStore((s) => s.scriptLogs);
+  const logEntries = useMemo(
+    () => scriptLogs.map((text, i) => ({ key: `${i}:${text}`, text })),
+    [scriptLogs],
+  );
   const scriptError = useResponseStore((s) => s.scriptError);
   const scriptSuggestion = useResponseStore((s) => s.scriptSuggestion);
   const streaming = useResponseStore((s) => s.streaming);
@@ -30,9 +35,9 @@ export function ScriptOutput() {
 
   return (
     <div className="h-full overflow-y-auto p-3 font-mono text-xs">
-      {scriptLogs.map((log) => (
-        <div key={log} className="py-0.5 text-gray-300">
-          {log}
+      {logEntries.map(({ key, text }) => (
+        <div key={key} className="py-0.5 text-gray-300">
+          {text}
         </div>
       ))}
       {scriptError && <div className="mt-2 text-red-400">{scriptError}</div>}

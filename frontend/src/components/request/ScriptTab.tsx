@@ -2,7 +2,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { EditorState } from "@codemirror/state";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { basicSetup, EditorView } from "codemirror";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRequestStore } from "../../store/requestStore";
 import { useResponseStore } from "../../store/responseStore";
 
@@ -81,6 +81,11 @@ export function ScriptTab() {
     }
   }, [currentScript]);
 
+  const logEntries = useMemo(
+    () => scriptLogs.map((text, i) => ({ key: `${i}:${text}`, text })),
+    [scriptLogs],
+  );
+
   const hasOutput = scriptLogs.length > 0 || scriptError !== null;
 
   return (
@@ -106,9 +111,9 @@ export function ScriptTab() {
 
       {hasOutput && (
         <div className="max-h-40 shrink-0 overflow-y-auto border-t border-gray-700 bg-gray-900 p-2 font-mono text-xs">
-          {scriptLogs.map((log) => (
-            <div key={log} className="text-gray-300">
-              {log}
+          {logEntries.map(({ key, text }) => (
+            <div key={key} className="text-gray-300">
+              {text}
             </div>
           ))}
           {scriptError && (

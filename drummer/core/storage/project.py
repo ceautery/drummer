@@ -28,7 +28,11 @@ def save_project(meta: ProjectMeta, project_dir: Path) -> None:
     config_path = project_dir / ".drummer" / "project.yaml"
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(
-        yaml.dump(meta.model_dump(mode="json"), default_flow_style=False, allow_unicode=True),
+        yaml.dump(
+            meta.model_dump(mode="json", exclude_none=True),
+            default_flow_style=False,
+            allow_unicode=True,
+        ),
         encoding="utf-8",
     )
 
