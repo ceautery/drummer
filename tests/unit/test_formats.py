@@ -210,3 +210,18 @@ def test_write_request_file_roundtrip_with_auth(tmp_path: Path) -> None:
     assert loaded.frontmatter.auth.type == AuthType.BEARER
     assert loaded.frontmatter.auth.token == placeholder
     assert loaded.frontmatter.cookies.mode == CookieMode.DISABLED
+
+
+def test_request_frontmatter_default_script_timeout_is_none() -> None:
+    fm = RequestFrontmatter(name="Test")
+    assert fm.script_timeout_ms is None
+
+
+def test_request_frontmatter_parses_script_timeout(tmp_path: Path) -> None:
+    timeout_value = 10000
+    (tmp_path / "req.md").write_text(
+        f"---\nname: T\nmethod: GET\nurl: http://x.com\nscript_timeout_ms: {timeout_value}\n---\n",
+        encoding="utf-8",
+    )
+    rf = parse_request_file(tmp_path / "req.md")
+    assert rf.frontmatter.script_timeout_ms == timeout_value

@@ -149,3 +149,18 @@ def test_list_requests_returns_sorted(tmp_path: Path) -> None:
         )
     paths = list_requests(tmp_path)
     assert [p.name for p in paths] == ["a-request.md", "b-request.md", "c-request.md"]
+
+
+def test_project_meta_default_script_timeout_is_none() -> None:
+    meta = ProjectMeta(name="Test")
+    assert meta.script_timeout_ms is None
+
+
+def test_load_project_parses_script_timeout(tmp_path: Path) -> None:
+    timeout_value = 30000
+    (tmp_path / ".drummer").mkdir()
+    (tmp_path / ".drummer" / "project.yaml").write_text(
+        f"name: Test\nscript_timeout_ms: {timeout_value}\n", encoding="utf-8"
+    )
+    meta = load_project(tmp_path)
+    assert meta.script_timeout_ms == timeout_value

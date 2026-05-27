@@ -52,6 +52,7 @@ class RequestFrontmatter(BaseModel):
     graphql: GraphQLConfig | None = None
     pre_script: str = ""
     post_script: str = ""
+    script_timeout_ms: int | None = None
     tags: list[str] = Field(default_factory=list)
     skip: bool = False
 

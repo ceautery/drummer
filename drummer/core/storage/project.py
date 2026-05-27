@@ -10,6 +10,7 @@ class ProjectMeta(BaseModel):
     name: str
     version: str = "1"
     default_environment: str = "local"
+    script_timeout_ms: int | None = None
 
 
 class Environment(BaseModel):
