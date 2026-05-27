@@ -89,6 +89,10 @@ var __hmacSha256 = (function () {
                 b.push(c);
             } else if (c < 2048) {
                 b.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f));
+            } else if (c >= 0xD800 && c <= 0xDBFF && i + 1 < s.length) {
+                var c2 = s.charCodeAt(++i);
+                var cp = 0x10000 + ((c - 0xD800) << 10) + (c2 - 0xDC00);
+                b.push(0xf0|(cp>>18), 0x80|((cp>>12)&0x3f), 0x80|((cp>>6)&0x3f), 0x80|(cp&0x3f));
             } else {
                 b.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
             }

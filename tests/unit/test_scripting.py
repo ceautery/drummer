@@ -135,6 +135,17 @@ def test_crypto_hmac_sha256() -> None:
     assert result.env_mutations.get("sig") == expected
 
 
+def test_crypto_hmac_sha256_non_ascii_key() -> None:
+    result = run_script(
+        "dm.env.set('sig', dm.crypto.hmacSha256('🔑', 'payload'));",
+        variables={},
+        request_fields=dict(_REQ),
+        response_fields=None,
+    )
+    expected = hmac.new("🔑".encode(), b"payload", hashlib.sha256).hexdigest()
+    assert result.env_mutations.get("sig") == expected
+
+
 def test_multiple_console_logs_captured_in_order() -> None:
     result = run_script(
         "dm.console.log('a'); dm.console.log('b'); dm.console.log('c');",
