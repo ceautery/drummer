@@ -5,6 +5,7 @@ from drummer.core.engine import ResolvedRequest
 from drummer.core.storage.formats import AuthType, RequestFile
 
 _VAR_RE = re.compile(r"\{\{(\w+)\}\}")
+_SCRIPT_TIMEOUT_DEFAULT = 5000
 
 
 def substitute(text: str, env: dict[str, str]) -> tuple[str, list[str]]:
@@ -20,7 +21,9 @@ def substitute(text: str, env: dict[str, str]) -> tuple[str, list[str]]:
     return _VAR_RE.sub(_replace, text), warnings
 
 
-def resolve(request_file: RequestFile, env: dict[str, str]) -> ResolvedRequest:
+def resolve(
+    request_file: RequestFile, env: dict[str, str], project_timeout_ms: int | None = None
+) -> ResolvedRequest:
     fm = request_file.frontmatter
     seen: set[str] = set()
 
@@ -45,6 +48,8 @@ def resolve(request_file: RequestFile, env: dict[str, str]) -> ResolvedRequest:
     elif auth.type == AuthType.API_KEY:
         headers[sub(auth.key)] = sub(auth.value)
 
+    effective_timeout = fm.script_timeout_ms or project_timeout_ms or _SCRIPT_TIMEOUT_DEFAULT
+
     return ResolvedRequest(
         name=fm.name,
         method=fm.method,
@@ -55,4 +60,8 @@ def resolve(request_file: RequestFile, env: dict[str, str]) -> ResolvedRequest:
         encoding=fm.encoding,
         cookies=fm.cookies,
         warnings=sorted(seen),
+        pre_script=fm.pre_script,
+        post_script=fm.post_script,
+        script_timeout_ms=effective_timeout,
+        variables=dict(env),
     )

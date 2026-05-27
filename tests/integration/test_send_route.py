@@ -118,3 +118,74 @@ async def test_send_with_variable_overrides(project_dir: Path) -> None:
     events = parse_sse(response.text)
     status_event = next(e for e in events if e["event"] == "status")
     assert "api.example.com" in status_event["data"]["url"]
+
+
+async def test_pre_script_sets_header(project_dir: Path) -> None:
+    (project_dir / "scripted.md").write_text(
+        "---\nname: S\nmethod: GET\nurl: https://api.example.com\n"
+        "pre_script: \"dm.request.headers['X-Test'] = 'injected';\"\n---\n",
+        encoding="utf-8",
+    )
+    app = _make_app(project_dir)
+    await _init_db_for(project_dir)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post("/api/send", json={"path": "scripted.md"})
+    assert response.status_code == HTTPStatus.OK
+    events = parse_sse(response.text)
+    done = next(e for e in events if e["event"] == "done")
+    assert done["data"]["script_logs"] == []
+    assert done["data"]["script_error"] is None
+
+
+async def test_post_script_env_mutation_captured(project_dir: Path) -> None:
+    (project_dir / "scripted.md").write_text(
+        "---\nname: S\nmethod: GET\nurl: https://api.example.com\n"
+        "post_script: \"dm.console.log('status: ' + dm.response.status);\"\n---\n",
+        encoding="utf-8",
+    )
+    app = _make_app(project_dir, content=b'{"ok":true}')
+    await _init_db_for(project_dir)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post("/api/send", json={"path": "scripted.md"})
+    assert response.status_code == HTTPStatus.OK
+    events = parse_sse(response.text)
+    done = next(e for e in events if e["event"] == "done")
+    assert done["data"]["script_logs"] == ["status: 200"]
+    assert done["data"]["script_error"] is None
+
+
+async def test_failing_pre_script_skips_http_send(project_dir: Path) -> None:
+    (project_dir / "scripted.md").write_text(
+        "---\nname: S\nmethod: GET\nurl: https://api.example.com\n"
+        "pre_script: \"throw new Error('abort');\"\n---\n",
+        encoding="utf-8",
+    )
+    app = _make_app(project_dir)
+    await _init_db_for(project_dir)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post("/api/send", json={"path": "scripted.md"})
+    assert response.status_code == HTTPStatus.OK
+    events = parse_sse(response.text)
+    event_names = [e["event"] for e in events]
+    assert "status" not in event_names
+    done = next(e for e in events if e["event"] == "done")
+    assert done["data"]["script_error"] is not None
+
+
+async def test_failing_post_script_still_returns_response(project_dir: Path) -> None:
+    (project_dir / "scripted.md").write_text(
+        "---\nname: S\nmethod: GET\nurl: https://api.example.com\n"
+        "post_script: \"throw new Error('post fail');\"\n---\n",
+        encoding="utf-8",
+    )
+    app = _make_app(project_dir, content=b'{"ok":true}')
+    await _init_db_for(project_dir)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post("/api/send", json={"path": "scripted.md"})
+    assert response.status_code == HTTPStatus.OK
+    events = parse_sse(response.text)
+    event_names = [e["event"] for e in events]
+    assert "status" in event_names
+    assert "body" in event_names
+    done = next(e for e in events if e["event"] == "done")
+    assert done["data"]["script_error"] is not None

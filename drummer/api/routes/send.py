@@ -20,7 +20,7 @@ from drummer.api.deps import get_cookie_jar, get_project_dir
 from drummer.core.cookies import CookieJar
 from drummer.core.engine import send as engine_send
 from drummer.core.storage.formats import parse_request_file
-from drummer.core.storage.project import load_environment
+from drummer.core.storage.project import load_environment, load_project
 from drummer.core.variables import resolve
 
 router = APIRouter()
@@ -59,9 +59,30 @@ async def send_request_route(
             env_path = project_dir / ".drummer" / "environments" / f"{environment}.yaml"
             env = load_environment(env_path) if env_path.exists() else None
             variables: dict[str, str] = {**(env.variables if env else {}), **body.overrides}
-            resolved = resolve(request_file, variables)
 
+            project_timeout_ms: int | None = None
+            try:
+                meta = load_project(project_dir)
+                project_timeout_ms = meta.script_timeout_ms
+            except (OSError, ValueError):
+                pass
+
+            resolved = resolve(request_file, variables, project_timeout_ms=project_timeout_ms)
             result = await engine_send(resolved, cookie_jar, transport=transport)
+
+            if result.script_error and result.status_code == 0:
+                yield {
+                    "event": "done",
+                    "data": json.dumps(
+                        {
+                            "history_id": None,
+                            "script_logs": result.script_logs,
+                            "script_error": result.script_error,
+                            "script_suggestion": result.script_suggestion,
+                        }
+                    ),
+                }
+                return
 
             yield {
                 "event": "status",
@@ -101,7 +122,17 @@ async def send_request_route(
                 session.add(record)
                 await session.commit()
 
-            yield {"event": "done", "data": json.dumps({"history_id": record_id})}
+            yield {
+                "event": "done",
+                "data": json.dumps(
+                    {
+                        "history_id": record_id,
+                        "script_logs": result.script_logs,
+                        "script_error": result.script_error,
+                        "script_suggestion": result.script_suggestion,
+                    }
+                ),
+            }
 
         except (
             OSError,
