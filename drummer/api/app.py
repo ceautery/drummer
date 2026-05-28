@@ -16,6 +16,7 @@ from drummer.api.routes import mock as mock_routes
 from drummer.api.routes import project as project_routes
 from drummer.api.routes import requests as req_routes
 from drummer.api.routes import send as send_routes
+from drummer.api.routes import tutorial as tutorial_routes
 from drummer.core.cookies import CookieJar
 
 _DEFAULT_DB = str(Path.home() / ".local" / "share" / "drummer" / "history.db")
@@ -44,6 +45,7 @@ def create_app(
     app.include_router(history_routes.router, prefix="/api")
     app.include_router(cookie_routes.router, prefix="/api")
     app.include_router(mock_routes.router)
+    app.include_router(tutorial_routes.router)
 
     mcp = FastApiMCP(app)
     register_mcp_tools(mcp, app)
