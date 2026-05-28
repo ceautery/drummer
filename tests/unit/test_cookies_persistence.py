@@ -116,5 +116,7 @@ async def test_max_age_zero_calls_delete_not_save() -> None:
     mock = _MockPersistence()
     jar = CookieJar(persistence=mock)
     await jar.update_from_response("http://api.example.com/", ["session=abc123"])
+    saves_before_expiry = len(mock.saved)
     await jar.update_from_response("http://api.example.com/", ["session=; max-age=0"])
     assert ("api.example.com", "session") in mock.deleted
+    assert len(mock.saved) == saves_before_expiry  # expiry path must not call save
