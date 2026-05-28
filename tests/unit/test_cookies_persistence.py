@@ -7,6 +7,7 @@ from drummer.core.storage.formats import CookieMode
 class _MockPersistence:
     def __init__(self) -> None:
         self.saved: list[tuple[str, str, str, datetime | None]] = []
+        self.deleted: list[tuple[str, str]] = []
         self.cleared = False
         self.data: dict[str, dict[str, tuple[str, datetime | None]]] = {}
 
@@ -18,6 +19,11 @@ class _MockPersistence:
         if hostname not in self.data:
             self.data[hostname] = {}
         self.data[hostname][name] = (value, expires_at)
+
+    async def delete(self, hostname: str, name: str) -> None:
+        self.deleted.append((hostname, name))
+        if hostname in self.data:
+            self.data[hostname].pop(name, None)
 
     async def clear(self) -> None:
         self.cleared = True
@@ -95,3 +101,20 @@ async def test_aclear_calls_persistence_clear() -> None:
     assert mock.cleared is True
     cookies = jar.cookies_for_request("http://api.example.com/", CookieMode.SESSION, {})
     assert cookies == {}
+
+
+async def test_expired_cookie_calls_delete_not_save() -> None:
+    mock = _MockPersistence()
+    jar = CookieJar(persistence=mock)
+    past = (datetime.now(UTC) - timedelta(seconds=1)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+    await jar.update_from_response("http://api.example.com/", [f"session=abc123; expires={past}"])
+    assert mock.deleted == [("api.example.com", "session")]
+    assert mock.saved == []
+
+
+async def test_max_age_zero_calls_delete_not_save() -> None:
+    mock = _MockPersistence()
+    jar = CookieJar(persistence=mock)
+    await jar.update_from_response("http://api.example.com/", ["session=abc123"])
+    await jar.update_from_response("http://api.example.com/", ["session=; max-age=0"])
+    assert ("api.example.com", "session") in mock.deleted

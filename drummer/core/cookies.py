@@ -13,6 +13,7 @@ class CookiePersistenceProtocol(Protocol):
     async def save(
         self, hostname: str, name: str, value: str, expires_at: datetime | None
     ) -> None: ...
+    async def delete(self, hostname: str, name: str) -> None: ...
     async def clear(self) -> None: ...
 
 
@@ -73,10 +74,12 @@ class CookieJar:
                 continue
             if expires_at is not None and expires_at <= now:
                 self._store[hostname].pop(name, None)
+                if self._persistence is not None:
+                    await self._persistence.delete(hostname, name)
             else:
                 self._store[hostname][name] = (value, expires_at)
-            if self._persistence is not None:
-                await self._persistence.save(hostname, name, value, expires_at)
+                if self._persistence is not None:
+                    await self._persistence.save(hostname, name, value, expires_at)
 
     async def load_from_db(self) -> None:
         if self._persistence is not None:

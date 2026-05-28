@@ -46,6 +46,15 @@ class CookiePersistence:
             await session.execute(stmt)
             await session.commit()
 
+    async def delete(self, hostname: str, name: str) -> None:
+        async with self._factory() as session:
+            await session.execute(
+                delete(CookieRecord).where(
+                    CookieRecord.hostname == hostname, CookieRecord.name == name
+                )
+            )
+            await session.commit()
+
     async def clear(self) -> None:
         async with self._factory() as session:
             await session.execute(delete(CookieRecord))
