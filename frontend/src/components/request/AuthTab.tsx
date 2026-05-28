@@ -11,6 +11,10 @@ export function AuthTab() {
     password: "",
     key: "",
     value: "",
+    token_url: "",
+    client_id: "",
+    client_secret: "",
+    scope: "",
   };
 
   const update = (changes: Partial<typeof auth>) =>
@@ -31,6 +35,7 @@ export function AuthTab() {
           <option value="none">None</option>
           <option value="bearer">Bearer Token</option>
           <option value="basic">Basic Auth</option>
+          <option value="oauth2_cc">OAuth 2.0 Client Credentials</option>
           <option value="api_key" disabled>
             API Key
           </option>
@@ -77,6 +82,64 @@ export function AuthTab() {
               className="mt-1 w-full rounded border px-2 py-1 text-sm"
               value={auth.password}
               onChange={(e) => update({ password: e.target.value })}
+            />
+          </div>
+        </>
+      )}
+
+      {auth.type === "oauth2_cc" && (
+        <>
+          <div>
+            <label htmlFor="oauth-token-url" className="text-xs text-gray-500">
+              Token URL
+            </label>
+            <input
+              id="oauth-token-url"
+              type="text"
+              className="mt-1 w-full rounded border px-2 py-1 text-sm font-mono"
+              value={auth.token_url}
+              placeholder="https://auth.example.com/token"
+              onChange={(e) => update({ token_url: e.target.value })}
+            />
+          </div>
+          <div>
+            <label htmlFor="oauth-client-id" className="text-xs text-gray-500">
+              Client ID
+            </label>
+            <input
+              id="oauth-client-id"
+              type="text"
+              className="mt-1 w-full rounded border px-2 py-1 text-sm font-mono"
+              value={auth.client_id}
+              onChange={(e) => update({ client_id: e.target.value })}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="oauth-client-secret"
+              className="text-xs text-gray-500"
+            >
+              Client Secret
+            </label>
+            <input
+              id="oauth-client-secret"
+              type="password"
+              className="mt-1 w-full rounded border px-2 py-1 text-sm font-mono"
+              value={auth.client_secret}
+              onChange={(e) => update({ client_secret: e.target.value })}
+            />
+          </div>
+          <div>
+            <label htmlFor="oauth-scope" className="text-xs text-gray-500">
+              Scope
+            </label>
+            <input
+              id="oauth-scope"
+              type="text"
+              className="mt-1 w-full rounded border px-2 py-1 text-sm font-mono"
+              value={auth.scope}
+              placeholder="optional"
+              onChange={(e) => update({ scope: e.target.value })}
             />
           </div>
         </>
