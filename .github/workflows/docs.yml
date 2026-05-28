@@ -1,0 +1,31 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/site/**"
+      - "mkdocs.yml"
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Create venv
+        run: python -m venv venv
+
+      - name: Install docs dependencies
+        run: venv/bin/pip install mkdocs-material
+
+      - name: Deploy docs
+        run: venv/bin/mkdocs gh-deploy --force
