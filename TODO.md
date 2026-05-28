@@ -1,5 +1,5 @@
 # TODO
 
-Current sprint: **Phase 7 — Mock server + tutorial**
+Current sprint: **Phase 10 — Distribution**
 
 Plan: `docs/superpowers/plans/` (not yet written)
