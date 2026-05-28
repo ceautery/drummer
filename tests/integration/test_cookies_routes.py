@@ -4,6 +4,7 @@ from pathlib import Path
 from httpx import ASGITransport, AsyncClient
 
 from drummer.api.app import create_app
+from drummer.api.db.session import init_db
 
 
 async def test_list_cookies_empty(client: AsyncClient) -> None:
@@ -13,7 +14,9 @@ async def test_list_cookies_empty(client: AsyncClient) -> None:
 
 
 async def test_clear_cookies(project_dir: Path) -> None:
-    application = create_app(project_dir=project_dir, db_url="sqlite+aiosqlite:///:memory:")
+    db_url = f"sqlite+aiosqlite:///{project_dir / 'clear_test.db'}"
+    await init_db(db_url)
+    application = create_app(project_dir=project_dir, db_url=db_url)
     # Manually seed the cookie jar
     await application.state.cookie_jar.update_from_response(
         "https://api.example.com/login", ["session=abc123"]

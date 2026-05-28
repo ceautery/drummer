@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi_mcp import FastApiMCP
 
+from drummer.api.db.cookie_persistence import CookiePersistence
 from drummer.api.db.session import async_session_factory, init_db
 from drummer.api.mcp.tools import register_mcp_tools
 from drummer.api.routes import cookies as cookie_routes
@@ -30,13 +31,15 @@ def create_app(
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
         await init_db(db_url)
+        await _app.state.cookie_jar.load_from_db()
         yield
 
     app = FastAPI(title="Drummer", lifespan=lifespan)
     app.state.project_dir = project_dir
-    app.state.cookie_jar = CookieJar()
+    factory = async_session_factory(db_url)
+    app.state.cookie_jar = CookieJar(persistence=CookiePersistence(factory))
     app.state.active_environment = "local"
-    app.state.db_factory = async_session_factory(db_url)
+    app.state.db_factory = factory
     app.state.transport = None  # overridden in tests
 
     app.include_router(project_routes.router, prefix="/api")
