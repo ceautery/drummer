@@ -27,10 +27,10 @@ class OAuthToken:
 
 class OAuthTokenCache:
     def __init__(self) -> None:
-        self._cache: dict[tuple[str, str], OAuthToken] = {}
+        self._cache: dict[tuple[str, str, str], OAuthToken] = {}
 
-    def get(self, token_url: str, client_id: str) -> OAuthToken | None:
-        token = self._cache.get((token_url, client_id))
+    def get(self, token_url: str, client_id: str, scope: str) -> OAuthToken | None:
+        token = self._cache.get((token_url, client_id, scope))
         if token is None:
             return None
         if token.expires_at is not None:
@@ -39,8 +39,8 @@ class OAuthTokenCache:
                 return None
         return token
 
-    def set(self, token_url: str, client_id: str, token: OAuthToken) -> None:
-        self._cache[(token_url, client_id)] = token
+    def set(self, token_url: str, client_id: str, scope: str, token: OAuthToken) -> None:
+        self._cache[(token_url, client_id, scope)] = token
 
 
 async def fetch_cc_token(
@@ -77,9 +77,9 @@ async def fetch_cc_token(
 
     expires_at: datetime | None = None
     raw_expires = payload.get("expires_in")
-    if raw_expires is not None:
+    if isinstance(raw_expires, (int, float, str)):
         with contextlib.suppress(ValueError, TypeError):
-            expires_at = datetime.now(UTC) + timedelta(seconds=int(str(raw_expires)))
+            expires_at = datetime.now(UTC) + timedelta(seconds=int(float(raw_expires)))
 
     return OAuthToken(access_token=str(payload["access_token"]), expires_at=expires_at)
 
@@ -87,12 +87,12 @@ async def fetch_cc_token(
 async def get_or_fetch_token(
     cache: OAuthTokenCache, auth: AuthConfig, transport: httpx.AsyncBaseTransport | None = None
 ) -> str:
-    cached = cache.get(auth.token_url, auth.client_id)
+    cached = cache.get(auth.token_url, auth.client_id, auth.scope)
     if cached is not None:
         return cached.access_token
 
     token = await fetch_cc_token(
         auth.token_url, auth.client_id, auth.client_secret, auth.scope, transport=transport
     )
-    cache.set(auth.token_url, auth.client_id, token)
+    cache.set(auth.token_url, auth.client_id, auth.scope, token)
     return token.access_token
