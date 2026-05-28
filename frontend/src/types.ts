@@ -52,6 +52,11 @@ export interface AuthConfig {
   value: string;
 }
 
+export interface GraphQLConfig {
+  query: string;
+  variables: Record<string, unknown>;
+}
+
 export interface RequestFrontmatter {
   name: string;
   method: HttpMethod;
@@ -61,6 +66,7 @@ export interface RequestFrontmatter {
   encoding: string;
   cookies: CookieConfig;
   auth: AuthConfig;
+  graphql?: GraphQLConfig;
   pre_script: string;
   post_script: string;
   script_timeout_ms: number | null;
