@@ -183,6 +183,7 @@ async def send_tutorial_step(
                     "data": json.dumps(
                         {
                             "history_id": None,
+                            "warnings": resolved.warnings,
                             "script_logs": result.script_logs,
                             "script_error": result.script_error,
                             "script_suggestion": result.script_suggestion,
@@ -193,7 +194,13 @@ async def send_tutorial_step(
 
             yield {
                 "event": "status",
-                "data": json.dumps({"status_code": result.status_code, "url": result.url}),
+                "data": json.dumps(
+                    {
+                        "status_code": result.status_code,
+                        "url": result.url,
+                        "warnings": resolved.warnings,
+                    }
+                ),
             }
             yield {"event": "headers", "data": json.dumps(result.headers)}
             yield {
@@ -217,7 +224,7 @@ async def send_tutorial_step(
                     }
                 ),
             }
-        except (ValueError, httpx.HTTPError, httpx.TransportError) as exc:
+        except (ValueError, httpx.HTTPError) as exc:
             yield {"event": "error", "data": json.dumps({"message": str(exc)})}
 
     return EventSourceResponse(generate())
