@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useSetProject } from "../api/projects";
+import { useViewStore } from "../store/viewStore";
 
 export function WelcomeView() {
   const [path, setPath] = useState("");
   const { mutate, isPending, error } = useSetProject();
+  const setView = useViewStore((s) => s.setView);
 
   const handleOpen = () => {
     if (path.trim()) mutate(path.trim());
@@ -40,6 +42,15 @@ export function WelcomeView() {
           </button>
         </div>
         {error && <p className="mt-3 text-sm text-red-600">{error.message}</p>}
+        <div className="mt-4 border-t border-gray-100 pt-4 text-center">
+          <button
+            type="button"
+            onClick={() => setView("tutorial")}
+            className="text-xs text-purple-500 hover:text-purple-700"
+          >
+            No project yet? Try the interactive tutorial →
+          </button>
+        </div>
       </div>
     </div>
   );
