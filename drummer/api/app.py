@@ -12,6 +12,7 @@ from drummer.api.mcp.tools import register_mcp_tools
 from drummer.api.routes import cookies as cookie_routes
 from drummer.api.routes import environments as env_routes
 from drummer.api.routes import history as history_routes
+from drummer.api.routes import mock as mock_routes
 from drummer.api.routes import project as project_routes
 from drummer.api.routes import requests as req_routes
 from drummer.api.routes import send as send_routes
@@ -42,6 +43,7 @@ def create_app(
     app.include_router(send_routes.router, prefix="/api")
     app.include_router(history_routes.router, prefix="/api")
     app.include_router(cookie_routes.router, prefix="/api")
+    app.include_router(mock_routes.router)
 
     mcp = FastApiMCP(app)
     register_mcp_tools(mcp, app)
