@@ -1,7 +1,7 @@
 import json
 from datetime import UTC, datetime
 
-from drummer.api.db.models import ResponseHistoryRecord
+from drummer.api.db.models import CookieRecord, ResponseHistoryRecord
 
 EXPECTED_STATUS_OK = 200
 EXPECTED_ELAPSED_MS = 42.5
@@ -58,3 +58,21 @@ def test_record_to_dict_returns_parsed_json_fields() -> None:
     d = record.to_dict()
     assert isinstance(d["response_headers"], list)
     assert len(d["response_headers"]) == EXPECTED_HEADER_COUNT
+
+
+def test_cookie_record_instantiation() -> None:
+    record = CookieRecord(
+        hostname="api.example.com",
+        name="session",
+        value="abc123",
+        expires_at=datetime(2027, 1, 1, tzinfo=UTC),
+    )
+    assert record.hostname == "api.example.com"
+    assert record.name == "session"
+    assert record.value == "abc123"
+    assert record.expires_at is not None
+
+
+def test_cookie_record_nullable_expires() -> None:
+    record = CookieRecord(hostname="x.com", name="tok", value="v", expires_at=None)
+    assert record.expires_at is None

@@ -46,3 +46,12 @@ class ResponseHistoryRecord(Base):
             "encoding": self.encoding,
             "warnings": json.loads(self.warnings),
         }
+
+
+class CookieRecord(Base):
+    __tablename__ = "cookies"
+
+    hostname: Mapped[str] = mapped_column(Text, primary_key=True, nullable=False)
+    name: Mapped[str] = mapped_column(Text, primary_key=True, nullable=False)
+    value: Mapped[str] = mapped_column(Text, nullable=False)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
