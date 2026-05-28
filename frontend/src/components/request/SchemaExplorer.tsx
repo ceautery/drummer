@@ -82,6 +82,14 @@ function TypeRow({
   );
 }
 
+const _BUILTIN_SCALAR_NAMES = new Set([
+  "Boolean",
+  "Float",
+  "ID",
+  "Int",
+  "String",
+]);
+
 function FetchButton({
   fetching,
   onFetch,
@@ -129,13 +137,6 @@ export function SchemaExplorer({
   const rootTypes = [queryType, mutationType, subscriptionType].filter(
     (t): t is NonNullable<typeof t> => t != null,
   );
-  const _BUILTIN_SCALAR_NAMES = new Set([
-    "Boolean",
-    "Float",
-    "ID",
-    "Int",
-    "String",
-  ]);
 
   const objectTypes = Object.values(typeMap).filter(
     (t) => isObjectType(t) && !rootNames.has(t.name) && !isIntrospectionType(t),

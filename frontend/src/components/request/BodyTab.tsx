@@ -20,10 +20,11 @@ export function BodyTab() {
   }, [patch]);
 
   // Sync mode when request changes or graphql presence changes
-  const hasGraphql = current?.frontmatter.graphql != null;
   useEffect(() => {
+    if (!current) return;
+    const hasGraphql = current.frontmatter.graphql != null;
     setMode(hasGraphql ? "graphql" : "raw");
-  }, [hasGraphql]);
+  }, [current]);
 
   // Initialize CodeMirror once — editor div is always mounted (hidden when inactive)
   useEffect(() => {
