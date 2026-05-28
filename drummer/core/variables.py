@@ -2,7 +2,7 @@ import base64
 import re
 
 from drummer.core.engine import ResolvedRequest
-from drummer.core.storage.formats import AuthType, GraphQLConfig, RequestFile
+from drummer.core.storage.formats import AuthConfig, AuthType, GraphQLConfig, RequestFile
 
 _VAR_RE = re.compile(r"\{\{(\w+)\}\}")
 _SCRIPT_TIMEOUT_DEFAULT = 5000
@@ -47,6 +47,14 @@ def resolve(
         headers["Authorization"] = f"Basic {encoded}"
     elif auth.type == AuthType.API_KEY:
         headers[sub(auth.key)] = sub(auth.value)
+    elif auth.type == AuthType.OAUTH2_CC:
+        auth = AuthConfig(
+            type=auth.type,
+            token_url=sub(auth.token_url),
+            client_id=sub(auth.client_id),
+            client_secret=sub(auth.client_secret),
+            scope=sub(auth.scope),
+        )
 
     effective_timeout = fm.script_timeout_ms or project_timeout_ms or _SCRIPT_TIMEOUT_DEFAULT
 
@@ -65,7 +73,7 @@ def resolve(
         body=body,
         encoding=fm.encoding,
         cookies=fm.cookies,
-        auth=fm.auth,
+        auth=auth,
         warnings=sorted(seen),
         pre_script=fm.pre_script,
         post_script=fm.post_script,

@@ -135,3 +135,50 @@ def test_resolve_deduplicates_warnings(tmp_path: Path) -> None:
     rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
     resolved = resolve(rf, {})
     assert resolved.warnings.count("base_url") == 1
+
+
+def test_resolve_oauth2_cc_fields_substituted(tmp_path: Path) -> None:
+    fm = RequestFrontmatter(
+        name="Test",
+        url="https://api.example.com",
+        auth=AuthConfig(
+            type=AuthType.OAUTH2_CC,
+            token_url="{{token_url}}",
+            client_id="{{client_id}}",
+            client_secret="{{client_secret}}",
+            scope="{{scope}}",
+        ),
+    )
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
+    env = {
+        "token_url": "https://auth.example.com/token",
+        "client_id": "my-client",
+        "client_secret": "s3cr3t",
+        "scope": "read write",
+    }
+    resolved = resolve(rf, env)
+    assert resolved.auth.token_url == "https://auth.example.com/token"
+    assert resolved.auth.client_id == "my-client"
+    assert resolved.auth.client_secret == "s3cr3t"
+    assert resolved.auth.scope == "read write"
+    assert resolved.warnings == []
+
+
+def test_resolve_oauth2_cc_unresolved_fields_warn(tmp_path: Path) -> None:
+    fm = RequestFrontmatter(
+        name="Test",
+        url="https://api.example.com",
+        auth=AuthConfig(
+            type=AuthType.OAUTH2_CC,
+            token_url="https://auth.example.com/token",
+            client_id="{{client_id}}",
+            client_secret="{{client_secret}}",
+            scope="",
+        ),
+    )
+    rf = RequestFile(frontmatter=fm, body="", path=tmp_path / "req.md")
+    resolved = resolve(rf, {})
+    assert "client_id" in resolved.warnings
+    assert "client_secret" in resolved.warnings
+    assert resolved.auth.client_id == "{{client_id}}"
+    assert resolved.auth.client_secret == "{{client_secret}}"
