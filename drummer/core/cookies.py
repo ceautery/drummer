@@ -16,7 +16,7 @@ class CookiePersistenceProtocol(Protocol):
     async def clear(self) -> None: ...
 
 
-def _parse_set_cookie(header: str) -> tuple[str, str, datetime | None]:
+def _parse_set_cookie(header: str, now: datetime) -> tuple[str, str, datetime | None]:
     parts = [p.strip() for p in header.split(";")]
     name_value = parts[0]
     if "=" not in name_value:
@@ -25,7 +25,6 @@ def _parse_set_cookie(header: str) -> tuple[str, str, datetime | None]:
     name = name.strip()
     value = value.strip()
     expires_at: datetime | None = None
-    now = datetime.now(UTC)
     for attr in parts[1:]:
         lower = attr.lower()
         if lower.startswith("max-age="):
@@ -69,7 +68,7 @@ class CookieJar:
             self._store[hostname] = {}
         now = datetime.now(UTC)
         for header in set_cookie_headers:
-            name, value, expires_at = _parse_set_cookie(header)
+            name, value, expires_at = _parse_set_cookie(header, now)
             if not name:
                 continue
             if expires_at is not None and expires_at <= now:
@@ -82,7 +81,8 @@ class CookieJar:
     async def load_from_db(self) -> None:
         if self._persistence is not None:
             data = await self._persistence.load()
-            self._store.update(data)
+            for hostname, cookies in data.items():
+                self._store.setdefault(hostname, {}).update(cookies)
 
     def clear(self) -> None:
         self._store.clear()

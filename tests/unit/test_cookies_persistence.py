@@ -4,6 +4,26 @@ from drummer.core.cookies import CookieJar
 from drummer.core.storage.formats import CookieMode
 
 
+class _MockPersistence:
+    def __init__(self) -> None:
+        self.saved: list[tuple[str, str, str, datetime | None]] = []
+        self.cleared = False
+        self.data: dict[str, dict[str, tuple[str, datetime | None]]] = {}
+
+    async def load(self) -> dict[str, dict[str, tuple[str, datetime | None]]]:
+        return self.data
+
+    async def save(self, hostname: str, name: str, value: str, expires_at: datetime | None) -> None:
+        self.saved.append((hostname, name, value, expires_at))
+        if hostname not in self.data:
+            self.data[hostname] = {}
+        self.data[hostname][name] = (value, expires_at)
+
+    async def clear(self) -> None:
+        self.cleared = True
+        self.data.clear()
+
+
 async def test_expired_cookie_not_returned() -> None:
     jar = CookieJar()
     past = (datetime.now(UTC) - timedelta(seconds=1)).strftime("%a, %d %b %Y %H:%M:%S GMT")
@@ -54,5 +74,24 @@ async def test_aclear_removes_all_cookies() -> None:
     jar = CookieJar()
     await jar.update_from_response("http://api.example.com/", ["session=abc123"])
     await jar.aclear()
+    cookies = jar.cookies_for_request("http://api.example.com/", CookieMode.SESSION, {})
+    assert cookies == {}
+
+
+async def test_load_from_db_populates_store() -> None:
+    mock = _MockPersistence()
+    mock.data = {"api.example.com": {"session": ("abc123", None)}}
+    jar = CookieJar(persistence=mock)
+    await jar.load_from_db()
+    cookies = jar.cookies_for_request("http://api.example.com/", CookieMode.SESSION, {})
+    assert cookies == {"session": "abc123"}
+
+
+async def test_aclear_calls_persistence_clear() -> None:
+    mock = _MockPersistence()
+    jar = CookieJar(persistence=mock)
+    await jar.update_from_response("http://api.example.com/", ["session=abc123"])
+    await jar.aclear()
+    assert mock.cleared is True
     cookies = jar.cookies_for_request("http://api.example.com/", CookieMode.SESSION, {})
     assert cookies == {}
