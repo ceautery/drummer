@@ -30,6 +30,7 @@ dev = [
     "pytest>=8.2",
     "pytest-asyncio>=0.23",
     "pytest-playwright>=0.5",
+    "hatch>=1.12",
 ]
 
 [project.scripts]
@@ -37,6 +38,7 @@ drummer = "drummer.cli:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["drummer"]
+artifacts = ["drummer/api/static"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -59,6 +61,7 @@ ignore = [
 "tests/**" = ["S101", "S105", "S106", "ANN", "S603"]  # S105/S106: test fixtures use dummy credentials
 "drummer/cli.py" = ["FBT", "RSE102"]  # Typer CLI: bool flags + idiomatic raise typer.Exit()
 "stubs/**" = ["ANN401", "N818", "UP035"]  # Stubs mirror third-party APIs; Any + legacy typing are required
+"scripts/**" = ["T201", "INP001", "ANN"]  # T201: print ok in scripts; INP001: no __init__.py; ANN: no annotations needed
 
 [tool.ruff.lint.isort]
 split-on-trailing-comma = false
