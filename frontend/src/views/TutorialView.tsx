@@ -92,6 +92,7 @@ export function TutorialView() {
   const [sending, setSending] = useState(false);
 
   const step = STEPS[currentStep];
+  if (!step) return null;
 
   const handleSend = async () => {
     setSending(true);

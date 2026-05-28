@@ -23,7 +23,7 @@ export function HistoryDrawer() {
     responseStore.setStatus(rec.status_code, rec.url);
     responseStore.setHeaders(rec.response_headers);
     responseStore.setBody(rec.response_body, rec.encoding, rec.elapsed_ms);
-    responseStore.setDone(rec.id);
+    responseStore.setDone(rec.id, [], null, null);
   };
 
   return (

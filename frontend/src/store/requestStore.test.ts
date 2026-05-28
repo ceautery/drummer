@@ -22,6 +22,7 @@ const makeDetail = (url = "http://example.com"): RequestDetail => ({
     },
     pre_script: "",
     post_script: "",
+    script_timeout_ms: null,
     tags: [],
     skip: false,
   },

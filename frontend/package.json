@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "biome check .",
+    "check": "biome check . && tsc --noEmit",
     "check:fix": "biome check --write ."
   },
   "dependencies": {
