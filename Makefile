@@ -52,9 +52,8 @@ docs-serve:
 	$(MKDOCS) serve
 
 dev:
-ifndef PROJECT
-	$(error Usage: make dev PROJECT=/path/to/your/project)
-endif
-	trap 'kill 0' EXIT; (cd frontend && $(NPM) run dev) & $(PYTHON) -m drummer.cli serve --project $(PROJECT)
+	trap 'kill 0' EXIT; \
+	  (cd frontend && $(NPM) run dev) & \
+	  $(PYTHON) -m drummer.cli serve $(if $(PROJECT),--project $(PROJECT))
 
 e2e: build-frontend test-e2e

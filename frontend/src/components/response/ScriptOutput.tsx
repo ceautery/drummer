@@ -1,15 +1,24 @@
 import { useMemo } from "react";
 import { useResponseStore } from "../../store/responseStore";
+import type { StreamingState } from "../../types";
 
-export function ScriptOutput() {
-  const scriptLogs = useResponseStore((s) => s.scriptLogs);
+interface ScriptOutputViewProps {
+  scriptLogs: string[];
+  scriptError: string | null;
+  scriptSuggestion: string | null;
+  streaming: StreamingState;
+}
+
+export function ScriptOutputView({
+  scriptLogs,
+  scriptError,
+  scriptSuggestion,
+  streaming,
+}: ScriptOutputViewProps) {
   const logEntries = useMemo(
     () => scriptLogs.map((text, i) => ({ key: `${i}:${text}`, text })),
     [scriptLogs],
   );
-  const scriptError = useResponseStore((s) => s.scriptError);
-  const scriptSuggestion = useResponseStore((s) => s.scriptSuggestion);
-  const streaming = useResponseStore((s) => s.streaming);
 
   const hasOutput = scriptLogs.length > 0 || scriptError !== null;
 
@@ -45,5 +54,20 @@ export function ScriptOutput() {
         <div className="mt-1 text-amber-400">Hint: {scriptSuggestion}</div>
       )}
     </div>
+  );
+}
+
+export function ScriptOutput() {
+  const scriptLogs = useResponseStore((s) => s.scriptLogs);
+  const scriptError = useResponseStore((s) => s.scriptError);
+  const scriptSuggestion = useResponseStore((s) => s.scriptSuggestion);
+  const streaming = useResponseStore((s) => s.streaming);
+  return (
+    <ScriptOutputView
+      scriptLogs={scriptLogs}
+      scriptError={scriptError}
+      scriptSuggestion={scriptSuggestion}
+      streaming={streaming}
+    />
   );
 }

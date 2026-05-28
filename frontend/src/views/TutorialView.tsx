@@ -1,5 +1,9 @@
 import { useState } from "react";
+import { BodyViewer } from "../components/response/BodyViewer";
+import { ResponseMeta } from "../components/response/ResponseMeta";
+import { ScriptOutputView } from "../components/response/ScriptOutput";
 import { useViewStore } from "../store/viewStore";
+import type { StreamingState } from "../types";
 
 interface StepMeta {
   title: string;
@@ -68,17 +72,11 @@ const STEPS: StepMeta[] = [
   },
 ];
 
-interface LogEntry {
-  id: string;
-  text: string;
-}
-
 interface TutorialResponseState {
   statusCode: number | null;
-  url: string | null;
   body: string | null;
   elapsedMs: number | null;
-  scriptLogs: LogEntry[];
+  scriptLogs: string[];
   scriptError: string | null;
   scriptSuggestion: string | null;
   error: string | null;
@@ -105,7 +103,6 @@ export function TutorialView() {
     if (!res.ok || !res.body) {
       setResponse({
         statusCode: null,
-        url: null,
         body: null,
         elapsedMs: null,
         scriptLogs: [],
@@ -119,7 +116,6 @@ export function TutorialView() {
 
     const partial: TutorialResponseState = {
       statusCode: null,
-      url: null,
       body: null,
       elapsedMs: null,
       scriptLogs: [],
@@ -153,14 +149,11 @@ export function TutorialView() {
             >;
             if (event === "status") {
               partial.statusCode = data.status_code as number;
-              partial.url = data.url as string;
             } else if (event === "body") {
               partial.body = data.body as string;
               partial.elapsedMs = data.elapsed_ms as number;
             } else if (event === "done") {
-              partial.scriptLogs = ((data.script_logs as string[]) ?? []).map(
-                (text) => ({ id: crypto.randomUUID(), text }),
-              );
+              partial.scriptLogs = (data.script_logs as string[]) ?? [];
               partial.scriptError =
                 (data.script_error as string | null) ?? null;
               partial.scriptSuggestion =
@@ -194,6 +187,14 @@ export function TutorialView() {
     setResponse(null);
     setCurrentStep(i);
   };
+
+  const streaming: StreamingState = sending
+    ? "streaming"
+    : response?.error
+      ? "error"
+      : response
+        ? "done"
+        : "idle";
 
   const hasScriptOutput =
     response !== null &&
@@ -316,54 +317,27 @@ export function TutorialView() {
               </div>
 
               {/* Response */}
-              {response && (
-                <div className="flex min-h-0 flex-1 flex-col gap-2">
-                  <div className="flex shrink-0 items-center gap-3">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                      Response
-                    </div>
-                    {response.statusCode !== null && (
-                      <>
-                        <span className="rounded bg-green-900 px-2 py-0.5 text-xs text-green-300">
-                          {response.statusCode} OK
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {response.elapsedMs?.toFixed(0)}ms
-                        </span>
-                      </>
-                    )}
-                    {response.error && (
-                      <span className="text-xs text-red-400">
-                        {response.error}
-                      </span>
-                    )}
-                  </div>
-                  {response.body && (
-                    <pre className="min-h-0 flex-1 overflow-auto rounded border border-gray-800 bg-gray-950 p-3 font-mono text-xs text-blue-300">
-                      {response.body}
-                    </pre>
-                  )}
-                  {hasScriptOutput && (
-                    <div className="shrink-0 rounded border border-gray-800 bg-gray-950 p-2 font-mono text-xs">
-                      {response.scriptLogs.map(({ id, text }) => (
-                        <div key={id} className="text-amber-300">
-                          {text}
-                        </div>
-                      ))}
-                      {response.scriptError && (
-                        <div className="text-red-400">
-                          {response.scriptError}
-                        </div>
-                      )}
-                      {response.scriptSuggestion && (
-                        <div className="italic text-amber-500">
-                          Hint: {response.scriptSuggestion}
-                        </div>
-                      )}
-                    </div>
-                  )}
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded border border-gray-200 bg-white">
+                <ResponseMeta
+                  statusCode={response?.statusCode ?? null}
+                  elapsedMs={response?.elapsedMs ?? null}
+                  bodyLength={response?.body?.length ?? null}
+                  streaming={streaming}
+                />
+                <div className="min-h-0 flex-1 overflow-auto">
+                  <BodyViewer body={response?.body ?? null} contentType="" />
                 </div>
-              )}
+                {hasScriptOutput && (
+                  <div className="shrink-0 border-t">
+                    <ScriptOutputView
+                      scriptLogs={response?.scriptLogs ?? []}
+                      scriptError={response?.scriptError ?? null}
+                      scriptSuggestion={response?.scriptSuggestion ?? null}
+                      streaming={streaming}
+                    />
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <div className="flex flex-1 items-center justify-center">

@@ -195,7 +195,25 @@ make check        # ruff + pyright + pytest
 make dist         # build a distributable wheel
 ```
 
-The frontend (React + Vite) lives in `frontend/` and compiles to `drummer/api/static/`. Run `make build-frontend` to rebuild it.
+### Dev server (hot reload)
+
+`drummer/api/static/` is gitignored — the compiled frontend is not in the repo. During development, use the Vite dev server instead of rebuilding on every change:
+
+```bash
+# Tutorial (no project)
+make dev
+
+# With a project
+make dev PROJECT=/path/to/your/project
+```
+
+This starts two processes: the FastAPI backend on `http://localhost:8000` and the Vite dev server on `http://localhost:5173`. Open **port 5173** in your browser. The frontend hot-reloads on save; Python changes take effect after restarting the backend (`Ctrl-C` and re-run).
+
+To do a one-off production build after changes:
+
+```bash
+make build-frontend
+```
 
 ---
 
