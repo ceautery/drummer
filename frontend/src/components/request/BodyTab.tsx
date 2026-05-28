@@ -2,8 +2,8 @@ import { EditorState } from "@codemirror/state";
 import { basicSetup, EditorView } from "codemirror";
 import { useEffect, useRef, useState } from "react";
 import { useRequestStore } from "../../store/requestStore";
-
-type BodyMode = "raw" | "json" | "form-data" | "graphql";
+import type { BodyMode } from "../../types";
+import { GraphQLTab } from "./GraphQLTab";
 
 export function BodyTab() {
   const { saved, draft, patch } = useRequestStore();
@@ -19,7 +19,12 @@ export function BodyTab() {
     patchRef.current = patch;
   }, [patch]);
 
-  // Initialize CodeMirror once
+  // Sync mode when request changes (path changes) or graphql presence changes
+  useEffect(() => {
+    setMode(current?.frontmatter.graphql != null ? "graphql" : "raw");
+  }, [current]);
+
+  // Initialize CodeMirror once — editor div is always mounted (hidden when inactive)
   useEffect(() => {
     if (!editorRef.current) return;
     const view = new EditorView({
@@ -50,6 +55,13 @@ export function BodyTab() {
     }
   }, [body]);
 
+  const handleModeChange = (newMode: BodyMode) => {
+    if (newMode === "graphql" && !current?.frontmatter.graphql) {
+      patch({ graphql: { query: "", variables: {} }, method: "POST" });
+    }
+    setMode(newMode);
+  };
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex gap-1 border-b px-2 py-1">
@@ -57,18 +69,12 @@ export function BodyTab() {
           <button
             key={m}
             type="button"
-            disabled={m === "graphql"}
-            onClick={() => setMode(m)}
+            onClick={() => handleModeChange(m)}
             className={`rounded px-2 py-0.5 text-xs capitalize ${
-              m === "graphql"
-                ? "cursor-not-allowed text-gray-300"
-                : mode === m
-                  ? "bg-purple-100 text-purple-700"
-                  : "text-gray-600 hover:bg-gray-100"
+              mode === m
+                ? "bg-purple-100 text-purple-700"
+                : "text-gray-600 hover:bg-gray-100"
             }`}
-            title={
-              m === "graphql" ? "Available in Phase 8 (GraphQL)" : undefined
-            }
           >
             {m === "form-data"
               ? "Form Data"
@@ -76,13 +82,19 @@ export function BodyTab() {
           </button>
         ))}
       </div>
-      {mode === "form-data" ? (
+      {mode === "form-data" && (
         <p className="p-4 text-sm text-gray-400">
           Form-data editor coming soon.
         </p>
-      ) : (
-        <div ref={editorRef} className="flex-1 overflow-auto text-sm" />
       )}
+      {mode === "graphql" && <GraphQLTab />}
+      {/* Editor div stays mounted; hidden when inactive to preserve CodeMirror state */}
+      <div
+        ref={editorRef}
+        className={`flex-1 overflow-auto text-sm ${
+          mode === "raw" || mode === "json" ? "" : "hidden"
+        }`}
+      />
     </div>
   );
 }
