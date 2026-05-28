@@ -1,5 +1,6 @@
 import json
 from http import HTTPStatus
+from typing import cast
 
 import httpx
 from fastapi import APIRouter, HTTPException, Request
@@ -82,7 +83,7 @@ class IntrospectRequest(BaseModel):
 
 @router.post("/graphql/introspect")
 async def introspect(body: IntrospectRequest, request: Request) -> JSONResponse:
-    transport: httpx.AsyncBaseTransport | None = request.app.state.transport
+    transport = cast("httpx.AsyncBaseTransport | None", request.app.state.transport)
     payload = json.dumps({"query": _INTROSPECTION_QUERY}).encode()
     headers = {"Content-Type": "application/json", **body.headers}
     try:

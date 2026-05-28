@@ -2,6 +2,7 @@ import json
 from http import HTTPStatus
 from pathlib import Path
 
+import httpx
 from httpx import ASGITransport, AsyncClient
 
 from drummer.api.app import create_app
@@ -62,6 +63,24 @@ async def test_introspect_upstream_400_returns_502(tmp_path: Path) -> None:
         tmp_path, mock_status=HTTPStatus.BAD_REQUEST, mock_content=b"Bad Request"
     )
     await init_db(f"sqlite+aiosqlite:///{tmp_path / 'test.db'}")
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post(
+            "/api/graphql/introspect", json={"url": "https://api.example.com/graphql"}
+        )
+    assert response.status_code == HTTPStatus.BAD_GATEWAY
+
+
+class _ErrorTransport(httpx.AsyncBaseTransport):
+    async def handle_async_request(self, _request: httpx.Request) -> httpx.Response:
+        msg = "connection refused"
+        raise httpx.ConnectError(msg)
+
+
+async def test_introspect_network_error_returns_502(tmp_path: Path) -> None:
+    db_url = f"sqlite+aiosqlite:///{tmp_path / 'test.db'}"
+    app = create_app(db_url=db_url)
+    app.state.transport = _ErrorTransport()
+    await init_db(db_url)
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         response = await ac.post(
             "/api/graphql/introspect", json={"url": "https://api.example.com/graphql"}
