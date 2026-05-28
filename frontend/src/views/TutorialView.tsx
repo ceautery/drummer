@@ -68,12 +68,17 @@ const STEPS: StepMeta[] = [
   },
 ];
 
+interface LogEntry {
+  id: string;
+  text: string;
+}
+
 interface TutorialResponseState {
   statusCode: number | null;
   url: string | null;
   body: string | null;
   elapsedMs: number | null;
-  scriptLogs: string[];
+  scriptLogs: LogEntry[];
   scriptError: string | null;
   scriptSuggestion: string | null;
   error: string | null;
@@ -128,42 +133,49 @@ export function TutorialView() {
     let event = "";
     let done = false;
 
-    while (!done) {
-      const chunk = await reader.read();
-      done = chunk.done;
-      if (chunk.value) {
-        buffer += decoder.decode(chunk.value, { stream: true });
-      }
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
-      for (const line of lines) {
-        if (line.startsWith("event:")) {
-          event = line.slice(6).trim();
-        } else if (line.startsWith("data:")) {
-          const data = JSON.parse(line.slice(5).trim()) as Record<
-            string,
-            unknown
-          >;
-          if (event === "status") {
-            partial.statusCode = data.status_code as number;
-            partial.url = data.url as string;
-          } else if (event === "body") {
-            partial.body = data.body as string;
-            partial.elapsedMs = data.elapsed_ms as number;
-          } else if (event === "done") {
-            partial.scriptLogs = (data.script_logs as string[]) ?? [];
-            partial.scriptError = (data.script_error as string | null) ?? null;
-            partial.scriptSuggestion =
-              (data.script_suggestion as string | null) ?? null;
-          } else if (event === "error") {
-            partial.error = data.message as string;
+    try {
+      while (!done) {
+        const chunk = await reader.read();
+        done = chunk.done;
+        if (chunk.value) {
+          buffer += decoder.decode(chunk.value, { stream: true });
+        }
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (line.startsWith("event:")) {
+            event = line.slice(6).trim();
+          } else if (line.startsWith("data:")) {
+            const data = JSON.parse(line.slice(5).trim()) as Record<
+              string,
+              unknown
+            >;
+            if (event === "status") {
+              partial.statusCode = data.status_code as number;
+              partial.url = data.url as string;
+            } else if (event === "body") {
+              partial.body = data.body as string;
+              partial.elapsedMs = data.elapsed_ms as number;
+            } else if (event === "done") {
+              partial.scriptLogs = ((data.script_logs as string[]) ?? []).map(
+                (text) => ({ id: crypto.randomUUID(), text }),
+              );
+              partial.scriptError =
+                (data.script_error as string | null) ?? null;
+              partial.scriptSuggestion =
+                (data.script_suggestion as string | null) ?? null;
+            } else if (event === "error") {
+              partial.error = data.message as string;
+            }
+            setResponse({ ...partial });
           }
-          setResponse({ ...partial });
         }
       }
+    } catch {
+      setResponse({ ...partial, error: "Connection lost" });
+    } finally {
+      setSending(false);
     }
-
-    setSending(false);
   };
 
   const handleNext = () => {
@@ -332,9 +344,9 @@ export function TutorialView() {
                   )}
                   {hasScriptOutput && (
                     <div className="shrink-0 rounded border border-gray-800 bg-gray-950 p-2 font-mono text-xs">
-                      {response.scriptLogs.map((log) => (
-                        <div key={log} className="text-amber-300">
-                          {log}
+                      {response.scriptLogs.map(({ id, text }) => (
+                        <div key={id} className="text-amber-300">
+                          {text}
                         </div>
                       ))}
                       {response.scriptError && (
