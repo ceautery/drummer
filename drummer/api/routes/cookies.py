@@ -17,5 +17,5 @@ async def list_cookies_route(cookie_jar: CookieJarDep) -> dict[str, dict[str, st
 
 @router.delete("/cookies")
 async def clear_cookies_route(cookie_jar: CookieJarDep) -> dict[str, str]:
-    cookie_jar.clear()
+    await cookie_jar.aclear()
     return {"status": "cleared"}

@@ -15,7 +15,7 @@ async def test_list_cookies_empty(client: AsyncClient) -> None:
 async def test_clear_cookies(project_dir: Path) -> None:
     application = create_app(project_dir=project_dir, db_url="sqlite+aiosqlite:///:memory:")
     # Manually seed the cookie jar
-    application.state.cookie_jar.update_from_response(
+    await application.state.cookie_jar.update_from_response(
         "https://api.example.com/login", ["session=abc123"]
     )
     async with AsyncClient(transport=ASGITransport(app=application), base_url="http://test") as ac:

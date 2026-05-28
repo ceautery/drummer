@@ -72,7 +72,7 @@ async def test_switch_environment_impl() -> None:
 
 async def test_list_and_clear_cookies_impl() -> None:
     jar = CookieJar()
-    jar.update_from_response("https://api.example.com/login", ["session=abc"])
+    await jar.update_from_response("https://api.example.com/login", ["session=abc"])
     cookies = await list_cookies_impl(jar)
     assert "api.example.com" in cookies
 

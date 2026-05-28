@@ -138,7 +138,7 @@ async def test_send_disabled_cookies_not_accumulated() -> None:
 async def test_send_sends_session_cookies_in_request() -> None:
     transport = _MockTransport(content=b"")
     jar = CookieJar()
-    jar.update_from_response("https://api.example.com/login", ["session=abc123"])
+    await jar.update_from_response("https://api.example.com/login", ["session=abc123"])
     await send(_make_resolved(url="https://api.example.com/users"), jar, transport=transport)
     assert transport.last_request is not None
     cookie_header = transport.last_request.headers.get("cookie", "")

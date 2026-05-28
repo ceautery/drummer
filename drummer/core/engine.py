@@ -124,7 +124,7 @@ async def send(
             v for k, v in response.headers.multi_items() if k.lower() == "set-cookie"
         ]
         if set_cookie_headers:
-            cookie_jar.update_from_response(str(response.url), set_cookie_headers)
+            await cookie_jar.update_from_response(str(response.url), set_cookie_headers)
 
     encoding = detect_encoding(response.headers.get("content-type", ""), response.content)
     body = decode_body(response.content, encoding)
