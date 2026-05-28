@@ -16,9 +16,10 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from drummer.api.db.models import ResponseHistoryRecord
-from drummer.api.deps import get_cookie_jar, get_project_dir
+from drummer.api.deps import get_cookie_jar, get_oauth_cache, get_project_dir
 from drummer.core.cookies import CookieJar
 from drummer.core.engine import send as engine_send
+from drummer.core.oauth import OAuthError, OAuthTokenCache
 from drummer.core.storage.formats import parse_request_file
 from drummer.core.storage.project import load_environment, load_project
 from drummer.core.variables import resolve
@@ -27,6 +28,7 @@ router = APIRouter()
 
 ProjectDir = Annotated[Path, Depends(get_project_dir)]
 CookieJarDep = Annotated[CookieJar, Depends(get_cookie_jar)]
+OAuthCacheDep = Annotated[OAuthTokenCache, Depends(get_oauth_cache)]
 
 
 def _safe_path(project_dir: Path, user_path: str) -> Path:
@@ -46,7 +48,11 @@ class SendRequest(BaseModel):
 
 @router.post("/send")
 async def send_request_route(
-    body: SendRequest, request: Request, project_dir: ProjectDir, cookie_jar: CookieJarDep
+    body: SendRequest,
+    request: Request,
+    project_dir: ProjectDir,
+    cookie_jar: CookieJarDep,
+    oauth_cache: OAuthCacheDep,
 ) -> EventSourceResponse:
     environment = body.environment or cast("str", request.app.state.active_environment)
     transport = cast("httpx.AsyncBaseTransport | None", request.app.state.transport)
@@ -68,7 +74,9 @@ async def send_request_route(
                 pass
 
             resolved = resolve(request_file, variables, project_timeout_ms=project_timeout_ms)
-            result = await engine_send(resolved, cookie_jar, transport=transport)
+            result = await engine_send(
+                resolved, cookie_jar, oauth_cache=oauth_cache, transport=transport
+            )
 
             if result.script_error and result.status_code == 0:
                 yield {
@@ -141,6 +149,7 @@ async def send_request_route(
             httpx.HTTPError,
             httpx.TransportError,
             yaml.YAMLError,
+            OAuthError,
         ) as exc:
             yield {"event": "error", "data": json.dumps({"message": str(exc)})}
 

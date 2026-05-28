@@ -20,6 +20,7 @@ from drummer.api.routes import requests as req_routes
 from drummer.api.routes import send as send_routes
 from drummer.api.routes import tutorial as tutorial_routes
 from drummer.core.cookies import CookieJar
+from drummer.core.oauth import OAuthTokenCache
 
 _DEFAULT_DB = str(Path.home() / ".local" / "share" / "drummer" / "history.db")
 _STATIC_DIR = Path(__file__).parent / "static"
@@ -38,6 +39,7 @@ def create_app(
     app.state.project_dir = project_dir
     factory = async_session_factory(db_url)
     app.state.cookie_jar = CookieJar(persistence=CookiePersistence(factory))
+    app.state.oauth_cache = OAuthTokenCache()
     app.state.active_environment = "local"
     app.state.db_factory = factory
     app.state.transport = None  # overridden in tests

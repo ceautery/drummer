@@ -65,6 +65,7 @@ def resolve(
         body=body,
         encoding=fm.encoding,
         cookies=fm.cookies,
+        auth=fm.auth,
         warnings=sorted(seen),
         pre_script=fm.pre_script,
         post_script=fm.post_script,

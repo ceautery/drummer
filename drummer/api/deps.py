@@ -7,6 +7,7 @@ from fastapi import HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from drummer.core.cookies import CookieJar
+from drummer.core.oauth import OAuthTokenCache
 
 
 def get_project_dir(request: Request) -> Path:
@@ -21,6 +22,10 @@ def get_project_dir(request: Request) -> Path:
 
 def get_cookie_jar(request: Request) -> CookieJar:
     return cast("CookieJar", request.app.state.cookie_jar)
+
+
+def get_oauth_cache(request: Request) -> OAuthTokenCache:
+    return cast("OAuthTokenCache", request.app.state.oauth_cache)
 
 
 async def get_db(request: Request) -> AsyncGenerator[AsyncSession, None]:

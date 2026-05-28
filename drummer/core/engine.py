@@ -7,8 +7,16 @@ from pydantic import BaseModel, Field
 
 from drummer.core.cookies import CookieJar
 from drummer.core.encoding import decode_body, detect_encoding, encode_body
+from drummer.core.oauth import OAuthTokenCache, get_or_fetch_token
 from drummer.core.scripting import run_script
-from drummer.core.storage.formats import CookieConfig, CookieMode, GraphQLConfig, HttpMethod
+from drummer.core.storage.formats import (
+    AuthConfig,
+    AuthType,
+    CookieConfig,
+    CookieMode,
+    GraphQLConfig,
+    HttpMethod,
+)
 
 
 class ResolvedRequest(BaseModel):
@@ -20,6 +28,7 @@ class ResolvedRequest(BaseModel):
     body: str = ""
     encoding: str = "utf-8"
     cookies: CookieConfig = Field(default_factory=CookieConfig)
+    auth: AuthConfig = Field(default_factory=AuthConfig)
     warnings: list[str] = Field(default_factory=list)
     pre_script: str = ""
     post_script: str = ""
@@ -44,6 +53,8 @@ class RequestResult(BaseModel):
 async def send(
     resolved: ResolvedRequest,
     cookie_jar: CookieJar,
+    *,
+    oauth_cache: OAuthTokenCache | None = None,
     transport: httpx.AsyncBaseTransport | None = None,
 ) -> RequestResult:
     all_logs: list[str] = []
@@ -92,6 +103,10 @@ async def send(
         send_headers = dict(mut.get("headers", send_headers))
         send_params = dict(mut.get("params", send_params))
         send_body = str(mut.get("body", send_body))
+
+    if resolved.auth.type == AuthType.OAUTH2_CC and oauth_cache is not None:
+        token = await get_or_fetch_token(oauth_cache, resolved.auth, transport)
+        send_headers.setdefault("Authorization", f"Bearer {token}")
 
     cookies = cookie_jar.cookies_for_request(
         send_url, resolved.cookies.mode, resolved.cookies.cookies
