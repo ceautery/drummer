@@ -5,8 +5,7 @@ import httpx
 
 from drummer.core.cookies import CookieJar
 from drummer.core.engine import ResolvedRequest, send
-from drummer.core.storage.formats import GraphQLConfig, RequestFrontmatter
-from drummer.core.storage.project import RequestFile
+from drummer.core.storage.formats import GraphQLConfig, RequestFile, RequestFrontmatter
 from drummer.core.variables import resolve
 
 _HTTP_OK = 200
@@ -51,6 +50,13 @@ def test_resolve_substitutes_variables_in_query() -> None:
     resolved = resolve(rf, {"field": "departments"})
     assert resolved.graphql is not None
     assert resolved.graphql.query == "query { departments { id } }"
+
+
+def test_resolve_warns_on_unresolved_query_variable() -> None:
+    gql = GraphQLConfig(query="query { {{missing}} { id } }", variables={})
+    rf = _make_request_file(graphql=gql)
+    resolved = resolve(rf, {})  # No env vars provided
+    assert "missing" in resolved.warnings
 
 
 def test_resolve_graphql_none_when_not_set() -> None:
@@ -111,5 +117,5 @@ async def test_engine_ignores_body_when_graphql_set() -> None:
     await send(resolved, CookieJar(), transport=transport)
     assert transport.last_request is not None
     raw = transport.last_request.content.decode()
-    assert "should be ignored" not in raw
-    assert "query" in json.loads(raw)
+    parsed = json.loads(raw)
+    assert parsed == {"query": "{ ok }", "variables": {}}
