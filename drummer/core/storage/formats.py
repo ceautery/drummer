@@ -19,6 +19,7 @@ class AuthType(StrEnum):
     BEARER = "bearer"
     BASIC = "basic"
     API_KEY = "api_key"
+    OAUTH2_CC = "oauth2_cc"
 
 
 class CookieConfig(BaseModel):
@@ -33,6 +34,10 @@ class AuthConfig(BaseModel):
     password: str = ""
     key: str = ""
     value: str = ""
+    token_url: str = ""
+    client_id: str = ""
+    client_secret: str = ""
+    scope: str = ""
 
 
 class GraphQLConfig(BaseModel):

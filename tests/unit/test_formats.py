@@ -225,3 +225,38 @@ def test_request_frontmatter_parses_script_timeout(tmp_path: Path) -> None:
     )
     rf = parse_request_file(tmp_path / "req.md")
     assert rf.frontmatter.script_timeout_ms == timeout_value
+
+
+def test_auth_type_oauth2_cc_string_value() -> None:
+    assert AuthType.OAUTH2_CC == "oauth2_cc"
+
+
+def test_auth_config_oauth2_cc_roundtrip(tmp_path: Path) -> None:
+    req_file = tmp_path / "oauth.md"
+    fm = RequestFrontmatter(
+        name="OAuth Request",
+        url="https://api.example.com/data",
+        auth=AuthConfig(
+            type=AuthType.OAUTH2_CC,
+            token_url="https://auth.example.com/token",
+            client_id="client1",
+            client_secret="secret1",
+            scope="read write",
+        ),
+    )
+    original = RequestFile(frontmatter=fm, body="", path=req_file)
+    write_request_file(original)
+    loaded = parse_request_file(req_file)
+    assert loaded.frontmatter.auth.type == AuthType.OAUTH2_CC
+    assert loaded.frontmatter.auth.token_url == "https://auth.example.com/token"
+    assert loaded.frontmatter.auth.client_id == "client1"
+    assert loaded.frontmatter.auth.client_secret == "secret1"
+    assert loaded.frontmatter.auth.scope == "read write"
+
+
+def test_auth_config_oauth2_cc_defaults() -> None:
+    cfg = AuthConfig(type=AuthType.OAUTH2_CC)
+    assert cfg.token_url == ""
+    assert cfg.client_id == ""
+    assert cfg.client_secret == ""
+    assert cfg.scope == ""

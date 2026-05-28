@@ -56,7 +56,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "ANN", "S603"]
+"tests/**" = ["S101", "S105", "S106", "ANN", "S603"]  # S105/S106: test fixtures use dummy credentials
 "drummer/cli.py" = ["FBT", "RSE102"]  # Typer CLI: bool flags + idiomatic raise typer.Exit()
 "stubs/**" = ["ANN401", "N818", "UP035"]  # Stubs mirror third-party APIs; Any + legacy typing are required
 
