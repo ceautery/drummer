@@ -81,3 +81,7 @@ def export(path: Annotated[str, typer.Argument(help="Path of the project to expo
 def mcp() -> None:
     """Print MCP server connection info."""
     typer.echo("MCP server info: not yet implemented — Phase 4")
+
+
+if __name__ == "__main__":
+    app()
