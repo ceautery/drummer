@@ -2,7 +2,7 @@ import base64
 import re
 
 from drummer.core.engine import ResolvedRequest
-from drummer.core.storage.formats import AuthType, RequestFile
+from drummer.core.storage.formats import AuthType, GraphQLConfig, RequestFile
 
 _VAR_RE = re.compile(r"\{\{(\w+)\}\}")
 _SCRIPT_TIMEOUT_DEFAULT = 5000
@@ -50,6 +50,12 @@ def resolve(
 
     effective_timeout = fm.script_timeout_ms or project_timeout_ms or _SCRIPT_TIMEOUT_DEFAULT
 
+    graphql_resolved: GraphQLConfig | None = None
+    if fm.graphql is not None:
+        graphql_resolved = GraphQLConfig(
+            query=sub(fm.graphql.query), variables=fm.graphql.variables
+        )
+
     return ResolvedRequest(
         name=fm.name,
         method=fm.method,
@@ -64,4 +70,5 @@ def resolve(
         post_script=fm.post_script,
         script_timeout_ms=effective_timeout,
         variables=dict(env),
+        graphql=graphql_resolved,
     )

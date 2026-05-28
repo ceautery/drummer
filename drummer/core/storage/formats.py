@@ -1,6 +1,6 @@
 from enum import StrEnum
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import frontmatter
 from pydantic import BaseModel, Field
@@ -37,7 +37,7 @@ class AuthConfig(BaseModel):
 
 class GraphQLConfig(BaseModel):
     query: str = ""
-    variables: dict[str, str] = Field(default_factory=dict)
+    variables: dict[str, Any] = Field(default_factory=dict)
 
 
 class RequestFrontmatter(BaseModel):

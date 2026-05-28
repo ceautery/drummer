@@ -1,3 +1,4 @@
+import json
 import time
 from typing import Any
 
@@ -7,7 +8,7 @@ from pydantic import BaseModel, Field
 from drummer.core.cookies import CookieJar
 from drummer.core.encoding import decode_body, detect_encoding, encode_body
 from drummer.core.scripting import run_script
-from drummer.core.storage.formats import CookieConfig, CookieMode, HttpMethod
+from drummer.core.storage.formats import CookieConfig, CookieMode, GraphQLConfig, HttpMethod
 
 
 class ResolvedRequest(BaseModel):
@@ -24,6 +25,7 @@ class ResolvedRequest(BaseModel):
     post_script: str = ""
     script_timeout_ms: int = 5000
     variables: dict[str, str] = Field(default_factory=dict)
+    graphql: GraphQLConfig | None = None
 
 
 class RequestResult(BaseModel):
@@ -94,7 +96,15 @@ async def send(
     cookies = cookie_jar.cookies_for_request(
         send_url, resolved.cookies.mode, resolved.cookies.cookies
     )
-    content = encode_body(send_body, resolved.encoding) if send_body else None
+    if resolved.graphql is not None:
+        graphql_body = json.dumps(
+            {"query": resolved.graphql.query, "variables": resolved.graphql.variables}
+        )
+        content = encode_body(graphql_body, resolved.encoding)
+        if not any(k.lower() == "content-type" for k in send_headers):
+            send_headers["Content-Type"] = "application/json"
+    else:
+        content = encode_body(send_body, resolved.encoding) if send_body else None
 
     async with httpx.AsyncClient(
         transport=transport, cookies=cookies, follow_redirects=False
