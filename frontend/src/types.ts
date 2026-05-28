@@ -8,7 +8,7 @@ export type HttpMethod =
   | "OPTIONS"
   | "TRACE";
 
-export type AuthType = "none" | "bearer" | "basic" | "api_key";
+export type AuthType = "none" | "bearer" | "basic" | "api_key" | "oauth2_cc";
 export type CookieMode = "session" | "disabled" | "explicit";
 export type BodyMode = "raw" | "form-data" | "json" | "graphql";
 export type RequestTab =
@@ -50,6 +50,10 @@ export interface AuthConfig {
   password: string;
   key: string;
   value: string;
+  token_url: string;
+  client_id: string;
+  client_secret: string;
+  scope: string;
 }
 
 export interface GraphQLConfig {
