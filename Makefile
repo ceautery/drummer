@@ -41,6 +41,7 @@ build-frontend:
 	cd frontend && $(NPM) run build
 
 dist: build-frontend
+	$(HATCH) clean
 	$(HATCH) build
 	$(PYTHON) scripts/dist.py
 
