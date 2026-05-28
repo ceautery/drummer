@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
-from typing import Any, cast
+from typing import Annotated, Any, cast
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 
 _SNAPSHOT_PATH = Path(__file__).parent.parent / "mock" / "met_snapshot.json"
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/mock/met", tags=["mock"])
 
 
 def get_departments() -> list[dict[str, Any]]:
-    return _departments
+    return list(_departments)
 
 
 def get_object_ids(department_ids: list[int] | None = None) -> list[int]:
@@ -27,19 +27,24 @@ def get_object_ids(department_ids: list[int] | None = None) -> list[int]:
 
 
 def get_object(object_id: int) -> dict[str, Any] | None:
-    return _objects.get(str(object_id))
+    obj = _objects.get(str(object_id))
+    return dict(obj) if obj is not None else None
 
 
 def search_objects(q: str) -> list[int]:
     q_lower = q.lower()
-    return [
+    return sorted(
         int(k)
         for k, obj in _objects.items()
-        if q_lower
-        in " ".join(
-            [obj.get("title", ""), obj.get("artistDisplayName", ""), obj.get("medium", "")]
-        ).lower()
-    ]
+        if any(
+            q_lower in field.lower()
+            for field in [
+                obj.get("title", ""),
+                obj.get("artistDisplayName", ""),
+                obj.get("medium", ""),
+            ]
+        )
+    )
 
 
 @router.get("/departments")
@@ -48,8 +53,18 @@ def departments_route() -> JSONResponse:
 
 
 @router.get("/objects")
-def objects_list_route(department_ids: str | None = None) -> JSONResponse:
-    dept_ids = [int(x) for x in department_ids.split(",")] if department_ids else None
+def objects_list_route(
+    department_ids: Annotated[str | None, Query(alias="departmentIds")] = None,
+) -> JSONResponse:
+    if department_ids:
+        try:
+            dept_ids: list[int] | None = [int(x) for x in department_ids.split(",")]
+        except ValueError:
+            raise HTTPException(
+                status_code=422, detail="departmentIds must be comma-separated integers"
+            ) from None
+    else:
+        dept_ids = None
     ids = get_object_ids(dept_ids)
     return JSONResponse({"total": len(ids), "objectIDs": ids})
 
