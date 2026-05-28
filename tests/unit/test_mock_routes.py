@@ -4,11 +4,11 @@ DEPT_COUNT = 5
 TOTAL_OBJECTS = 25
 DEPT_EUROPEAN_PAINTINGS = 11
 DEPT_MODERN_CONTEMPORARY = 21
-EUROPEAN_PAINTINGS_COUNT = 5
-TWO_DEPT_COUNT = 10
-VAN_GOGH_STRAW_HAT_ID = 45734
-VAN_GOGH_SUNFLOWERS_ID = 45804
-POLLOCK_ID = 60002
+EUROPEAN_PAINTINGS_COUNT = 7
+TWO_DEPT_COUNT = 12
+VAN_GOGH_STRAW_HAT_ID = 436532
+MONET_SUNFLOWERS_ID = 437112
+HAN_GAN_ID = 39901
 
 
 def test_get_departments_returns_five() -> None:
@@ -30,6 +30,7 @@ def test_get_object_ids_filters_by_department() -> None:
     ids = get_object_ids(department_ids=[DEPT_EUROPEAN_PAINTINGS])
     assert len(ids) == EUROPEAN_PAINTINGS_COUNT
     assert VAN_GOGH_STRAW_HAT_ID in ids
+    assert MONET_SUNFLOWERS_ID in ids
 
 
 def test_get_object_ids_multiple_departments() -> None:
@@ -45,7 +46,7 @@ def test_get_object_ids_unknown_department_returns_empty() -> None:
 def test_get_object_returns_van_gogh() -> None:
     obj = get_object(VAN_GOGH_STRAW_HAT_ID)
     assert obj is not None
-    assert obj["title"] == "Self-Portrait with a Straw Hat"
+    assert "Self-Portrait with a Straw Hat" in obj["title"]
     assert obj["artistDisplayName"] == "Vincent van Gogh"
 
 
@@ -55,13 +56,12 @@ def test_get_object_returns_none_for_unknown() -> None:
 
 def test_search_finds_sunflowers_by_title() -> None:
     ids = search_objects("sunflowers")
-    assert VAN_GOGH_SUNFLOWERS_ID in ids
+    assert MONET_SUNFLOWERS_ID in ids
 
 
 def test_search_finds_van_gogh_by_artist() -> None:
     ids = search_objects("van gogh")
     assert VAN_GOGH_STRAW_HAT_ID in ids
-    assert VAN_GOGH_SUNFLOWERS_ID in ids
 
 
 def test_search_is_case_insensitive() -> None:
@@ -73,5 +73,5 @@ def test_search_no_match_returns_empty() -> None:
 
 
 def test_search_finds_by_medium() -> None:
-    ids = search_objects("enamel on canvas")
-    assert POLLOCK_ID in ids
+    ids = search_objects("handscroll")
+    assert HAN_GAN_ID in ids

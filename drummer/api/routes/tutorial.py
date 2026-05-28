@@ -54,7 +54,8 @@ STEPS: list[TutorialStep] = [
         title="Your first GET request",
         instructions=(
             "The simplest HTTP request is a GET with no parameters. "
-            "It retrieves a resource and returns JSON.\n\n"
+            "It retrieves a resource — the response format depends on the endpoint, "
+            "though JSON is a common choice for APIs.\n\n"
             "This request fetches all museum departments — five major collection areas "
             "used to organize the Met's 1.5 million objects.\n\n"
             "Click Send to try it. The response appears on the right."
@@ -67,12 +68,12 @@ STEPS: list[TutorialStep] = [
         instructions=(
             "REST APIs use path parameters to identify a specific resource. "
             "Instead of listing all objects, you can fetch one by its ID.\n\n"
-            "Object 45734 is Van Gogh's Self-Portrait with a Straw Hat (1887). "
+            "Object 436532 is Van Gogh's Self-Portrait with a Straw Hat (1887). "
             "The ID is embedded directly in the URL path.\n\n"
             "Click Send to retrieve it."
         ),
         method="GET",
-        url="http://localhost:8000/mock/met/objects/45734",
+        url="http://localhost:8000/mock/met/objects/436532",
     ),
     TutorialStep(
         title="Query parameters",
@@ -113,7 +114,7 @@ STEPS: list[TutorialStep] = [
             "Click Send to run it."
         ),
         method="GET",
-        url="http://localhost:8000/mock/met/objects/45734",
+        url="http://localhost:8000/mock/met/objects/436532",
         pre_script=(
             'dm.request.headers["X-Tutorial-Id"] = "drummer-tutorial-step-6";\n'
             'dm.console.log("Header set:", dm.request.headers["X-Tutorial-Id"]);'
@@ -133,7 +134,7 @@ STEPS: list[TutorialStep] = [
             "Click Send to run it."
         ),
         method="GET",
-        url="http://localhost:8000/mock/met/objects/45734",
+        url="http://localhost:8000/mock/met/objects/436532",
         post_script=(
             "var obj = dm.response.json();\n"
             'dm.console.log("Title:", obj.title);\n'

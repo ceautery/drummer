@@ -21,7 +21,7 @@ const STEPS: StepMeta[] = [
   {
     title: "Your first GET request",
     instructions:
-      "The simplest HTTP request is a GET with no parameters. It retrieves a resource and returns JSON.\n\nThis request fetches all museum departments — five major collection areas used to organize the Met's 1.5 million objects.\n\nClick Send to try it. The response appears on the right.",
+      "The simplest HTTP request is a GET with no parameters. It retrieves a resource — the response format depends on the endpoint, though JSON is a common choice for APIs.\n\nThis request fetches all museum departments — five major collection areas used to organize the Met's 1.5 million objects.\n\nClick Send to try it. The response appears on the right.",
     hasRequest: true,
     displayMethod: "GET",
     displayUrl: "http://localhost:8000/mock/met/departments",
@@ -29,10 +29,10 @@ const STEPS: StepMeta[] = [
   {
     title: "Path parameters",
     instructions:
-      "REST APIs use path parameters to identify a specific resource. Instead of listing all objects, you can fetch one by its ID.\n\nObject 45734 is Van Gogh's Self-Portrait with a Straw Hat (1887). The ID is embedded directly in the URL path.\n\nClick Send to retrieve it.",
+      "REST APIs use path parameters to identify a specific resource. Instead of listing all objects, you can fetch one by its ID.\n\nObject 436532 is Van Gogh's Self-Portrait with a Straw Hat (1887). The ID is embedded directly in the URL path.\n\nClick Send to retrieve it.",
     hasRequest: true,
     displayMethod: "GET",
-    displayUrl: "http://localhost:8000/mock/met/objects/45734",
+    displayUrl: "http://localhost:8000/mock/met/objects/436532",
   },
   {
     title: "Query parameters",
@@ -56,7 +56,7 @@ const STEPS: StepMeta[] = [
       'Pre-request scripts run JavaScript before the HTTP call. They can read and modify the outgoing request.\n\nThis script sets a custom header using dm.request:\n\n  dm.request.headers["X-Tutorial-Id"] = "drummer-tutorial-step-6";\n  dm.console.log("Header set:", dm.request.headers["X-Tutorial-Id"]);\n\nThe dm.console.log output appears in the script output panel below the response.\n\nClick Send to run it.',
     hasRequest: true,
     displayMethod: "GET",
-    displayUrl: "http://localhost:8000/mock/met/objects/45734",
+    displayUrl: "http://localhost:8000/mock/met/objects/436532",
   },
   {
     title: "Post-request scripts",
@@ -64,7 +64,7 @@ const STEPS: StepMeta[] = [
       'Post-request scripts run JavaScript after the HTTP call. They can read the response and extract data.\n\nThis script reads the JSON response and logs the artwork\'s details:\n\n  var obj = dm.response.json();\n  dm.console.log("Title:", obj.title);\n  dm.console.log("Artist:", obj.artistDisplayName);\n\nUse dm.env.set("key", value) to store response data as variables for use in later requests.\n\nClick Send to run it.',
     hasRequest: true,
     displayMethod: "GET",
-    displayUrl: "http://localhost:8000/mock/met/objects/45734",
+    displayUrl: "http://localhost:8000/mock/met/objects/436532",
   },
 ];
 

@@ -1,0 +1,204 @@
+# Drummer
+
+A local, standalone REST client — free and open-source alternative to Postman, Insomnia, and Bruno.
+
+- **No account** — runs entirely on your machine
+- **No subscription** — free forever
+- **No phone-home** — your data stays local
+- **Git-friendly** — request files are plain Markdown with YAML frontmatter, fully diffable
+
+---
+
+## Install
+
+Requires Python 3.12+.
+
+```bash
+git clone https://github.com/ceautery/drummer
+cd drummer
+python -m venv venv && source venv/bin/activate
+pip install -e ".[dev]"
+make build-frontend
+```
+
+Requires Node.js (for the frontend build step). Homebrew and PyPI packages are planned for a future release.
+
+---
+
+## Quick start
+
+```bash
+# Open the built-in tutorial (no project needed)
+drummer serve
+
+# Open your own project
+drummer serve --project /path/to/my-api
+```
+
+Drummer starts on port 8000. Open `http://localhost:8000` in your browser.
+
+---
+
+## Creating a project
+
+A Drummer project is a folder with a `.drummer/` directory and Markdown request files anywhere inside it.
+
+```
+my-api/
+├── .drummer/
+│   ├── project.yaml
+│   └── environments/
+│       └── local.yaml
+├── users/
+│   ├── list-users.md
+│   └── get-user.md
+└── auth/
+    └── login.md
+```
+
+**`.drummer/project.yaml`**
+
+```yaml
+name: My API
+version: "1"
+default_environment: local
+```
+
+**`.drummer/environments/local.yaml`**
+
+```yaml
+name: local
+variables:
+  base_url: https://jsonplaceholder.typicode.com
+  user_id: "1"
+```
+
+**`users/list-users.md`**
+
+```markdown
+---
+name: List Users
+method: GET
+url: "{{base_url}}/users"
+---
+```
+
+**`users/get-user.md`**
+
+```markdown
+---
+name: Get User
+method: GET
+url: "{{base_url}}/users/{{user_id}}"
+---
+```
+
+Select an environment in the sidebar, pick a request, click **Send**.
+
+---
+
+## Tutorial
+
+Run `drummer serve` without `--project`, then click **"No project yet? Try the interactive tutorial →"** on the welcome screen. The tutorial walks through all of Drummer's features using an offline mock API backed by Metropolitan Museum of Art Open Access data — no internet required.
+
+---
+
+## Scripting
+
+Every request can have a **pre-request** and **post-request** JavaScript script. Scripts run in an embedded QuickJS sandbox and access the `dm` global.
+
+### Read and write environment variables
+
+```javascript
+// pre-request: stamp the current time
+dm.request.headers["X-Timestamp"] = Date.now().toString();
+```
+
+```javascript
+// post-request: pull a token from the response and save it
+const body = dm.response.json();
+dm.env.set("access_token", body.token);
+```
+
+### Chain requests
+
+```javascript
+// post-request on "Create User" — saves the new ID for later requests
+const body = dm.response.json();
+dm.env.set("user_id", body.id.toString());
+```
+
+### `dm` API summary
+
+| Object | Available in | Description |
+|---|---|---|
+| `dm.env.get(key)` | both | Read an environment variable |
+| `dm.env.set(key, value)` | both | Write an environment variable (session-scoped) |
+| `dm.request.url` | pre-request | Outgoing URL (mutable) |
+| `dm.request.headers` | pre-request | Outgoing headers (mutable object) |
+| `dm.request.params` | pre-request | Query parameters (mutable object) |
+| `dm.request.body` | pre-request | Outgoing body (mutable string) |
+| `dm.response.status` | post-request | HTTP status code |
+| `dm.response.json()` | post-request | Parsed JSON body |
+| `dm.response.text()` | post-request | Raw response body |
+| `dm.response.headers` | post-request | Response headers object |
+| `dm.console.log(...)` | both | Output to Script Output panel |
+
+Scripts have a 5-second timeout and no network or filesystem access.
+
+---
+
+## MCP integration
+
+Drummer exposes an MCP server so Claude can send requests, inspect responses, and manage environments without leaving a conversation.
+
+**Setup:**
+
+1. Start Drummer: `drummer serve --project /path/to/my-api`
+2. Add to your Claude MCP config:
+
+```json
+{
+  "mcpServers": {
+    "drummer": {
+      "url": "http://localhost:8000/mcp"
+    }
+  }
+}
+```
+
+3. Run `drummer mcp` to confirm the URL and see all available tools.
+
+Claude can then call tools like `send_request`, `set_variable`, `switch_environment`, and `get_history` to work with your API alongside you.
+
+---
+
+## CLI reference
+
+| Command | Description |
+|---|---|
+| `drummer serve [--project PATH] [--port N]` | Start the server |
+| `drummer new PATH` | Scaffold a new project at PATH |
+| `drummer export PATH` | Export a project as a zip |
+| `drummer mcp` | Show MCP server URL and available tools |
+| `drummer --version` | Print version |
+
+---
+
+## Development
+
+After cloning and creating a venv (see Install above), install the dev extras:
+
+```bash
+pip install -e ".[dev]"
+make check        # ruff + pyright + pytest
+make dist         # build a distributable wheel
+```
+
+The frontend (React + Vite) lives in `frontend/` and compiles to `drummer/api/static/`. Run `make build-frontend` to rebuild it.
+
+---
+
+## License
+
+MIT. Tutorial data from the [Metropolitan Museum of Art Open Access](https://metmuseum.org/about-the-met/policies-and-documents/open-access) collection (CC0).

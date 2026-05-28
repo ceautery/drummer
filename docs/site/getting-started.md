@@ -69,7 +69,7 @@ Drummer starts on port 8000. Open `http://localhost:8000` in your browser. Selec
 
 ## Built-in tutorial
 
-Run `drummer serve` without a `--project` flag to open the built-in tutorial, which walks through all of Drummer's features using an offline mock API.
+Run `drummer serve` without a `--project` flag, then click **"No project yet? Try the interactive tutorial →"** on the welcome screen. The tutorial walks through all of Drummer's features using an offline mock API — no internet required.
 
 ## What's next
 

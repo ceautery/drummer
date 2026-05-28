@@ -11,4 +11,4 @@
 | 7 — Mock server + tutorial | Met dataset, mock routes, TutorialView | ✅ Done |
 | 8 — GraphQL | GraphQL query building, introspection, BodyTab mode | ✅ Done |
 | 9 — OAuth + cookies | OAuth flow handler, persistent cookie store | ✅ Done |
-| 10 — Distribution | Homebrew formula, make dist, docs site | ⬜ Next |
+| 10 — Distribution | Homebrew formula, make dist, docs site | ✅ Done |

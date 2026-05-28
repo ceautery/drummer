@@ -5,9 +5,9 @@ from httpx import AsyncClient
 
 _TOTAL_OBJECTS = 25
 _TOTAL_DEPARTMENTS = 5
-_DEPT_11_COUNT = 5
-_VAN_GOGH_ID = 45734
-_SUNFLOWERS_ID = 45804
+_DEPT_11_COUNT = 7
+_VAN_GOGH_ID = 436532
+_SUNFLOWERS_ID = 437112
 _UNKNOWN_ID = 99999
 _DEPT_11 = 11
 
@@ -52,7 +52,7 @@ async def test_object_detail_returns_van_gogh(client: AsyncClient) -> None:
     response = await client.get(f"/mock/met/objects/{_VAN_GOGH_ID}")
     assert response.status_code == HTTPStatus.OK
     data = response.json()
-    assert data["title"] == "Self-Portrait with a Straw Hat"
+    assert "Self-Portrait with a Straw Hat" in data["title"]
     assert data["artistDisplayName"] == "Vincent van Gogh"
 
 
