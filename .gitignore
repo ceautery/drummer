@@ -32,3 +32,6 @@ htmlcov/
 .coverage
 playwright-report/
 test-results/
+
+# MkDocs build output
+/site/

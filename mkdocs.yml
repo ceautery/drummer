@@ -1,0 +1,39 @@
+site_name: Drummer
+site_description: A local, standalone REST client — free alternative to Postman/Insomnia/Bruno
+site_url: https://ceautery.github.io/drummer/
+repo_url: https://github.com/ceautery/drummer
+repo_name: ceautery/drummer
+
+docs_dir: docs/site
+site_dir: site
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - CLI Reference: cli-reference.md
+  - Scripting API: scripting-api.md
+  - MCP Tools: mcp-tools.md
+  - Attribution: attribution.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - admonition
+  - attr_list
