@@ -153,10 +153,12 @@ export function GraphQLTab() {
   const [activeTab, setActiveTab] = useState<GqlTab>("query");
   const [schema, setSchema] = useState<GraphQLSchema | null>(null);
   const [fetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const handleFetchSchema = async () => {
     if (!current?.frontmatter.url) return;
     setFetching(true);
+    setFetchError(null);
     try {
       const res = await fetch("/api/graphql/introspect", {
         method: "POST",
@@ -169,9 +171,11 @@ export function GraphQLTab() {
       if (res.ok) {
         const data = (await res.json()) as { data: IntrospectionQuery };
         setSchema(buildClientSchema(data.data));
+      } else {
+        setFetchError("Schema fetch failed");
       }
     } catch {
-      // Fetch failure leaves schema as null — user can retry
+      setFetchError("Schema fetch failed");
     } finally {
       setFetching(false);
     }
@@ -185,7 +189,7 @@ export function GraphQLTab() {
             key={t}
             type="button"
             onClick={() => setActiveTab(t)}
-            className={`rounded px-2 py-0.5 text-xs capitalize ${
+            className={`rounded px-2 py-0.5 text-xs ${
               activeTab === t
                 ? "bg-purple-100 text-purple-700"
                 : "text-gray-600 hover:bg-gray-100"
@@ -202,6 +206,7 @@ export function GraphQLTab() {
           schema={schema}
           onFetch={handleFetchSchema}
           fetching={fetching}
+          fetchError={fetchError}
         />
       )}
     </div>

@@ -15,6 +15,7 @@ interface Props {
   schema: GraphQLSchema | null;
   onFetch: () => void;
   fetching: boolean;
+  fetchError: string | null;
 }
 
 function typeKindLabel(type: GraphQLNamedType): string {
@@ -100,12 +101,18 @@ function FetchButton({
   );
 }
 
-export function SchemaExplorer({ schema, onFetch, fetching }: Props) {
+export function SchemaExplorer({
+  schema,
+  onFetch,
+  fetching,
+  fetchError,
+}: Props) {
   if (!schema) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 text-gray-400">
         <p className="text-sm">No schema loaded</p>
         <FetchButton fetching={fetching} onFetch={onFetch} />
+        {fetchError && <p className="text-xs text-red-500">{fetchError}</p>}
       </div>
     );
   }
@@ -122,19 +129,37 @@ export function SchemaExplorer({ schema, onFetch, fetching }: Props) {
   const rootTypes = [queryType, mutationType, subscriptionType].filter(
     (t): t is NonNullable<typeof t> => t != null,
   );
+  const _BUILTIN_SCALAR_NAMES = new Set([
+    "Boolean",
+    "Float",
+    "ID",
+    "Int",
+    "String",
+  ]);
+
   const objectTypes = Object.values(typeMap).filter(
     (t) => isObjectType(t) && !rootNames.has(t.name) && !isIntrospectionType(t),
   );
   const otherTypes = Object.values(typeMap).filter(
-    (t) => !isObjectType(t) && !isIntrospectionType(t),
+    (t) =>
+      !isObjectType(t) &&
+      !isIntrospectionType(t) &&
+      !_BUILTIN_SCALAR_NAMES.has(t.name),
   );
-  const builtinTypes = Object.values(typeMap).filter(isIntrospectionType);
+  const builtinTypes = Object.values(typeMap).filter(
+    (t) => isIntrospectionType(t) || _BUILTIN_SCALAR_NAMES.has(t.name),
+  );
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <div className="flex items-center justify-between border-b px-2 py-1">
         <span className="text-xs text-gray-500">Schema</span>
-        <FetchButton fetching={fetching} onFetch={onFetch} />
+        <div className="flex items-center gap-2">
+          {fetchError && (
+            <span className="text-xs text-red-500">{fetchError}</span>
+          )}
+          <FetchButton fetching={fetching} onFetch={onFetch} />
+        </div>
       </div>
       <div className="flex-1 overflow-auto py-1">
         {rootTypes.length > 0 && (
