@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from drummer.api.db.models import Base
@@ -17,5 +18,6 @@ async def init_db(db_url: str) -> None:
         Path(db_url[len(_SQLITE_PREFIX) :]).parent.mkdir(parents=True, exist_ok=True)
     engine = create_async_engine(db_url)
     async with engine.begin() as conn:
+        await conn.execute(text("PRAGMA auto_vacuum = FULL"))
         await conn.run_sync(Base.metadata.create_all)
     await engine.dispose()

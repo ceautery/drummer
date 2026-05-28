@@ -68,3 +68,21 @@ async def test_upsert_overwrites_previous_value(tmp_path: Path) -> None:
     await jar2.load_from_db()
     cookies = jar2.cookies_for_request("http://api.example.com/", CookieMode.SESSION, {})
     assert cookies == {"session": "new"}
+
+
+async def test_expired_cookie_deleted_from_db(tmp_path: Path) -> None:
+    db_url = _db_url(tmp_path)
+    await init_db(db_url)
+    factory = async_session_factory(db_url)
+
+    jar1 = CookieJar(persistence=CookiePersistence(factory))
+    future = (datetime.now(UTC) + timedelta(hours=1)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+    await jar1.update_from_response(
+        "http://api.example.com/", [f"session=abc123; expires={future}"]
+    )
+    await jar1.update_from_response("http://api.example.com/", ["session=; max-age=0"])
+
+    jar2 = CookieJar(persistence=CookiePersistence(factory))
+    await jar2.load_from_db()
+    cookies = jar2.cookies_for_request("http://api.example.com/", CookieMode.SESSION, {})
+    assert "session" not in cookies
