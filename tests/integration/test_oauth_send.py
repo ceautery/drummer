@@ -103,6 +103,7 @@ auth:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         await ac.post("/api/send", json={"path": "manual.md"})
     api_reqs = [r for r in transport.requests if str(r.url).startswith(_API_URL)]
+    assert len(api_reqs) == 1
     assert api_reqs[0].headers.get("authorization") == f"Bearer {manual_token}"
 
 

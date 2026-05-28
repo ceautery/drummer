@@ -104,9 +104,13 @@ async def send(
         send_params = dict(mut.get("params", send_params))
         send_body = str(mut.get("body", send_body))
 
-    if resolved.auth.type == AuthType.OAUTH2_CC and oauth_cache is not None:
+    if (
+        resolved.auth.type == AuthType.OAUTH2_CC
+        and oauth_cache is not None
+        and "Authorization" not in send_headers
+    ):
         token = await get_or_fetch_token(oauth_cache, resolved.auth, transport)
-        send_headers.setdefault("Authorization", f"Bearer {token}")
+        send_headers["Authorization"] = f"Bearer {token}"
 
     cookies = cookie_jar.cookies_for_request(
         send_url, resolved.cookies.mode, resolved.cookies.cookies
