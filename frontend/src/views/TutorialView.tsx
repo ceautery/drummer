@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ThemeToggle } from "../components/layout/ThemeToggle";
 import { BodyViewer } from "../components/response/BodyViewer";
 import { ResponseMeta } from "../components/response/ResponseMeta";
 import { ScriptOutputView } from "../components/response/ScriptOutput";
@@ -201,34 +202,39 @@ export function TutorialView() {
     (response.scriptLogs.length > 0 || response.scriptError !== null);
 
   return (
-    <div className="flex h-screen flex-col bg-gray-950 text-gray-100">
+    <div className="flex h-screen flex-col bg-background text-foreground">
       {/* Nav bar */}
-      <nav className="flex shrink-0 items-center gap-4 border-b border-gray-800 bg-gray-900 px-4 py-2">
-        <span className="text-sm font-semibold text-gray-200">🥁 Drummer</span>
+      <nav className="flex shrink-0 items-center gap-4 border-b bg-card px-4 py-2">
+        <span className="text-sm font-semibold text-foreground">
+          🥁 Drummer
+        </span>
         <div className="flex gap-1">
           <button
             type="button"
             onClick={() => setView("workspace")}
-            className="rounded px-3 py-1 text-xs text-gray-400 hover:text-gray-200"
+            className="rounded px-3 py-1 text-xs text-muted-foreground hover:text-foreground"
           >
             Workspace
           </button>
           <button
             type="button"
-            className="rounded bg-gray-700 px-3 py-1 text-xs text-white"
+            className="rounded bg-primary/10 px-3 py-1 text-xs text-primary"
           >
             Tutorial
           </button>
+        </div>
+        <div className="ml-auto">
+          <ThemeToggle />
         </div>
       </nav>
 
       {/* Two-column body */}
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Left column */}
-        <div className="flex w-72 shrink-0 flex-col border-r border-gray-800 bg-gray-900 p-4">
+        <div className="flex w-72 shrink-0 flex-col border-r bg-card p-4">
           {/* Step list */}
           <div className="mb-4">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Progress
             </div>
             <div className="flex flex-col gap-1">
@@ -239,10 +245,10 @@ export function TutorialView() {
                   onClick={() => navigateToStep(i)}
                   className={`flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs ${
                     i === currentStep
-                      ? "border border-blue-700 bg-blue-900/50 text-blue-300"
+                      ? "border border-primary bg-primary/10 text-primary"
                       : completedSteps.has(i)
-                        ? "bg-green-900/20 text-green-400"
-                        : "text-gray-500 hover:text-gray-300"
+                        ? "bg-green-500/10 text-green-700 dark:text-green-400"
+                        : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <span className="w-4 shrink-0 text-center">
@@ -260,21 +266,21 @@ export function TutorialView() {
 
           {/* Instructions */}
           <div className="mb-4 min-h-0 flex-1 overflow-y-auto">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Instructions
             </div>
-            <div className="whitespace-pre-wrap text-xs leading-relaxed text-gray-300">
+            <div className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
               {step.instructions}
             </div>
           </div>
 
           {/* Back / Next */}
-          <div className="flex gap-2 border-t border-gray-800 pt-3">
+          <div className="flex gap-2 border-t pt-3">
             <button
               type="button"
               onClick={handleBack}
               disabled={currentStep === 0}
-              className="rounded bg-gray-800 px-3 py-1.5 text-xs text-gray-400 hover:text-gray-200 disabled:opacity-30"
+              className="rounded bg-muted px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30"
             >
               ← Back
             </button>
@@ -282,7 +288,7 @@ export function TutorialView() {
               type="button"
               onClick={handleNext}
               disabled={currentStep === STEPS.length - 1}
-              className="flex-1 rounded bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700 disabled:opacity-30"
+              className="flex-1 rounded bg-primary px-3 py-1.5 text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-30"
             >
               Next →
             </button>
@@ -295,21 +301,21 @@ export function TutorialView() {
             <>
               {/* Request card */}
               <div className="mb-4 shrink-0">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Request
                 </div>
-                <div className="flex items-center gap-2 rounded bg-gray-800 px-3 py-2">
-                  <span className="rounded bg-blue-800 px-2 py-0.5 text-xs font-semibold text-blue-200">
+                <div className="flex items-center gap-2 rounded bg-muted px-3 py-2">
+                  <span className="rounded bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">
                     {step.displayMethod}
                   </span>
-                  <span className="flex-1 truncate font-mono text-xs text-gray-200">
+                  <span className="flex-1 truncate font-mono text-xs text-foreground">
                     {step.displayUrl}
                   </span>
                   <button
                     type="button"
                     onClick={handleSend}
                     disabled={sending}
-                    className="shrink-0 rounded bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="shrink-0 rounded bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                   >
                     {sending ? "Sending…" : "Send ▶"}
                   </button>
@@ -317,7 +323,7 @@ export function TutorialView() {
               </div>
 
               {/* Response */}
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded border border-gray-200 bg-white">
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded border bg-card">
                 <ResponseMeta
                   statusCode={response?.statusCode ?? null}
                   elapsedMs={response?.elapsedMs ?? null}
@@ -341,7 +347,7 @@ export function TutorialView() {
             </>
           ) : (
             <div className="flex flex-1 items-center justify-center">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 Use the navigation on the left to progress through the tutorial.
               </p>
             </div>
