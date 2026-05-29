@@ -1,6 +1,6 @@
 from drummer.api.routes.tutorial import STEPS, TutorialStep
 
-EXPECTED_STEP_COUNT = 7
+EXPECTED_STEP_COUNT = 10
 
 
 def test_steps_has_seven_entries() -> None:

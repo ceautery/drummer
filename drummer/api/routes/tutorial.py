@@ -11,7 +11,7 @@ from sse_starlette.sse import EventSourceResponse
 from drummer.api.deps import get_cookie_jar
 from drummer.core.cookies import CookieJar
 from drummer.core.engine import send as engine_send
-from drummer.core.storage.formats import HttpMethod, RequestFile, RequestFrontmatter
+from drummer.core.storage.formats import GraphQLConfig, HttpMethod, RequestFile, RequestFrontmatter
 from drummer.core.variables import resolve
 
 router = APIRouter(prefix="/api/tutorial", tags=["tutorial"])
@@ -32,6 +32,7 @@ class TutorialStep(BaseModel):
     pre_script: str = ""
     post_script: str = ""
     variable_overrides: dict[str, str] = Field(default_factory=dict)
+    graphql: GraphQLConfig | None = None
 
 
 STEPS: list[TutorialStep] = [
@@ -141,6 +142,72 @@ STEPS: list[TutorialStep] = [
             'dm.console.log("Artist:", obj.artistDisplayName);'
         ),
     ),
+    TutorialStep(
+        title="Your first GraphQL query",
+        instructions=(
+            "GraphQL uses a single endpoint and a query that names exactly the fields "
+            "you want back.\n\n"
+            "This queries Drummer's built-in mock of real Wikidata data. It fetches entity "
+            "Q42 (Douglas Adams) and asks for its label, description, and what it is an "
+            "instance of.\n\n"
+            "The query lives in the Body tab (GraphQL mode). Click Send to run it."
+        ),
+        method="POST",
+        url="http://localhost:8000/mock/wikidata/graphql",
+        graphql=GraphQLConfig(
+            query=(
+                "{\n"
+                '  entity(id: "Q42") {\n'
+                "    label\n"
+                "    description\n"
+                "    instanceOf { label }\n"
+                "  }\n"
+                "}"
+            )
+        ),
+    ),
+    TutorialStep(
+        title="Nested selection and variables",
+        instructions=(
+            "GraphQL's strength is following relations in one request. This query starts "
+            "from a book and walks to its author, then the author's place of birth, then "
+            "that place's country.\n\n"
+            "It also uses a GraphQL operation variable, $id, supplied in the Variables "
+            "sub-tab — distinct from Drummer's environment variables. Here $id is "
+            '"Q3107329" (The Hitchhiker\'s Guide to the Galaxy).\n\n'
+            "Click Send, then try changing $id to another entity."
+        ),
+        method="POST",
+        url="http://localhost:8000/mock/wikidata/graphql",
+        graphql=GraphQLConfig(
+            query=(
+                "query ($id: ID!) {\n"
+                "  entity(id: $id) {\n"
+                "    label\n"
+                "    author {\n"
+                "      label\n"
+                "      placeOfBirth { label country { label } }\n"
+                "    }\n"
+                "  }\n"
+                "}"
+            ),
+            variables={"id": "Q3107329"},
+        ),
+    ),
+    TutorialStep(
+        title="Explore the schema",
+        instructions=(
+            "Because the mock supports GraphQL introspection, Drummer can show you the "
+            "schema. Open the Body tab's Schema sub-tab to browse the Query and Entity "
+            "types and their fields — autocomplete in the query editor is driven by the "
+            "same introspection.\n\n"
+            "This query lists a few entities via search. Click Send to run it, and explore "
+            "the Schema sub-tab."
+        ),
+        method="POST",
+        url="http://localhost:8000/mock/wikidata/graphql",
+        graphql=GraphQLConfig(query=('{\n  search(term: "novel") {\n    id\n    label\n  }\n}')),
+    ),
 ]
 
 
@@ -161,6 +228,7 @@ def _step_to_request_file(step: TutorialStep) -> RequestFile:
         headers=step.headers,
         pre_script=step.pre_script,
         post_script=step.post_script,
+        graphql=step.graphql,
     )
     return RequestFile(frontmatter=fm, body=step.body, path=_VIRTUAL_PATH)
 

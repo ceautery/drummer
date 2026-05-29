@@ -101,10 +101,36 @@ async def test_list_steps_returns_all_steps(tmp_path: Path) -> None:
         response = await ac.get("/api/tutorial/steps")
     assert response.status_code == HTTPStatus.OK
     steps = response.json()
-    assert len(steps) == 7
+    assert len(steps) == 10
     assert steps[0]["title"] == "Welcome to Drummer"
     assert steps[0]["method"] is None
     assert steps[1]["method"] == "GET"
     assert steps[3]["params"] == {"q": "sunflowers"}
     assert "X-Tutorial-Id" in steps[5]["pre_script"]
     assert steps[4]["variable_overrides"] == {"base_url": "http://localhost:8000"}
+
+
+@pytest.mark.asyncio
+async def test_list_steps_includes_graphql_steps(tmp_path: Path) -> None:
+    app = _make_tutorial_app(tmp_path)
+    await init_db(_db_url(tmp_path))
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.get("/api/tutorial/steps")
+    steps = response.json()
+    assert len(steps) == 10
+    graphql_steps = [s for s in steps if s["graphql"] is not None]
+    assert len(graphql_steps) == 3
+    assert graphql_steps[0]["method"] == "POST"
+    assert "entity" in graphql_steps[0]["graphql"]["query"]
+
+
+@pytest.mark.asyncio
+async def test_graphql_step_sends_and_returns_data(tmp_path: Path) -> None:
+    app = _make_tutorial_app(tmp_path)
+    await init_db(_db_url(tmp_path))
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post("/api/tutorial/steps/7/send")
+    assert response.status_code == HTTPStatus.OK
+    events = parse_sse(response.text)
+    body_event = next(e for e in events if e["event"] == "body")
+    assert "Douglas Adams" in body_event["data"]["body"]  # type: ignore[index]
