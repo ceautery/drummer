@@ -223,7 +223,7 @@ export function WorkspaceView() {
   );
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full">
       <TwoPanel
         left={sidebar}
         right={mainArea}

@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useProject } from "./api/projects";
+import { AppBar } from "./components/layout/AppBar";
 import { useProjectStore } from "./store/projectStore";
 import { useViewStore } from "./store/viewStore";
 import { TutorialView } from "./views/TutorialView";
-import { WelcomeView } from "./views/WelcomeView";
 import { WorkspaceView } from "./views/WorkspaceView";
 
 export default function App() {
@@ -25,6 +25,12 @@ export default function App() {
     );
   }
 
-  if (!project) return <WelcomeView />;
-  return <WorkspaceView />;
+  return (
+    <div className="flex h-screen flex-col">
+      <AppBar />
+      <div className="min-h-0 flex-1">
+        <WorkspaceView />
+      </div>
+    </div>
+  );
 }
