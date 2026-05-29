@@ -19,6 +19,7 @@ from drummer.api.routes import project as project_routes
 from drummer.api.routes import requests as req_routes
 from drummer.api.routes import send as send_routes
 from drummer.api.routes import tutorial as tutorial_routes
+from drummer.api.routes import workspaces as workspace_routes
 from drummer.core.cookies import CookieJar
 from drummer.core.oauth import OAuthTokenCache
 
@@ -45,6 +46,7 @@ def create_app(
     app.state.transport = None  # overridden in tests
 
     app.include_router(project_routes.router, prefix="/api")
+    app.include_router(workspace_routes.router, prefix="/api")
     app.include_router(req_routes.router, prefix="/api")
     app.include_router(env_routes.router, prefix="/api")
     app.include_router(graphql_routes.router, prefix="/api")
