@@ -116,6 +116,24 @@ def test_list_workspaces_skips_stale_external(drummer_home: Path, tmp_path: Path
     assert externals == []
 
 
+def test_workspace_info_central_and_scratch(drummer_home: Path) -> None:
+    ws.ensure_scratch()
+    info = ws.workspace_info("scratch")
+    assert info.id == "scratch"
+    assert info.kind == "central"
+    assert info.is_scratch is True
+    assert info.name == "Scratch"
+
+
+def test_workspace_info_external(drummer_home: Path, tmp_path: Path) -> None:
+    external = tmp_path / "repo"
+    external.mkdir()
+    registered = ws.register_external(external)
+    info = ws.workspace_info(registered.id)
+    assert info.kind == "external"
+    assert info.is_scratch is False
+
+
 def test_set_active_preserves_other_config_keys(drummer_home: Path) -> None:
     config = drummer_home / "config.yaml"
     config.parent.mkdir(parents=True, exist_ok=True)

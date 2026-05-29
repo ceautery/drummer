@@ -63,3 +63,12 @@ async def test_register_external(client: AsyncClient, tmp_path: Path) -> None:
     r = await client.post("/api/workspaces/register", json={"path": str(external)})
     assert r.status_code == HTTPStatus.OK
     assert r.json()["kind"] == "external"
+
+
+async def test_switch_back_to_scratch(client: AsyncClient) -> None:
+    await client.post("/api/workspaces", json={"name": "My API"})
+    await client.post("/api/workspaces/active", json={"id": "my-api"})
+    r = await client.post("/api/workspaces/active", json={"id": "scratch"})
+    assert r.status_code == HTTPStatus.OK
+    assert r.json()["is_scratch"] is True
+    assert (await client.get("/api/workspaces")).json()["active"] == "scratch"

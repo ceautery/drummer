@@ -146,6 +146,19 @@ def resolve_workspace(workspace_id: str) -> Path:
     return candidate if candidate.is_absolute() else _projects_dir() / workspace_id
 
 
+def workspace_info(workspace_id: str) -> WorkspaceInfo:
+    target = resolve_workspace(workspace_id)
+    meta = load_project(target)
+    is_external = Path(workspace_id).is_absolute()
+    return WorkspaceInfo(
+        id=workspace_id,
+        name=meta.name,
+        kind="external" if is_external else "central",
+        path=str(target.resolve()),
+        is_scratch=not is_external and workspace_id == "scratch",
+    )
+
+
 def _workspace_exists(workspace_id: str) -> bool:
     return project_exists(resolve_workspace(workspace_id))
 

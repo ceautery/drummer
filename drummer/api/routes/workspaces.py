@@ -52,9 +52,4 @@ async def switch_workspace_route(body: SwitchBody, request: Request) -> ws.Works
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Workspace not found")
     ws.set_active(body.id)
     request.app.state.project_dir = target
-    for info in ws.list_workspaces():
-        if info.id == body.id:
-            return info
-    return ws.WorkspaceInfo(
-        id=body.id, name=target.name, kind="central", path=str(target), is_scratch=False
-    )
+    return ws.workspace_info(body.id)
