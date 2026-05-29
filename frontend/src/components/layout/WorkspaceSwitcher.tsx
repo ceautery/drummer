@@ -1,4 +1,5 @@
 import type * as React from "react";
+import { useMemo } from "react";
 import {
   Select,
   SelectContent,
@@ -43,30 +44,28 @@ export function WorkspaceSwitcher() {
   const handleChange = (value: string | null) => {
     if (value === null) return;
     if (value === NEW) {
-      const name = window.prompt("New workspace name:");
-      if (name?.trim()) {
-        guarded(() =>
-          createWorkspace.mutate(name.trim(), { onSuccess: switchTo }),
-        );
+      const name = window.prompt("New workspace name:")?.trim();
+      if (name) {
+        guarded(() => createWorkspace.mutate(name, { onSuccess: switchTo }));
       }
       return;
     }
     if (value === ADD) {
-      const path = window.prompt("Path to existing project folder:");
-      if (path?.trim()) {
-        guarded(() =>
-          registerWorkspace.mutate(path.trim(), { onSuccess: switchTo }),
-        );
+      const path = window.prompt("Path to existing project folder:")?.trim();
+      if (path) {
+        guarded(() => registerWorkspace.mutate(path, { onSuccess: switchTo }));
       }
       return;
     }
     if (value !== active) guarded(() => switchWorkspace.mutate(value));
   };
 
-  const itemLabels: Record<string, React.ReactNode> = {};
-  for (const w of workspaces) {
-    itemLabels[w.id] = w.name;
-  }
+  const itemLabels = useMemo<Record<string, React.ReactNode>>(
+    // Sentinel action items (NEW/ADD) are intentionally omitted here, so the trigger
+    // label only ever resolves to a real workspace name — never "+ New workspace…".
+    () => Object.fromEntries(workspaces.map((w) => [w.id, w.name] as const)),
+    [workspaces],
+  );
 
   return (
     <Select value={active} onValueChange={handleChange} items={itemLabels}>
