@@ -3,7 +3,7 @@ from drummer.api.routes.tutorial import STEPS, TutorialStep
 EXPECTED_STEP_COUNT = 10
 
 
-def test_steps_has_seven_entries() -> None:
+def test_step_count_matches_expected() -> None:
     assert len(STEPS) == EXPECTED_STEP_COUNT
 
 
