@@ -18,4 +18,4 @@ async def get_settings_route() -> Settings:
 @router.put("/settings")
 async def put_settings_route(body: Settings) -> Settings:
     ws.set_theme(body.theme)
-    return Settings(theme=ws.get_theme())
+    return Settings(theme=body.theme)
