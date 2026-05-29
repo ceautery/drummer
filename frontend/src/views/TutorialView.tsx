@@ -15,6 +15,11 @@ export function TutorialView() {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
 
+  // Keep a ref to the latest cancel so the snapshot cleanup can abort any
+  // in-flight tutorial send without adding cancel to the effect's dep array.
+  const cancelRef = useRef(cancel);
+  cancelRef.current = cancel;
+
   // Snapshot the shared stores on mount; restore on unmount so the tutorial
   // never disturbs the workspace's in-progress request/response/session.
   const snapshotRef = useRef<{
@@ -29,6 +34,7 @@ export function TutorialView() {
       session: { ...useSessionStore.getState() },
     };
     return () => {
+      cancelRef.current();
       const snap = snapshotRef.current;
       if (!snap) return;
       useRequestStore.setState(snap.request);
