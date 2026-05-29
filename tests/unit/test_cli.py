@@ -45,3 +45,24 @@ def test_version_flag():
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
     assert "0.1.0" in result.output
+
+
+def test_bare_drummer_launches_server(monkeypatch, tmp_path):
+    monkeypatch.setenv("DRUMMER_HOME", str(tmp_path))
+    calls = {}
+
+    def fake_run(application, host, port):
+        calls["host"] = host
+        calls["port"] = port
+
+    monkeypatch.setattr("drummer.cli.uvicorn.run", fake_run)
+    result = runner.invoke(app, [])
+    assert result.exit_code == 0
+    assert calls["port"] == 8000
+
+
+def test_new_creates_central_workspace(monkeypatch, tmp_path):
+    monkeypatch.setenv("DRUMMER_HOME", str(tmp_path))
+    result = runner.invoke(app, ["new", "My API"])
+    assert result.exit_code == 0
+    assert (tmp_path / "projects" / "my-api" / ".drummer" / "project.yaml").exists()

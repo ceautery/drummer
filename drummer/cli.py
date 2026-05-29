@@ -6,6 +6,8 @@ import uvicorn
 
 from drummer import __version__
 from drummer.api.app import create_app
+from drummer.core.storage import workspaces
+from drummer.core.storage.project import load_project
 
 _ATTRIBUTION = (
     "Drummer includes data from the Metropolitan Museum of Art Open Access collection.\n"
@@ -15,6 +17,26 @@ _ATTRIBUTION = (
 )
 
 app = typer.Typer(name="drummer", help="Drummer — a local REST client.")
+
+ProjectOpt = Annotated[
+    str | None, typer.Option("--project", "-p", help="Open an external project folder.")
+]
+PortOpt = Annotated[int, typer.Option("--port", help="Port to listen on.")]
+HostOpt = Annotated[str, typer.Option("--host", help="Host address to bind to.")]
+
+
+def _launch(project: str | None, port: int, host: str) -> None:
+    workspaces.ensure_scratch()
+    if project is not None:
+        info = workspaces.register_external(Path(project))
+        workspaces.set_active(info.id)
+        project_dir = Path(info.path)
+    else:
+        project_dir = workspaces.active_workspace_dir()
+    application = create_app(project_dir=project_dir)
+    meta = load_project(project_dir)
+    typer.echo(f"Drummer serving '{meta.name}' on http://{host}:{port}")
+    uvicorn.run(application, host=host, port=port)
 
 
 @app.callback(invoke_without_command=True)
@@ -26,6 +48,9 @@ def main(
     version: Annotated[
         bool, typer.Option("--version", "-V", help="Print version and exit.")
     ] = False,
+    project: ProjectOpt = None,
+    port: PortOpt = 8000,
+    host: HostOpt = "127.0.0.1",
 ) -> None:
     if attribution:
         typer.echo(_ATTRIBUTION)
@@ -34,47 +59,27 @@ def main(
         typer.echo(f"Drummer {__version__}")
         raise typer.Exit()
     if ctx.invoked_subcommand is None:
-        typer.echo(ctx.get_help())
-        raise typer.Exit()
+        _launch(project, port, host)
+
+
+@app.command(hidden=True)
+def serve(project: ProjectOpt = None, port: PortOpt = 8000, host: HostOpt = "127.0.0.1") -> None:
+    """Start the Drummer API server (alias for the bare `drummer` command)."""
+    _launch(project, port, host)
 
 
 @app.command()
-def serve(
-    project: Annotated[
-        str | None, typer.Option("--project", "-p", help="Path to the project folder.")
-    ] = None,
-    port: Annotated[int, typer.Option("--port", help="Port to listen on.")] = 8000,
-    host: Annotated[str, typer.Option("--host", help="Host address to bind to.")] = "127.0.0.1",
-) -> None:
-    """Start the Drummer API server, optionally loading PROJECT on startup."""
-    project_dir: Path | None = None
-    if project is not None:
-        project_dir = Path(project).expanduser().resolve()
-        if not (project_dir / ".drummer" / "project.yaml").exists():
-            typer.echo(
-                f"Error: {project_dir} is not a Drummer project (missing .drummer/project.yaml)",
-                err=True,
-            )
-            raise typer.Exit(code=1)
-
-    application = create_app(project_dir=project_dir)
-    label = project_dir.name if project_dir is not None else "(no project)"
-    typer.echo(f"Drummer serving {label} on http://{host}:{port}")
-    uvicorn.run(application, host=host, port=port)
-
-
-@app.command()
-def new(path: Annotated[str, typer.Argument(help="Path for the new project folder.")]) -> None:
-    """Create a new Drummer project at PATH."""
-    typer.echo(f"Creating project at {path} ...")
-    typer.echo("(Not yet implemented — Phase 2)")
+def new(name: Annotated[str, typer.Argument(help="Name for the new workspace.")]) -> None:
+    """Create a new central workspace under ~/.drummer/projects/."""
+    info = workspaces.create_workspace(name)
+    typer.echo(f"Created workspace '{info.name}' at {info.path}")
 
 
 @app.command()
 def export(path: Annotated[str, typer.Argument(help="Path of the project to export.")]) -> None:
     """Export a Drummer project at PATH as a zip file."""
     typer.echo(f"Exporting project at {path} ...")
-    typer.echo("(Not yet implemented — Phase 2)")
+    typer.echo("(Not yet implemented)")
 
 
 @app.command()
