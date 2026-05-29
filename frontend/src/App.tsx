@@ -1,7 +1,10 @@
 import { useEffect } from "react";
 import { useProject } from "./api/projects";
+import { useSettings } from "./api/settings";
 import { AppBar } from "./components/layout/AppBar";
+import { useApplyTheme } from "./lib/useApplyTheme";
 import { useProjectStore } from "./store/projectStore";
+import { useThemeStore } from "./store/themeStore";
 import { useViewStore } from "./store/viewStore";
 import { TutorialView } from "./views/TutorialView";
 import { WorkspaceView } from "./views/WorkspaceView";
@@ -9,17 +12,33 @@ import { WorkspaceView } from "./views/WorkspaceView";
 export default function App() {
   const view = useViewStore((s) => s.view);
   const { data: project, isLoading } = useProject();
+  const { data: settings, isLoading: settingsLoading } = useSettings();
   const setProject = useProjectStore((s) => s.setProject);
+  const setTheme = useThemeStore((s) => s.setTheme);
+
+  useApplyTheme();
 
   useEffect(() => {
     if (project) setProject(project);
   }, [project, setProject]);
 
+  useEffect(() => {
+    if (settings) setTheme(settings.theme);
+  }, [settings, setTheme]);
+
+  if (settingsLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+        Loading…
+      </div>
+    );
+  }
+
   if (view === "tutorial") return <TutorialView />;
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center text-sm text-gray-400">
+      <div className="flex h-screen items-center justify-center bg-background text-sm text-muted-foreground">
         Loading…
       </div>
     );
