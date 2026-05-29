@@ -1,5 +1,4 @@
 import type * as React from "react";
-import { useMemo } from "react";
 import {
   Select,
   SelectContent,
@@ -17,28 +16,28 @@ const ICON: Record<ThemePref, string> = {
   system: "🖥️",
 };
 
+const ITEM_LABELS: Record<string, React.ReactNode> = {
+  light: <span>{ICON.light}</span>,
+  dark: <span>{ICON.dark}</span>,
+  system: <span>{ICON.system}</span>,
+};
+
 const ORDER: ThemePref[] = ["light", "dark", "system"];
+
+const isThemePref = (v: string): v is ThemePref =>
+  v === "light" || v === "dark" || v === "system";
 
 export function ThemeToggle() {
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useSetTheme();
 
-  const itemLabels = useMemo<Record<string, React.ReactNode>>(
-    () => ({
-      light: <span>☀️</span>,
-      dark: <span>🌙</span>,
-      system: <span>🖥️</span>,
-    }),
-    [],
-  );
-
   const handleChange = (value: string | null) => {
-    if (value === null) return;
-    setTheme.mutate(value as ThemePref);
+    if (value === null || !isThemePref(value)) return;
+    setTheme.mutate(value);
   };
 
   return (
-    <Select value={theme} onValueChange={handleChange} items={itemLabels}>
+    <Select value={theme} onValueChange={handleChange} items={ITEM_LABELS}>
       <SelectTrigger size="sm" className="w-auto" aria-label="Theme">
         <SelectValue />
       </SelectTrigger>
