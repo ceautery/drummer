@@ -4,6 +4,9 @@ from typing import Annotated, Any, cast
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
+
+from drummer.api.mock.wikidata import execute as execute_wikidata
 
 _SNAPSHOT_PATH = Path(__file__).parent.parent / "mock" / "met_snapshot.json"
 _raw: Any = json.loads(_SNAPSHOT_PATH.read_text(encoding="utf-8"))
@@ -81,3 +84,16 @@ def object_detail_route(object_id: int) -> JSONResponse:
 def search_route(q: str = "") -> JSONResponse:
     ids = search_objects(q) if q else get_object_ids()
     return JSONResponse({"total": len(ids), "objectIDs": ids})
+
+
+wikidata_router = APIRouter(prefix="/mock/wikidata", tags=["mock"])
+
+
+class GraphQLQuery(BaseModel):
+    query: str
+    variables: dict[str, Any] = Field(default_factory=dict)
+
+
+@wikidata_router.post("/graphql")
+def wikidata_graphql_route(body: GraphQLQuery) -> JSONResponse:
+    return JSONResponse(execute_wikidata(body.query, body.variables))

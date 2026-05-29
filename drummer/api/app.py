@@ -56,6 +56,7 @@ def create_app(
     app.include_router(history_routes.router, prefix="/api")
     app.include_router(cookie_routes.router, prefix="/api")
     app.include_router(mock_routes.router)
+    app.include_router(mock_routes.wikidata_router)
     app.include_router(tutorial_routes.router)
 
     mcp = FastApiMCP(app)
