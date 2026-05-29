@@ -149,7 +149,7 @@ export function UrlBar({
 
       <div
         ref={editorRef}
-        className="cm-url-bar flex-1 rounded border focus-within:ring-2 focus-within:ring-ring"
+        className="cm-url-bar flex-1 rounded border focus-within:ring-2 focus-within:ring-primary"
         data-testid="url-input"
       />
 

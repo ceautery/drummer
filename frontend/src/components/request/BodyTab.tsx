@@ -90,7 +90,7 @@ export function BodyTab() {
             onClick={() => handleModeChange(m)}
             className={`rounded px-2 py-0.5 text-xs capitalize ${
               mode === m
-                ? "bg-muted text-foreground"
+                ? "bg-primary/10 text-primary"
                 : "text-muted-foreground hover:bg-muted"
             }`}
           >

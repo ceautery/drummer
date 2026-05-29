@@ -223,7 +223,7 @@ export function GraphQLTab() {
             onClick={() => setActiveTab(t)}
             className={`rounded px-2 py-0.5 text-xs ${
               activeTab === t
-                ? "bg-muted text-foreground"
+                ? "bg-primary/10 text-primary"
                 : "text-muted-foreground hover:bg-muted"
             }`}
           >

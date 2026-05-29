@@ -113,7 +113,7 @@ export function ScriptTab() {
             onClick={() => setMode(m)}
             className={`rounded-t px-3 py-1 text-xs ${
               mode === m
-                ? "bg-muted text-foreground"
+                ? "bg-primary/10 text-primary"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -127,7 +127,7 @@ export function ScriptTab() {
       {hasOutput && (
         <div className="max-h-40 shrink-0 overflow-y-auto border-t bg-muted p-2 font-mono text-xs">
           {logEntries.map(({ key, text }) => (
-            <div key={key} className="text-muted-foreground">
+            <div key={key} className="text-foreground">
               {text}
             </div>
           ))}
