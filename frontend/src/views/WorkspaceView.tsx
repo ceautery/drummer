@@ -157,7 +157,7 @@ export function WorkspaceView() {
             className={`px-3 py-1.5 text-xs border-b-2 ${
               requestTab === tab.id
                 ? "border-purple-600 text-purple-700"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             {tab.label}
@@ -192,7 +192,7 @@ export function WorkspaceView() {
             className={`px-3 py-1.5 text-xs border-b-2 ${
               responseTab === tab.id
                 ? "border-purple-600 text-purple-700"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             {tab.label}

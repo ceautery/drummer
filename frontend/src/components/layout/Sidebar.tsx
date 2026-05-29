@@ -15,19 +15,22 @@ export function Sidebar({ onRequestSelect }: SidebarProps) {
   const { data: environments = [] } = useEnvironments();
 
   return (
-    <div className="flex h-full flex-col border-r bg-gray-50">
+    <div className="flex h-full flex-col border-r bg-muted">
       <div className="border-b px-3 py-2">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           Project
         </p>
-        <p className="truncate text-sm font-medium text-gray-900">
+        <p className="truncate text-sm font-medium text-foreground">
           {project?.name}
         </p>
       </div>
 
       {environments.length > 0 && (
         <div className="border-b px-3 py-2">
-          <label htmlFor="environment-select" className="text-xs text-gray-500">
+          <label
+            htmlFor="environment-select"
+            className="text-xs text-muted-foreground"
+          >
             Environment
           </label>
           <select

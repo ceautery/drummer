@@ -79,7 +79,7 @@ export function WorkspaceSwitcher() {
               {w.is_scratch && <span>⌂</span>}
               {w.name}
               {w.kind === "external" && (
-                <span className="rounded bg-gray-200 px-1 text-[10px] text-gray-600">
+                <span className="rounded bg-muted px-1 text-[10px] text-muted-foreground">
                   external
                 </span>
               )}

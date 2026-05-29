@@ -21,8 +21,8 @@ export function TwoPanel({
       <PanelResizeHandle
         className={
           direction === "horizontal"
-            ? "w-1 bg-gray-200 hover:bg-purple-400 cursor-col-resize"
-            : "h-1 bg-gray-200 hover:bg-purple-400 cursor-row-resize"
+            ? "w-1 bg-border hover:bg-purple-400 dark:hover:bg-purple-500 cursor-col-resize"
+            : "h-1 bg-border hover:bg-purple-400 dark:hover:bg-purple-500 cursor-row-resize"
         }
       />
       <Panel defaultSize={defaultSizes[1]} minSize={10}>
