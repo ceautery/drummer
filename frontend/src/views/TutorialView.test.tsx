@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useThemeStore } from "../store/themeStore";
 import { TutorialView } from "./TutorialView";
 
 vi.mock("../api/settings", () => ({
@@ -17,6 +18,10 @@ function renderTutorial() {
 }
 
 describe("TutorialView", () => {
+  beforeEach(() => {
+    useThemeStore.setState({ theme: "system", systemDark: false });
+  });
+
   it("renders the theme toggle in its nav", () => {
     renderTutorial();
     expect(screen.getByLabelText(/theme/i)).toBeInTheDocument();

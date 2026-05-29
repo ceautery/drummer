@@ -269,7 +269,7 @@ export function TutorialView() {
             <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Instructions
             </div>
-            <div className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
+            <div className="whitespace-pre-wrap text-xs leading-relaxed text-foreground">
               {step.instructions}
             </div>
           </div>
@@ -305,7 +305,7 @@ export function TutorialView() {
                   Request
                 </div>
                 <div className="flex items-center gap-2 rounded bg-muted px-3 py-2">
-                  <span className="rounded bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">
+                  <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                     {step.displayMethod}
                   </span>
                   <span className="flex-1 truncate font-mono text-xs text-foreground">
