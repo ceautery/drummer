@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+import yaml
 
 from drummer.core.storage import workspaces as ws
 from drummer.core.storage.project import load_project
@@ -103,3 +104,24 @@ def test_resolve_workspace_central_vs_external(drummer_home: Path, tmp_path: Pat
     assert ws.resolve_workspace("scratch") == drummer_home / "projects" / "scratch"
     ext = tmp_path / "ext"
     assert ws.resolve_workspace(str(ext)) == ext
+
+
+def test_list_workspaces_skips_stale_external(drummer_home: Path, tmp_path: Path) -> None:
+    external = tmp_path / "repo"
+    external.mkdir()
+    ws.register_external(external)
+    # Remove the project so the registry entry is now stale.
+    (external / ".drummer" / "project.yaml").unlink()
+    externals = [w for w in ws.list_workspaces() if w.kind == "external"]
+    assert externals == []
+
+
+def test_set_active_preserves_other_config_keys(drummer_home: Path) -> None:
+    config = drummer_home / "config.yaml"
+    config.parent.mkdir(parents=True, exist_ok=True)
+    config.write_text(yaml.dump({"active_workspace": "scratch", "theme": "dark"}))
+    ws.create_workspace("My API")
+    ws.set_active("my-api")
+    data = yaml.safe_load(config.read_text())
+    assert data["active_workspace"] == "my-api"
+    assert data["theme"] == "dark"
