@@ -28,12 +28,14 @@ Requires Node.js (for the frontend build step). Homebrew and PyPI packages are p
 ## Quick start
 
 ```bash
-# Open the built-in tutorial (no project needed)
-drummer serve
+# Launch Drummer (opens your last workspace, or the built-in Scratch space on first run)
+drummer
 
-# Open your own project
-drummer serve --project /path/to/my-api
+# Open an external project folder (registers it as a workspace)
+drummer --project /path/to/my-api
 ```
+
+Workspaces live under `~/.drummer/projects/`. The built-in **Scratch** workspace is always available for quick, throwaway requests. Use the workspace switcher in the top bar to create new workspaces, register existing folders, and cycle between them during a session.
 
 Drummer starts on port 8000. Open `http://localhost:8000` in your browser.
 
@@ -99,7 +101,7 @@ Select an environment in the sidebar, pick a request, click **Send**.
 
 ## Tutorial
 
-Run `drummer serve` without `--project`, then click **"No project yet? Try the interactive tutorial →"** on the welcome screen. The tutorial walks through all of Drummer's features using an offline mock API backed by Metropolitan Museum of Art Open Access data — no internet required.
+Run `drummer` without `--project`, then click **"No project yet? Try the interactive tutorial →"** on the welcome screen. The tutorial walks through all of Drummer's features using an offline mock API backed by Metropolitan Museum of Art Open Access data — no internet required.
 
 ---
 
@@ -154,7 +156,7 @@ Drummer exposes an MCP server so Claude can send requests, inspect responses, an
 
 **Setup:**
 
-1. Start Drummer: `drummer serve --project /path/to/my-api`
+1. Start Drummer: `drummer --project /path/to/my-api`
 2. Add to your Claude MCP config:
 
 ```json
@@ -177,7 +179,7 @@ Claude can then call tools like `send_request`, `set_variable`, `switch_environm
 
 | Command | Description |
 |---|---|
-| `drummer serve [--project PATH] [--port N]` | Start the server |
+| `drummer [--project PATH] [--port N]` | Start the server |
 | `drummer new PATH` | Scaffold a new project at PATH |
 | `drummer export PATH` | Export a project as a zip |
 | `drummer mcp` | Show MCP server URL and available tools |
