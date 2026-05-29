@@ -20,6 +20,14 @@
   color: #d97706;
   cursor: default;
 }
+.dark .cm-var-known {
+  background: rgba(196, 181, 253, 0.18);
+  color: #c4b5fd;
+}
+.dark .cm-var-unknown {
+  background: rgba(252, 211, 77, 0.18);
+  color: #fcd34d;
+}
 
 /* CodeMirror URL bar appearance */
 .cm-url-bar .cm-editor {
@@ -80,7 +88,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: oklch(0.546 0.245 293);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -115,8 +123,8 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  --primary: oklch(0.62 0.235 293);
+  --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
