@@ -4,7 +4,7 @@ Drummer exposes a Model Context Protocol (MCP) server so Claude can send request
 
 ## Setup
 
-1. Start Drummer: `drummer serve`
+1. Start Drummer: `drummer`
 2. Add to your Claude MCP configuration:
 
 ```json

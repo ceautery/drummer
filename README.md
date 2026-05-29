@@ -101,7 +101,7 @@ Select an environment in the sidebar, pick a request, click **Send**.
 
 ## Tutorial
 
-Run `drummer` without `--project`, then click **"No project yet? Try the interactive tutorial →"** on the welcome screen. The tutorial walks through all of Drummer's features using an offline mock API backed by Metropolitan Museum of Art Open Access data — no internet required.
+Run `drummer`, then click the **Tutorial** button in the top bar. The tutorial walks through all of Drummer's features using an offline mock API backed by Metropolitan Museum of Art Open Access data — no internet required.
 
 ---
 
@@ -180,7 +180,7 @@ Claude can then call tools like `send_request`, `set_variable`, `switch_environm
 | Command | Description |
 |---|---|
 | `drummer [--project PATH] [--port N]` | Start the server |
-| `drummer new PATH` | Scaffold a new project at PATH |
+| `drummer new NAME` | Create a new workspace named NAME under ~/.drummer/projects/ |
 | `drummer export PATH` | Export a project as a zip |
 | `drummer mcp` | Show MCP server URL and available tools |
 | `drummer --version` | Print version |

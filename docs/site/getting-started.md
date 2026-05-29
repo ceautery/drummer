@@ -62,14 +62,14 @@ url: "{{base_url}}/users"
 ## Start Drummer
 
 ```bash
-drummer serve --project /path/to/my-api
+drummer --project /path/to/my-api
 ```
 
 Drummer starts on port 8000. Open `http://localhost:8000` in your browser. Select your environment in the sidebar, click **Send**, and see the response.
 
 ## Built-in tutorial
 
-Run `drummer serve` without a `--project` flag, then click **"No project yet? Try the interactive tutorial →"** on the welcome screen. The tutorial walks through all of Drummer's features using an offline mock API — no internet required.
+Run `drummer`, then click the **Tutorial** button in the top bar. The tutorial walks through all of Drummer's features using an offline mock API — no internet required.
 
 ## What's next
 

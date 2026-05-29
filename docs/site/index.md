@@ -25,7 +25,7 @@ pip install drummer
 ## Quick start
 
 ```bash
-drummer serve --project /path/to/your/project
+drummer
 ```
 
 Drummer opens in your browser at `http://localhost:8000`.

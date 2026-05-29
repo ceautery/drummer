@@ -1,43 +1,47 @@
 # CLI Reference
 
-## drummer serve
+## drummer
 
 Start the Drummer server and open it in the browser.
 
 ```bash
-drummer serve [OPTIONS]
+drummer [OPTIONS]
 ```
 
 | Option | Default | Description |
 |---|---|---|
-| `--project PATH` | none | Path to a Drummer project folder |
+| `--project PATH` | none | Register an external folder as a workspace and open it |
 | `--port INTEGER` | 8000 | Port to listen on |
 | `--host TEXT` | 127.0.0.1 | Host address to bind to |
 
 **Examples:**
 
 ```bash
-# Open with no project (shows built-in tutorial)
-drummer serve
+# Open Drummer (last workspace, or built-in Scratch on first run)
+drummer
 
-# Open a specific project
-drummer serve --project ~/projects/my-api
+# Register and open an external project folder
+drummer --project ~/projects/my-api
 
 # Custom port
-drummer serve --port 9000 --project ~/projects/my-api
+drummer --port 9000 --project ~/projects/my-api
 ```
+
+## drummer serve
+
+Hidden alias for `drummer` (start the server). Prefer `drummer` directly.
 
 ---
 
 ## drummer new
 
-Create a new Drummer project at the given path.
+Create a new workspace under `~/.drummer/projects/`.
 
 ```bash
-drummer new PATH
+drummer new NAME
 ```
 
-Creates a `.drummer/` directory with `project.yaml` and a default `local` environment at `PATH`.
+Creates a new central workspace directory under `~/.drummer/projects/<slug>` with `project.yaml` and a default `local` environment.
 
 ---
 
