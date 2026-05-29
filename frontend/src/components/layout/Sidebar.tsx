@@ -15,7 +15,7 @@ export function Sidebar({ onRequestSelect }: SidebarProps) {
   const { data: environments = [] } = useEnvironments();
 
   return (
-    <div className="flex h-full flex-col border-r bg-muted">
+    <div className="flex h-full flex-col border-r bg-sidebar">
       <div className="border-b px-3 py-2">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           Project

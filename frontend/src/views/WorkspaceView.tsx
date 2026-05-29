@@ -156,7 +156,7 @@ export function WorkspaceView() {
             onClick={() => setRequestTab(tab.id)}
             className={`px-3 py-1.5 text-xs border-b-2 ${
               requestTab === tab.id
-                ? "border-purple-600 text-purple-700"
+                ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -191,7 +191,7 @@ export function WorkspaceView() {
             onClick={() => setResponseTab(tab.id)}
             className={`px-3 py-1.5 text-xs border-b-2 ${
               responseTab === tab.id
-                ? "border-purple-600 text-purple-700"
+                ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
