@@ -3,7 +3,7 @@
 import os
 import re
 from pathlib import Path
-from typing import Literal, cast
+from typing import Literal, cast, get_args
 
 import yaml
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from drummer.core.storage.project import create_project, load_project, project_exists
 
 ThemePref = Literal["light", "dark", "system"]
-_VALID_THEMES: set[str] = {"light", "dark", "system"}
+_VALID_THEMES: frozenset[str] = frozenset(get_args(ThemePref))
 
 
 class WorkspaceInfo(BaseModel):
