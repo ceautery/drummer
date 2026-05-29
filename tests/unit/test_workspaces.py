@@ -143,3 +143,29 @@ def test_set_active_preserves_other_config_keys(drummer_home: Path) -> None:
     data = yaml.safe_load(config.read_text())
     assert data["active_workspace"] == "my-api"
     assert data["theme"] == "dark"
+
+
+def test_get_theme_defaults_to_system(drummer_home: Path) -> None:
+    assert ws.get_theme() == "system"
+
+
+def test_set_theme_round_trips(drummer_home: Path) -> None:
+    ws.set_theme("dark")
+    assert ws.get_theme() == "dark"
+
+
+def test_get_theme_falls_back_on_invalid_value(drummer_home: Path) -> None:
+    config = drummer_home / "config.yaml"
+    config.parent.mkdir(parents=True, exist_ok=True)
+    config.write_text(yaml.dump({"theme": "neon"}))
+    assert ws.get_theme() == "system"
+
+
+def test_set_theme_preserves_active_workspace(drummer_home: Path) -> None:
+    config = drummer_home / "config.yaml"
+    config.parent.mkdir(parents=True, exist_ok=True)
+    config.write_text(yaml.dump({"active_workspace": "scratch"}))
+    ws.set_theme("light")
+    data = yaml.safe_load(config.read_text())
+    assert data["active_workspace"] == "scratch"
+    assert data["theme"] == "light"

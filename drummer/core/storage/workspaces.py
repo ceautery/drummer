@@ -10,6 +10,9 @@ from pydantic import BaseModel
 
 from drummer.core.storage.project import create_project, load_project, project_exists
 
+ThemePref = Literal["light", "dark", "system"]
+_VALID_THEMES: set[str] = {"light", "dark", "system"}
+
 
 class WorkspaceInfo(BaseModel):
     id: str  # central slug, or absolute path for external workspaces
@@ -163,24 +166,44 @@ def _workspace_exists(workspace_id: str) -> bool:
     return project_exists(resolve_workspace(workspace_id))
 
 
-def get_active() -> str:
+def _read_config() -> dict[str, object]:
     path = _config_path()
-    if path.exists():
-        data: dict[str, object] = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        active = data.get("active_workspace")
-        if isinstance(active, str) and _workspace_exists(active):
-            return active
+    if not path.exists():
+        return {}
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+
+def _write_config(data: dict[str, object]) -> None:
+    path = _config_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(yaml.dump(data, default_flow_style=False), encoding="utf-8")
+
+
+def get_active() -> str:
+    data = _read_config()
+    active = data.get("active_workspace")
+    if isinstance(active, str) and _workspace_exists(active):
+        return active
     return "scratch"
 
 
 def set_active(workspace_id: str) -> None:
-    path = _config_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    data: dict[str, object] = {}
-    if path.exists():
-        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    data = _read_config()
     data["active_workspace"] = workspace_id
-    path.write_text(yaml.dump(data, default_flow_style=False), encoding="utf-8")
+    _write_config(data)
+
+
+def get_theme() -> ThemePref:
+    value = _read_config().get("theme")
+    if isinstance(value, str) and value in _VALID_THEMES:
+        return cast("ThemePref", value)
+    return "system"
+
+
+def set_theme(pref: ThemePref) -> None:
+    data = _read_config()
+    data["theme"] = pref
+    _write_config(data)
 
 
 def active_workspace_dir() -> Path:
