@@ -124,3 +124,9 @@ export interface WorkspaceListResponse {
   workspaces: WorkspaceInfo[];
   active: string;
 }
+
+export type ThemePref = "light" | "dark" | "system";
+
+export interface Settings {
+  theme: ThemePref;
+}
