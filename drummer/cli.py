@@ -7,7 +7,7 @@ import uvicorn
 from drummer import __version__
 from drummer.api.app import create_app
 from drummer.core.storage import workspaces
-from drummer.core.storage.project import load_project
+from drummer.core.storage.project import load_project, project_exists
 
 _ATTRIBUTION = (
     "Drummer includes data from the Metropolitan Museum of Art Open Access collection.\n"
@@ -26,9 +26,12 @@ HostOpt = Annotated[str, typer.Option("--host", help="Host address to bind to.")
 
 
 def _launch(project: str | None, port: int, host: str) -> None:
-    workspaces.ensure_scratch()
+    workspaces.ensure_scratch()  # the Scratch catchall must always exist for the switcher
     if project is not None:
+        was_new = not project_exists(Path(project).expanduser())
         info = workspaces.register_external(Path(project))
+        if was_new:
+            typer.echo(f"Initialized a new Drummer project at {info.path}")
         workspaces.set_active(info.id)
         project_dir = Path(info.path)
     else:

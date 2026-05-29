@@ -2,6 +2,7 @@ import click
 from typer.testing import CliRunner
 
 from drummer.cli import app
+from drummer.core.storage.project import create_project
 
 runner = CliRunner()
 
@@ -66,3 +67,32 @@ def test_new_creates_central_workspace(monkeypatch, tmp_path):
     result = runner.invoke(app, ["new", "My API"])
     assert result.exit_code == 0
     assert (tmp_path / "projects" / "my-api" / ".drummer" / "project.yaml").exists()
+
+
+def test_project_flag_registers_and_launches(monkeypatch, tmp_path):
+    monkeypatch.setenv("DRUMMER_HOME", str(tmp_path))
+    ext = tmp_path / "my-ext-project"
+    ext.mkdir()
+    create_project(ext, "My Ext")
+
+    calls = {}
+
+    def fake_run(application, host, port):
+        calls["ran"] = True
+
+    monkeypatch.setattr("drummer.cli.uvicorn.run", fake_run)
+    result = runner.invoke(app, ["--project", str(ext)])
+    assert result.exit_code == 0
+    assert calls.get("ran") is True
+    assert "My Ext" in result.output
+
+
+def test_project_flag_initializes_new_project(monkeypatch, tmp_path):
+    monkeypatch.setenv("DRUMMER_HOME", str(tmp_path))
+    ext = tmp_path / "fresh-project"
+    ext.mkdir()
+
+    monkeypatch.setattr("drummer.cli.uvicorn.run", lambda *_args, **_kwargs: None)
+    result = runner.invoke(app, ["--project", str(ext)])
+    assert result.exit_code == 0
+    assert "Initialized a new Drummer project" in result.output

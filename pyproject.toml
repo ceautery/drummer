@@ -58,12 +58,9 @@ ignore = [
     "ERA001", # commented-out code — too aggressive
 ]
 
-[tool.ruff.lint.pylint]
-max-args = 6  # Typer CLI callbacks need ctx + multiple CLI options
-
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106", "ANN", "S603", "ARG001", "PLR2004"]  # S105/S106: test fixtures use dummy credentials; ARG001: side-effect fixtures; PLR2004: numeric literals in assertions are intentional
-"drummer/cli.py" = ["FBT", "RSE102"]  # Typer CLI: bool flags + idiomatic raise typer.Exit()
+"drummer/cli.py" = ["FBT", "RSE102", "PLR0913"]  # Typer CLI: bool flags + raise typer.Exit() + callback has ctx + 5 options
 "stubs/**" = ["ANN401", "N818", "UP035"]  # Stubs mirror third-party APIs; Any + legacy typing are required
 "scripts/**" = ["T201", "INP001", "ANN"]  # T201: print ok in scripts; INP001: no __init__.py; ANN: no annotations needed
 
