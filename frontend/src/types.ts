@@ -111,3 +111,16 @@ export interface HistoryRecord {
   encoding: string;
   warnings: string[];
 }
+
+export interface WorkspaceInfo {
+  id: string;
+  name: string;
+  kind: "central" | "external";
+  path: string;
+  is_scratch: boolean;
+}
+
+export interface WorkspaceListResponse {
+  workspaces: WorkspaceInfo[];
+  active: string;
+}
