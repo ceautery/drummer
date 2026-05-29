@@ -1,5 +1,6 @@
+import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
-import { resolveTheme, useThemeStore } from "./themeStore";
+import { resolveTheme, useResolvedTheme, useThemeStore } from "./themeStore";
 
 describe("themeStore", () => {
   beforeEach(() => {
@@ -19,5 +20,18 @@ describe("themeStore", () => {
   it("setTheme updates the store", () => {
     useThemeStore.getState().setTheme("dark");
     expect(useThemeStore.getState().theme).toBe("dark");
+  });
+
+  it("useResolvedTheme derives from store state", () => {
+    const { result } = renderHook(() => useResolvedTheme());
+    expect(result.current).toBe("light");
+    act(() => {
+      useThemeStore.setState({ systemDark: true });
+    });
+    expect(result.current).toBe("dark");
+    act(() => {
+      useThemeStore.setState({ theme: "light", systemDark: true });
+    });
+    expect(result.current).toBe("light");
   });
 });
