@@ -1,0 +1,185 @@
+{
+  "Q145": {
+    "author": null,
+    "country": "Q145",
+    "description": "island country in north-west Europe",
+    "id": "Q145",
+    "instanceOf": [],
+    "label": "United Kingdom",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": null
+  },
+  "Q150827": {
+    "author": "Q47152",
+    "country": null,
+    "description": "1818 novel by Mary Shelley",
+    "id": "Q150827",
+    "instanceOf": [
+      "Q7725634"
+    ],
+    "label": "Frankenstein; or, The Modern Prometheus",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": "1818-01-01"
+  },
+  "Q189288": {
+    "author": null,
+    "country": "Q145",
+    "description": "town in Warwickshire, England",
+    "id": "Q189288",
+    "instanceOf": [],
+    "label": "Stratford-upon-Avon",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": null
+  },
+  "Q25379": {
+    "author": null,
+    "country": null,
+    "description": "theatrical dramatic work intended to be performed by actors (in theatre, radio or recorded for TV)",
+    "id": "Q25379",
+    "instanceOf": [],
+    "label": "play",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": null
+  },
+  "Q3107329": {
+    "author": "Q42",
+    "country": null,
+    "description": "1979 novel by Douglas Adams",
+    "id": "Q3107329",
+    "instanceOf": [
+      "Q7725634"
+    ],
+    "label": "The Hitchhiker's Guide to the Galaxy",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": "1979-10-12"
+  },
+  "Q350": {
+    "author": null,
+    "country": "Q145",
+    "description": "city in Cambridgeshire, England",
+    "id": "Q350",
+    "instanceOf": [
+      "Q515"
+    ],
+    "label": "Cambridge",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": null
+  },
+  "Q41567": {
+    "author": "Q692",
+    "country": null,
+    "description": "tragedy by William Shakespeare",
+    "id": "Q41567",
+    "instanceOf": [],
+    "label": "Hamlet",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": "1602-00-00"
+  },
+  "Q42": {
+    "author": null,
+    "country": null,
+    "description": "British science fiction writer and humorist (1952–2001)",
+    "id": "Q42",
+    "instanceOf": [
+      "Q5"
+    ],
+    "label": "Douglas Adams",
+    "notableWork": [],
+    "placeOfBirth": "Q350",
+    "publicationDate": null
+  },
+  "Q47152": {
+    "author": null,
+    "country": null,
+    "description": "English writer (1797–1851)",
+    "id": "Q47152",
+    "instanceOf": [
+      "Q5"
+    ],
+    "label": "Mary Shelley",
+    "notableWork": [
+      "Q150827"
+    ],
+    "placeOfBirth": null,
+    "publicationDate": null
+  },
+  "Q5": {
+    "author": null,
+    "country": null,
+    "description": "any single member of Homo sapiens, unique extant species of the genus Homo",
+    "id": "Q5",
+    "instanceOf": [],
+    "label": "human",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": null
+  },
+  "Q515": {
+    "author": null,
+    "country": null,
+    "description": "large human settlement",
+    "id": "Q515",
+    "instanceOf": [],
+    "label": "city",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": null
+  },
+  "Q692": {
+    "author": null,
+    "country": null,
+    "description": "English playwright and poet (1564–1616)",
+    "id": "Q692",
+    "instanceOf": [
+      "Q5"
+    ],
+    "label": "William Shakespeare",
+    "notableWork": [
+      "Q41567"
+    ],
+    "placeOfBirth": "Q189288",
+    "publicationDate": null
+  },
+  "Q7725634": {
+    "author": null,
+    "country": null,
+    "description": "written work read for enjoyment or edification",
+    "id": "Q7725634",
+    "instanceOf": [],
+    "label": "literary work",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": null
+  },
+  "Q8261": {
+    "author": null,
+    "country": null,
+    "description": "narrative text, normally of a substantial length and in the form of prose describing a fictional and sequential story",
+    "id": "Q8261",
+    "instanceOf": [],
+    "label": "novel",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": null
+  },
+  "Q84": {
+    "author": null,
+    "country": "Q145",
+    "description": "capital and largest city of England and the United Kingdom",
+    "id": "Q84",
+    "instanceOf": [
+      "Q515"
+    ],
+    "label": "London",
+    "notableWork": [],
+    "placeOfBirth": null,
+    "publicationDate": null
+  }
+}
