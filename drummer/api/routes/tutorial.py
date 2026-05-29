@@ -144,6 +144,11 @@ STEPS: list[TutorialStep] = [
 ]
 
 
+@router.get("/steps")
+def list_tutorial_steps() -> list[TutorialStep]:
+    return STEPS
+
+
 def _step_to_request_file(step: TutorialStep) -> RequestFile:
     if step.method is None:
         msg = "step.method must not be None"

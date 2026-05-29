@@ -91,3 +91,20 @@ async def test_step_out_of_range_returns_404(tmp_path: Path) -> None:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         response = await ac.post("/api/tutorial/steps/99/send")
     assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_list_steps_returns_all_steps(tmp_path: Path) -> None:
+    app = _make_tutorial_app(tmp_path)
+    await init_db(_db_url(tmp_path))
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.get("/api/tutorial/steps")
+    assert response.status_code == HTTPStatus.OK
+    steps = response.json()
+    assert len(steps) == 7
+    assert steps[0]["title"] == "Welcome to Drummer"
+    assert steps[0]["method"] is None
+    assert steps[1]["method"] == "GET"
+    assert steps[3]["params"] == {"q": "sunflowers"}
+    assert "X-Tutorial-Id" in steps[5]["pre_script"]
+    assert steps[4]["variable_overrides"] == {"base_url": "http://localhost:8000"}
