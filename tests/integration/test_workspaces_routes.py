@@ -72,3 +72,29 @@ async def test_switch_back_to_scratch(client: AsyncClient) -> None:
     assert r.status_code == HTTPStatus.OK
     assert r.json()["is_scratch"] is True
     assert (await client.get("/api/workspaces")).json()["active"] == "scratch"
+
+
+async def test_switch_workspace_changes_request_list(client: AsyncClient) -> None:
+    """Switching the active workspace repoints what GET /api/requests returns."""
+    # Create the "Other" workspace and write a request file into it.
+    await client.post("/api/workspaces", json={"name": "Other"})
+    other_dir = ws.resolve_workspace("other")
+    request_file = other_dir / "other-request.md"
+    request_file.write_text(
+        "---\nname: Other Request\nurl: https://other.example.com/data\n---\n", encoding="utf-8"
+    )
+
+    # While scratch is active, the "Other" request must not appear.
+    r = await client.get("/api/requests")
+    assert r.status_code == HTTPStatus.OK
+    paths = {item["path"] for item in r.json()}
+    assert "other-request.md" not in paths
+
+    # Switch to "other" and confirm the request IS visible.
+    switch_r = await client.post("/api/workspaces/active", json={"id": "other"})
+    assert switch_r.status_code == HTTPStatus.OK
+
+    r = await client.get("/api/requests")
+    assert r.status_code == HTTPStatus.OK
+    paths = {item["path"] for item in r.json()}
+    assert "other-request.md" in paths

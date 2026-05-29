@@ -43,7 +43,7 @@ frontend/         ← React + Vite; compiled to drummer/api/static/
 
 ## Build phases
 
-This project is built in 10 phases, each with its own plan in `docs/superpowers/plans/`.
+This project is built in 14 phases, each with its own plan in `docs/superpowers/plans/`.
 Do not implement features from a later phase while working in an earlier one.
 
 Current phase: **11 — Workspaces**
