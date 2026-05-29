@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { ResponseTab, StreamingState } from "../types";
 
-interface ResponseState {
+export interface ResponseState {
   streaming: StreamingState;
   statusCode: number | null;
   url: string | null;

@@ -130,3 +130,16 @@ export type ThemePref = "light" | "dark" | "system";
 export interface Settings {
   theme: ThemePref;
 }
+
+export interface TutorialStep {
+  title: string;
+  instructions: string;
+  method: HttpMethod | null;
+  url: string;
+  params: Record<string, string>;
+  headers: Record<string, string>;
+  body: string;
+  pre_script: string;
+  post_script: string;
+  variable_overrides: Record<string, string>;
+}

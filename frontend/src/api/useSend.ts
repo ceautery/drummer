@@ -1,9 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef } from "react";
+import type { ResponseState } from "../store/responseStore";
 import { useResponseStore } from "../store/responseStore";
 import { useSessionStore } from "../store/sessionStore";
 
-async function* parseSSE(
+export async function* parseSSE(
   response: Response,
 ): AsyncGenerator<{ event: string; data: string }> {
   const reader = response.body?.getReader();
@@ -27,6 +28,46 @@ async function* parseSSE(
         else if (line.startsWith("data: ")) data = line.slice(6);
       }
       if (data) yield { event, data };
+    }
+  }
+}
+
+export async function consumeSSE(
+  res: Response,
+  response: ResponseState,
+  onDone?: () => void,
+): Promise<void> {
+  for await (const { event, data } of parseSSE(res)) {
+    const payload = JSON.parse(data) as unknown;
+    if (event === "status") {
+      const p = payload as { status_code: number; url: string };
+      response.setStatus(p.status_code, p.url);
+    } else if (event === "headers") {
+      response.setHeaders(payload as [string, string][]);
+    } else if (event === "body") {
+      const p = payload as {
+        body: string;
+        encoding: string;
+        elapsed_ms: number;
+      };
+      response.setBody(p.body, p.encoding, p.elapsed_ms);
+    } else if (event === "done") {
+      const p = payload as {
+        history_id: string | null;
+        script_logs: string[];
+        script_error: string | null;
+        script_suggestion: string | null;
+      };
+      response.setDone(
+        p.history_id,
+        p.script_logs ?? [],
+        p.script_error ?? null,
+        p.script_suggestion ?? null,
+      );
+      onDone?.();
+    } else if (event === "error") {
+      const p = payload as { message: string };
+      response.setError(p.message);
     }
   }
 }
@@ -57,41 +98,11 @@ export function useSend() {
           signal: controller.signal,
         });
 
-        for await (const { event, data } of parseSSE(res)) {
-          const payload = JSON.parse(data) as unknown;
-          if (event === "status") {
-            const p = payload as { status_code: number; url: string };
-            response.setStatus(p.status_code, p.url);
-          } else if (event === "headers") {
-            response.setHeaders(payload as [string, string][]);
-          } else if (event === "body") {
-            const p = payload as {
-              body: string;
-              encoding: string;
-              elapsed_ms: number;
-            };
-            response.setBody(p.body, p.encoding, p.elapsed_ms);
-          } else if (event === "done") {
-            const payload = JSON.parse(data) as {
-              history_id: string | null;
-              script_logs: string[];
-              script_error: string | null;
-              script_suggestion: string | null;
-            };
-            response.setDone(
-              payload.history_id,
-              payload.script_logs ?? [],
-              payload.script_error ?? null,
-              payload.script_suggestion ?? null,
-            );
-            void queryClient.invalidateQueries({
-              queryKey: ["history", requestPath],
-            });
-          } else if (event === "error") {
-            const p = payload as { message: string };
-            response.setError(p.message);
-          }
-        }
+        await consumeSSE(res, response, () => {
+          void queryClient.invalidateQueries({
+            queryKey: ["history", requestPath],
+          });
+        });
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
           response.setError(String(err));
