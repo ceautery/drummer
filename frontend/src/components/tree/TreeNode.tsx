@@ -2,14 +2,14 @@ import { useRequestStore } from "../../store/requestStore";
 import type { RequestSummary } from "../../types";
 
 const METHOD_COLOURS: Record<string, string> = {
-  GET: "text-green-600",
-  POST: "text-blue-600",
-  PUT: "text-amber-600",
-  PATCH: "text-orange-500",
-  DELETE: "text-red-600",
-  HEAD: "text-gray-500",
-  OPTIONS: "text-gray-500",
-  TRACE: "text-gray-500",
+  GET: "text-green-600 dark:text-green-400",
+  POST: "text-blue-600 dark:text-blue-400",
+  PUT: "text-amber-600 dark:text-amber-400",
+  PATCH: "text-orange-500 dark:text-orange-400",
+  DELETE: "text-red-600 dark:text-red-400",
+  HEAD: "text-muted-foreground",
+  OPTIONS: "text-muted-foreground",
+  TRACE: "text-muted-foreground",
 };
 
 interface TreeNodeProps {
@@ -27,14 +27,14 @@ export function TreeNode({ request, onSelect }: TreeNodeProps) {
       type="button"
       className={`flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm ${
         isSelected
-          ? "bg-purple-50 text-purple-900"
-          : "hover:bg-gray-100 text-gray-700"
+          ? "bg-primary/10 text-primary"
+          : "hover:bg-muted text-foreground"
       }`}
       onClick={() => onSelect(request.path)}
       data-testid={`tree-node-${request.path}`}
     >
       <span
-        className={`w-14 shrink-0 text-xs font-mono font-semibold ${METHOD_COLOURS[request.method] ?? "text-gray-500"}`}
+        className={`w-14 shrink-0 text-xs font-mono font-semibold ${METHOD_COLOURS[request.method] ?? "text-muted-foreground"}`}
       >
         {request.method}
       </span>

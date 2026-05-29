@@ -25,7 +25,7 @@ export function ScriptOutputView({
   if (streaming === "idle") {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-muted-foreground">
           Send a request to see script output.
         </p>
       </div>
@@ -35,7 +35,7 @@ export function ScriptOutputView({
   if (!hasOutput) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-muted-foreground">
           No script output for this request.
         </p>
       </div>
@@ -45,13 +45,17 @@ export function ScriptOutputView({
   return (
     <div className="h-full overflow-y-auto p-3 font-mono text-xs">
       {logEntries.map(({ key, text }) => (
-        <div key={key} className="py-0.5 text-gray-300">
+        <div key={key} className="py-0.5 text-foreground">
           {text}
         </div>
       ))}
-      {scriptError && <div className="mt-2 text-red-400">{scriptError}</div>}
+      {scriptError && (
+        <div className="mt-2 text-red-600 dark:text-red-400">{scriptError}</div>
+      )}
       {scriptSuggestion && (
-        <div className="mt-1 text-amber-400">Hint: {scriptSuggestion}</div>
+        <div className="mt-1 text-amber-600 dark:text-amber-400">
+          Hint: {scriptSuggestion}
+        </div>
       )}
     </div>
   );

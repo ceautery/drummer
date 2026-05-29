@@ -28,7 +28,7 @@ export function BodyViewer({ body, contentType = "" }: BodyViewerProps) {
   const display = pretty ?? body;
 
   return (
-    <pre className="overflow-auto p-3 text-xs font-mono whitespace-pre-wrap break-words text-gray-800">
+    <pre className="overflow-auto p-3 text-xs font-mono whitespace-pre-wrap break-words text-foreground">
       {display}
     </pre>
   );

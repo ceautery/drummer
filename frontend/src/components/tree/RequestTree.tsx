@@ -9,7 +9,9 @@ interface RequestTreeProps {
 export function RequestTree({ requests, onSelect }: RequestTreeProps) {
   if (requests.length === 0) {
     return (
-      <p className="px-2 py-4 text-xs text-gray-400">No requests found.</p>
+      <p className="px-2 py-4 text-xs text-muted-foreground">
+        No requests found.
+      </p>
     );
   }
 

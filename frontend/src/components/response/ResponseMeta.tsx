@@ -22,7 +22,7 @@ export function ResponseMeta({
 }: ResponseMetaProps) {
   if (streaming === "idle") {
     return (
-      <div className="flex items-center px-3 py-2 text-xs text-gray-400 border-b">
+      <div className="flex items-center px-3 py-2 text-xs text-muted-foreground border-b">
         Send a request to see the response.
       </div>
     );
@@ -31,7 +31,9 @@ export function ResponseMeta({
   if (streaming === "streaming" && !statusCode) {
     return (
       <div className="flex items-center gap-2 px-3 py-2 border-b">
-        <span className="text-xs text-gray-400 animate-pulse">Waiting…</span>
+        <span className="text-xs text-muted-foreground animate-pulse">
+          Waiting…
+        </span>
       </div>
     );
   }
@@ -40,13 +42,19 @@ export function ResponseMeta({
     <div className="flex items-center gap-3 px-3 py-2 border-b">
       {statusCode && <StatusBadge code={statusCode} />}
       {elapsedMs !== null && (
-        <span className="text-xs text-gray-500">{elapsedMs.toFixed(0)} ms</span>
+        <span className="text-xs text-muted-foreground">
+          {elapsedMs.toFixed(0)} ms
+        </span>
       )}
       {bodyLength !== null && (
-        <span className="text-xs text-gray-500">{formatBytes(bodyLength)}</span>
+        <span className="text-xs text-muted-foreground">
+          {formatBytes(bodyLength)}
+        </span>
       )}
       {streaming === "streaming" && (
-        <span className="text-xs text-gray-400 animate-pulse">streaming…</span>
+        <span className="text-xs text-muted-foreground animate-pulse">
+          streaming…
+        </span>
       )}
     </div>
   );

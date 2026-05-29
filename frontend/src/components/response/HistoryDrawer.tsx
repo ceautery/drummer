@@ -10,13 +10,15 @@ export function HistoryDrawer() {
   const { data: records = [], isLoading } = useHistory(selectedPath);
 
   if (!selectedPath) {
-    return <p className="p-3 text-xs text-gray-400">No request selected.</p>;
+    return (
+      <p className="p-3 text-xs text-muted-foreground">No request selected.</p>
+    );
   }
   if (isLoading) {
-    return <p className="p-3 text-xs text-gray-400">Loading…</p>;
+    return <p className="p-3 text-xs text-muted-foreground">Loading…</p>;
   }
   if (records.length === 0) {
-    return <p className="p-3 text-xs text-gray-400">No history yet.</p>;
+    return <p className="p-3 text-xs text-muted-foreground">No history yet.</p>;
   }
 
   const loadRecord = (rec: HistoryRecord) => {
@@ -32,14 +34,14 @@ export function HistoryDrawer() {
         <button
           key={rec.id}
           type="button"
-          className="flex w-full items-center gap-3 border-b px-3 py-2 text-left hover:bg-gray-50"
+          className="flex w-full items-center gap-3 border-b px-3 py-2 text-left hover:bg-muted"
           onClick={() => loadRecord(rec)}
         >
           <StatusBadge code={rec.status_code} />
-          <span className="flex-1 truncate text-xs text-gray-600">
+          <span className="flex-1 truncate text-xs text-muted-foreground">
             {rec.url}
           </span>
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-muted-foreground">
             {new Date(rec.sent_at).toLocaleTimeString()}
           </span>
         </button>
