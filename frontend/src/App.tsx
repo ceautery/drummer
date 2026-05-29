@@ -34,21 +34,19 @@ export default function App() {
     );
   }
 
-  if (view === "tutorial") return <TutorialView />;
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background text-sm text-muted-foreground">
-        Loading…
-      </div>
-    );
-  }
-
   return (
     <div className="flex h-screen flex-col">
       <AppBar />
       <div className="min-h-0 flex-1">
-        <WorkspaceView />
+        {view === "tutorial" ? (
+          <TutorialView />
+        ) : isLoading ? (
+          <div className="flex h-full items-center justify-center bg-background text-sm text-muted-foreground">
+            Loading…
+          </div>
+        ) : (
+          <WorkspaceView />
+        )}
       </div>
     </div>
   );
