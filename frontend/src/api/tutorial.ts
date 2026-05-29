@@ -3,7 +3,7 @@ import { useCallback, useRef } from "react";
 import { useResponseStore } from "../store/responseStore";
 import type { RequestDetail, TutorialStep } from "../types";
 import { apiFetch } from "./client";
-import { consumeSSE } from "./useSend";
+import { consumeSSE } from "./sse";
 
 export function useTutorialSteps() {
   return useQuery<TutorialStep[]>({
