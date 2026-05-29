@@ -105,6 +105,14 @@ Run `drummer`, then click the **Tutorial** button in the top bar. The tutorial w
 
 ---
 
+## Theming
+
+Drummer supports light, dark, and system-auto themes. Use the theme toggle in the
+top app bar (or the tutorial's nav). Your choice is saved to `~/.drummer/config.yaml`
+and applies across the app and the tutorial.
+
+---
+
 ## Scripting
 
 Every request can have a **pre-request** and **post-request** JavaScript script. Scripts run in an embedded QuickJS sandbox and access the `dm` global.
