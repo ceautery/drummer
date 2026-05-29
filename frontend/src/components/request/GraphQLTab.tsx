@@ -1,5 +1,5 @@
 import { json as jsonLang } from "@codemirror/lang-json";
-import { EditorState } from "@codemirror/state";
+import { Compartment, EditorState } from "@codemirror/state";
 import { graphql as graphqlExtensions, updateSchema } from "cm6-graphql";
 import { basicSetup, EditorView } from "codemirror";
 import {
@@ -8,7 +8,9 @@ import {
   type IntrospectionQuery,
 } from "graphql";
 import { useEffect, useRef, useState } from "react";
+import { editorThemeExtension } from "../../lib/editorTheme";
 import { useRequestStore } from "../../store/requestStore";
+import { useResolvedTheme } from "../../store/themeStore";
 import type { GraphQLConfig } from "../../types";
 import { SchemaExplorer } from "./SchemaExplorer";
 
@@ -23,6 +25,10 @@ function QueryEditor({ schema }: { schema: GraphQLSchema | null }) {
   const graphqlRef = useRef<GraphQLConfig>(
     current?.frontmatter.graphql ?? { query: "", variables: {} },
   );
+
+  const resolved = useResolvedTheme();
+  const themeCompartment = useRef(new Compartment());
+  const initialResolvedRef = useRef(resolved);
 
   useEffect(() => {
     patchRef.current = patch;
@@ -42,6 +48,9 @@ function QueryEditor({ schema }: { schema: GraphQLSchema | null }) {
         doc: graphqlRef.current.query,
         extensions: [
           basicSetup,
+          themeCompartment.current.of(
+            editorThemeExtension(initialResolvedRef.current),
+          ),
           ...graphqlExtensions(),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
@@ -77,6 +86,14 @@ function QueryEditor({ schema }: { schema: GraphQLSchema | null }) {
     }
   }, [current]);
 
+  useEffect(() => {
+    viewRef.current?.dispatch({
+      effects: themeCompartment.current.reconfigure(
+        editorThemeExtension(resolved),
+      ),
+    });
+  }, [resolved]);
+
   return <div ref={editorRef} className="flex-1 overflow-auto text-sm" />;
 }
 
@@ -89,6 +106,10 @@ function VariablesEditor() {
   const graphqlRef = useRef<GraphQLConfig>(
     current?.frontmatter.graphql ?? { query: "", variables: {} },
   );
+
+  const resolved = useResolvedTheme();
+  const themeCompartment = useRef(new Compartment());
+  const initialResolvedRef = useRef(resolved);
 
   useEffect(() => {
     patchRef.current = patch;
@@ -108,6 +129,9 @@ function VariablesEditor() {
         doc: JSON.stringify(graphqlRef.current.variables, null, 2),
         extensions: [
           basicSetup,
+          themeCompartment.current.of(
+            editorThemeExtension(initialResolvedRef.current),
+          ),
           jsonLang(),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
@@ -143,6 +167,14 @@ function VariablesEditor() {
       view.dispatch({ changes: { from: 0, to: cur.length, insert: stored } });
     }
   }, [current]);
+
+  useEffect(() => {
+    viewRef.current?.dispatch({
+      effects: themeCompartment.current.reconfigure(
+        editorThemeExtension(resolved),
+      ),
+    });
+  }, [resolved]);
 
   return <div ref={editorRef} className="flex-1 overflow-auto text-sm" />;
 }

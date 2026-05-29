@@ -1,7 +1,9 @@
-import { EditorState } from "@codemirror/state";
+import { Compartment, EditorState } from "@codemirror/state";
 import { basicSetup, EditorView } from "codemirror";
 import { useEffect, useRef, useState } from "react";
+import { editorThemeExtension } from "../../lib/editorTheme";
 import { useRequestStore } from "../../store/requestStore";
+import { useResolvedTheme } from "../../store/themeStore";
 import type { BodyMode } from "../../types";
 import { GraphQLTab } from "./GraphQLTab";
 
@@ -10,6 +12,10 @@ export function BodyTab() {
   const current = draft ?? saved;
   const body = current?.body ?? "";
   const [mode, setMode] = useState<BodyMode>("raw");
+
+  const resolved = useResolvedTheme();
+  const themeCompartment = useRef(new Compartment());
+  const initialResolvedRef = useRef(resolved);
 
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -33,6 +39,9 @@ export function BodyTab() {
         doc: "",
         extensions: [
           basicSetup,
+          themeCompartment.current.of(
+            editorThemeExtension(initialResolvedRef.current),
+          ),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
               patchRef.current({ body: update.state.doc.toString() });
@@ -55,6 +64,14 @@ export function BodyTab() {
       view.dispatch({ changes: { from: 0, to: cur.length, insert: body } });
     }
   }, [body]);
+
+  useEffect(() => {
+    viewRef.current?.dispatch({
+      effects: themeCompartment.current.reconfigure(
+        editorThemeExtension(resolved),
+      ),
+    });
+  }, [resolved]);
 
   const handleModeChange = (newMode: BodyMode) => {
     if (newMode === "graphql" && !current?.frontmatter.graphql) {

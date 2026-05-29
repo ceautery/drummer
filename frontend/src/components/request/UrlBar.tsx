@@ -1,7 +1,9 @@
-import { EditorState } from "@codemirror/state";
+import { Compartment, EditorState } from "@codemirror/state";
 import { basicSetup, EditorView } from "codemirror";
 import { useEffect, useRef } from "react";
 import { variableHighlighter } from "../../lib/codemirror-variables";
+import { editorThemeExtension } from "../../lib/editorTheme";
+import { useResolvedTheme } from "../../store/themeStore";
 import type { HttpMethod } from "../../types";
 
 const METHODS: HttpMethod[] = [
@@ -46,6 +48,10 @@ export function UrlBar({
   isStreaming,
   variables,
 }: UrlBarProps) {
+  const resolved = useResolvedTheme();
+  const themeCompartment = useRef(new Compartment());
+  const initialResolvedRef = useRef(resolved);
+
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onSendRef = useRef(onSend);
@@ -76,6 +82,9 @@ export function UrlBar({
         doc: "",
         extensions: [
           basicSetup,
+          themeCompartment.current.of(
+            editorThemeExtension(initialResolvedRef.current),
+          ),
           EditorView.lineWrapping,
           variableHighlighter(variablesRef.current),
           EditorView.updateListener.of((update) => {
@@ -115,6 +124,14 @@ export function UrlBar({
       view.dispatch({ changes: { from: 0, to: current.length, insert: url } });
     }
   }, [url]);
+
+  useEffect(() => {
+    viewRef.current?.dispatch({
+      effects: themeCompartment.current.reconfigure(
+        editorThemeExtension(resolved),
+      ),
+    });
+  }, [resolved]);
 
   return (
     <div className="flex items-stretch gap-2 border-b px-3 py-2">

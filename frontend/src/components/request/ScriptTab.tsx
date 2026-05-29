@@ -1,10 +1,11 @@
 import { javascript } from "@codemirror/lang-javascript";
-import { EditorState } from "@codemirror/state";
-import { oneDark } from "@codemirror/theme-one-dark";
+import { Compartment, EditorState } from "@codemirror/state";
 import { basicSetup, EditorView } from "codemirror";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { editorThemeExtension } from "../../lib/editorTheme";
 import { useRequestStore } from "../../store/requestStore";
 import { useResponseStore } from "../../store/responseStore";
+import { useResolvedTheme } from "../../store/themeStore";
 
 type ScriptMode = "pre" | "post";
 
@@ -29,6 +30,10 @@ export function ScriptTab() {
   const scriptError = useResponseStore((s) => s.scriptError);
   const scriptSuggestion = useResponseStore((s) => s.scriptSuggestion);
 
+  const resolved = useResolvedTheme();
+  const themeCompartment = useRef(new Compartment());
+  const initialResolvedRef = useRef(resolved);
+
   const patchRef = useRef(patch);
   const modeRef = useRef(mode);
   const initialScriptRef = useRef(preScript);
@@ -50,7 +55,9 @@ export function ScriptTab() {
         extensions: [
           basicSetup,
           javascript(),
-          oneDark,
+          themeCompartment.current.of(
+            editorThemeExtension(initialResolvedRef.current),
+          ),
           EditorView.updateListener.of((update) => {
             if (!update.docChanged) return;
             const value = update.state.doc.toString();
@@ -67,6 +74,14 @@ export function ScriptTab() {
     viewRef.current = view;
     return () => view.destroy();
   }, []); // empty dep array: intentional one-time init via refs
+
+  useEffect(() => {
+    viewRef.current?.dispatch({
+      effects: themeCompartment.current.reconfigure(
+        editorThemeExtension(resolved),
+      ),
+    });
+  }, [resolved]);
 
   // Sync editor content when mode switches
   const currentScript = mode === "pre" ? preScript : postScript;
