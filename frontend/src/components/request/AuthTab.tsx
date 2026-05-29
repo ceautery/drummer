@@ -23,7 +23,7 @@ export function AuthTab() {
   return (
     <div className="p-3 flex flex-col gap-3">
       <div>
-        <label htmlFor="auth-type" className="text-xs text-gray-500">
+        <label htmlFor="auth-type" className="text-xs text-muted-foreground">
           Auth type
         </label>
         <select
@@ -44,7 +44,10 @@ export function AuthTab() {
 
       {auth.type === "bearer" && (
         <div>
-          <label htmlFor="bearer-token" className="text-xs text-gray-500">
+          <label
+            htmlFor="bearer-token"
+            className="text-xs text-muted-foreground"
+          >
             Token
           </label>
           <input
@@ -61,7 +64,10 @@ export function AuthTab() {
       {auth.type === "basic" && (
         <>
           <div>
-            <label htmlFor="basic-username" className="text-xs text-gray-500">
+            <label
+              htmlFor="basic-username"
+              className="text-xs text-muted-foreground"
+            >
               Username
             </label>
             <input
@@ -73,7 +79,10 @@ export function AuthTab() {
             />
           </div>
           <div>
-            <label htmlFor="basic-password" className="text-xs text-gray-500">
+            <label
+              htmlFor="basic-password"
+              className="text-xs text-muted-foreground"
+            >
               Password
             </label>
             <input
@@ -90,7 +99,10 @@ export function AuthTab() {
       {auth.type === "oauth2_cc" && (
         <>
           <div>
-            <label htmlFor="oauth-token-url" className="text-xs text-gray-500">
+            <label
+              htmlFor="oauth-token-url"
+              className="text-xs text-muted-foreground"
+            >
               Token URL
             </label>
             <input
@@ -103,7 +115,10 @@ export function AuthTab() {
             />
           </div>
           <div>
-            <label htmlFor="oauth-client-id" className="text-xs text-gray-500">
+            <label
+              htmlFor="oauth-client-id"
+              className="text-xs text-muted-foreground"
+            >
               Client ID
             </label>
             <input
@@ -117,7 +132,7 @@ export function AuthTab() {
           <div>
             <label
               htmlFor="oauth-client-secret"
-              className="text-xs text-gray-500"
+              className="text-xs text-muted-foreground"
             >
               Client Secret
             </label>
@@ -130,7 +145,10 @@ export function AuthTab() {
             />
           </div>
           <div>
-            <label htmlFor="oauth-scope" className="text-xs text-gray-500">
+            <label
+              htmlFor="oauth-scope"
+              className="text-xs text-muted-foreground"
+            >
               Scope
             </label>
             <input

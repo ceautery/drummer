@@ -28,7 +28,7 @@ export function CookiesTab() {
   return (
     <div className="p-3 flex flex-col gap-4">
       <div>
-        <label htmlFor="cookie-mode" className="text-xs text-gray-500">
+        <label htmlFor="cookie-mode" className="text-xs text-muted-foreground">
           Cookie mode
         </label>
         <select
@@ -49,7 +49,7 @@ export function CookiesTab() {
 
       {cookieConfig.mode === "explicit" && (
         <div>
-          <p className="text-xs text-gray-500 mb-1">Cookies to send</p>
+          <p className="text-xs text-muted-foreground mb-1">Cookies to send</p>
           <KeyValueTable
             entries={cookieConfig.cookies}
             onChange={(cookies) =>
@@ -64,19 +64,19 @@ export function CookiesTab() {
       {cookieConfig.mode === "session" && (
         <div>
           <div className="flex items-center justify-between mb-1">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Session cookies for {hostname || "this host"}
             </p>
             <button
               type="button"
-              className="text-xs text-gray-400 hover:text-red-500"
+              className="text-xs text-muted-foreground hover:text-destructive"
               onClick={() => clearMutation.mutate()}
             >
               Clear all
             </button>
           </div>
           {Object.keys(sessionCookies).length === 0 ? (
-            <p className="text-xs text-gray-400 italic">
+            <p className="text-xs text-muted-foreground italic">
               {hostname
                 ? `No session cookies for ${hostname}`
                 : "Enter a URL to see session cookies"}
@@ -84,16 +84,16 @@ export function CookiesTab() {
           ) : (
             <table className="w-full text-xs font-mono">
               <thead>
-                <tr className="text-gray-400 text-left">
+                <tr className="text-muted-foreground text-left">
                   <th className="pr-4 pb-1 font-normal">Name</th>
                   <th className="pb-1 font-normal">Value</th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(sessionCookies).map(([name, value]) => (
-                  <tr key={name} className="border-t border-gray-100">
-                    <td className="pr-4 py-1 text-gray-700">{name}</td>
-                    <td className="py-1 text-gray-500 truncate max-w-0">
+                  <tr key={name} className="border-t">
+                    <td className="pr-4 py-1 text-foreground">{name}</td>
+                    <td className="py-1 text-muted-foreground truncate max-w-0">
                       {value}
                     </td>
                   </tr>

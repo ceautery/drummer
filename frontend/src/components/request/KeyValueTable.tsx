@@ -48,7 +48,7 @@ export function KeyValueTable({
           />
           <button
             type="button"
-            className="p-1 text-gray-400 hover:text-red-500"
+            className="p-1 text-muted-foreground hover:text-destructive"
             onClick={() => remove(i)}
             aria-label="Remove"
           >
@@ -58,7 +58,7 @@ export function KeyValueTable({
       ))}
       <button
         type="button"
-        className="flex items-center gap-1 text-xs text-gray-500 hover:text-purple-600 mt-1"
+        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mt-1"
         onClick={add}
       >
         <Plus size={13} /> Add

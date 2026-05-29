@@ -57,14 +57,16 @@ function TypeRow({
         type="button"
         onClick={() => hasFields && setExpanded((e) => !e)}
         className={`flex w-full items-center gap-1 px-2 py-0.5 text-left text-xs ${
-          hasFields ? "cursor-pointer hover:bg-gray-100" : "cursor-default"
+          hasFields ? "cursor-pointer hover:bg-muted" : "cursor-default"
         }`}
       >
-        <span className="w-3 text-purple-400">
+        <span className="w-3 text-purple-500 dark:text-purple-400">
           {hasFields ? (expanded ? "▼" : "▶") : ""}
         </span>
-        <span className="font-medium text-purple-700">{type.name}</span>
-        <span className="ml-1 text-[10px] text-gray-400">
+        <span className="font-medium text-purple-700 dark:text-purple-300">
+          {type.name}
+        </span>
+        <span className="ml-1 text-[10px] text-muted-foreground">
           {typeKindLabel(type)}
         </span>
       </button>
@@ -72,8 +74,8 @@ function TypeRow({
         <div className="py-0.5 pl-6">
           {fields.map((f) => (
             <div key={f.name} className="py-0.5 text-xs">
-              <span className="text-blue-600">{f.name}</span>
-              <span className="text-gray-400"> {f.typeStr}</span>
+              <span className="text-blue-600 dark:text-blue-400">{f.name}</span>
+              <span className="text-muted-foreground"> {f.typeStr}</span>
             </div>
           ))}
         </div>
@@ -102,7 +104,7 @@ function FetchButton({
       type="button"
       onClick={onFetch}
       disabled={fetching}
-      className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+      className="rounded bg-muted px-2 py-0.5 text-xs text-foreground hover:bg-muted/80 disabled:opacity-50"
     >
       {fetching ? "Fetching…" : "Fetch Schema"}
     </button>
@@ -117,10 +119,12 @@ export function SchemaExplorer({
 }: Props) {
   if (!schema) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 text-gray-400">
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
         <p className="text-sm">No schema loaded</p>
         <FetchButton fetching={fetching} onFetch={onFetch} />
-        {fetchError && <p className="text-xs text-red-500">{fetchError}</p>}
+        {fetchError && (
+          <p className="text-xs text-red-600 dark:text-red-400">{fetchError}</p>
+        )}
       </div>
     );
   }
@@ -154,10 +158,12 @@ export function SchemaExplorer({
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <div className="flex items-center justify-between border-b px-2 py-1">
-        <span className="text-xs text-gray-500">Schema</span>
+        <span className="text-xs text-muted-foreground">Schema</span>
         <div className="flex items-center gap-2">
           {fetchError && (
-            <span className="text-xs text-red-500">{fetchError}</span>
+            <span className="text-xs text-red-600 dark:text-red-400">
+              {fetchError}
+            </span>
           )}
           <FetchButton fetching={fetching} onFetch={onFetch} />
         </div>
@@ -165,7 +171,7 @@ export function SchemaExplorer({
       <div className="flex-1 overflow-auto py-1">
         {rootTypes.length > 0 && (
           <>
-            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
               Root Types
             </div>
             {rootTypes.map((t) => (
@@ -175,7 +181,7 @@ export function SchemaExplorer({
         )}
         {objectTypes.length > 0 && (
           <>
-            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
               Object Types
             </div>
             {objectTypes.map((t) => (
@@ -185,7 +191,7 @@ export function SchemaExplorer({
         )}
         {otherTypes.length > 0 && (
           <>
-            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
               Other Types
             </div>
             {otherTypes.map((t) => (
@@ -195,7 +201,7 @@ export function SchemaExplorer({
         )}
         {builtinTypes.length > 0 && (
           <>
-            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
               Built-in
             </div>
             {builtinTypes.map((t) => (

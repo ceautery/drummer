@@ -223,8 +223,8 @@ export function GraphQLTab() {
             onClick={() => setActiveTab(t)}
             className={`rounded px-2 py-0.5 text-xs ${
               activeTab === t
-                ? "bg-purple-100 text-purple-700"
-                : "text-gray-600 hover:bg-gray-100"
+                ? "bg-muted text-foreground"
+                : "text-muted-foreground hover:bg-muted"
             }`}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}

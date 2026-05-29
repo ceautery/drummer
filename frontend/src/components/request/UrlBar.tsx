@@ -17,14 +17,14 @@ const METHODS: HttpMethod[] = [
 ];
 
 const METHOD_COLOUR: Record<HttpMethod, string> = {
-  GET: "text-green-700",
-  POST: "text-blue-700",
-  PUT: "text-amber-700",
-  PATCH: "text-orange-600",
-  DELETE: "text-red-700",
-  HEAD: "text-gray-600",
-  OPTIONS: "text-gray-600",
-  TRACE: "text-gray-600",
+  GET: "text-green-700 dark:text-green-400",
+  POST: "text-blue-700 dark:text-blue-400",
+  PUT: "text-amber-700 dark:text-amber-400",
+  PATCH: "text-orange-600 dark:text-orange-400",
+  DELETE: "text-red-700 dark:text-red-400",
+  HEAD: "text-muted-foreground",
+  OPTIONS: "text-muted-foreground",
+  TRACE: "text-muted-foreground",
 };
 
 interface UrlBarProps {
@@ -149,14 +149,14 @@ export function UrlBar({
 
       <div
         ref={editorRef}
-        className="cm-url-bar flex-1 rounded border focus-within:ring-2 focus-within:ring-purple-500"
+        className="cm-url-bar flex-1 rounded border focus-within:ring-2 focus-within:ring-ring"
         data-testid="url-input"
       />
 
       {isStreaming ? (
         <button
           type="button"
-          className="rounded bg-gray-200 px-4 py-1.5 text-sm font-medium hover:bg-gray-300"
+          className="rounded bg-muted px-4 py-1.5 text-sm font-medium hover:bg-muted/80"
           onClick={onCancel}
         >
           Cancel
@@ -164,7 +164,7 @@ export function UrlBar({
       ) : (
         <button
           type="button"
-          className="rounded bg-purple-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-purple-700"
+          className="rounded bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           onClick={onSend}
           data-testid="send-button"
         >

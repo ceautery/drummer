@@ -90,8 +90,8 @@ export function BodyTab() {
             onClick={() => handleModeChange(m)}
             className={`rounded px-2 py-0.5 text-xs capitalize ${
               mode === m
-                ? "bg-purple-100 text-purple-700"
-                : "text-gray-600 hover:bg-gray-100"
+                ? "bg-muted text-foreground"
+                : "text-muted-foreground hover:bg-muted"
             }`}
           >
             {m === "form-data"
@@ -101,7 +101,7 @@ export function BodyTab() {
         ))}
       </div>
       {mode === "form-data" && (
-        <p className="p-4 text-sm text-gray-400">
+        <p className="p-4 text-sm text-muted-foreground">
           Form-data editor coming soon.
         </p>
       )}

@@ -105,7 +105,7 @@ export function ScriptTab() {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="flex shrink-0 gap-1 border-b border-gray-700 px-2 pt-1">
+      <div className="flex shrink-0 gap-1 border-b px-2 pt-1">
         {(["pre", "post"] as const).map((m) => (
           <button
             key={m}
@@ -113,8 +113,8 @@ export function ScriptTab() {
             onClick={() => setMode(m)}
             className={`rounded-t px-3 py-1 text-xs ${
               mode === m
-                ? "bg-gray-700 text-white"
-                : "text-gray-400 hover:text-gray-200"
+                ? "bg-muted text-foreground"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {m === "pre" ? "Pre-script" : "Post-script"}
@@ -125,17 +125,21 @@ export function ScriptTab() {
       <div ref={editorRef} className="min-h-0 flex-1 overflow-auto" />
 
       {hasOutput && (
-        <div className="max-h-40 shrink-0 overflow-y-auto border-t border-gray-700 bg-gray-900 p-2 font-mono text-xs">
+        <div className="max-h-40 shrink-0 overflow-y-auto border-t bg-muted p-2 font-mono text-xs">
           {logEntries.map(({ key, text }) => (
-            <div key={key} className="text-gray-300">
+            <div key={key} className="text-muted-foreground">
               {text}
             </div>
           ))}
           {scriptError && (
-            <div className="mt-1 text-red-400">{scriptError}</div>
+            <div className="mt-1 text-red-600 dark:text-red-400">
+              {scriptError}
+            </div>
           )}
           {scriptSuggestion && (
-            <div className="mt-1 text-amber-400">Hint: {scriptSuggestion}</div>
+            <div className="mt-1 text-amber-600 dark:text-amber-400">
+              Hint: {scriptSuggestion}
+            </div>
           )}
         </div>
       )}
