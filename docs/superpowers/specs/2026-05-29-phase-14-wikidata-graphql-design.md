@@ -51,8 +51,9 @@ REST steps.
 ## Architecture
 
 ```
-drummer/api/mock/wikidata_snapshot.json   ← ~15 interlinked entities, real Wikidata data
+drummer/api/mock/wikidata_snapshot.json   ← ~15 interlinked entities, real Wikidata data (committed, static)
 drummer/api/mock/wikidata.py              ← graphql-core schema + resolvers + execute(query, variables)
+scripts/build_wikidata_snapshot.py        ← one-time dev utility that authored the snapshot (not imported/run by the app)
 drummer/api/routes/mock.py                ← + POST /mock/wikidata/graphql (thin; calls execute)
 drummer/api/routes/tutorial.py            ← TutorialStep gains `graphql`; 3 GraphQL steps appended
 drummer/cli.py                            ← _ATTRIBUTION gains a Wikidata block
@@ -97,10 +98,20 @@ type Entity {
 ## Dataset
 
 `drummer/api/mock/wikidata_snapshot.json` — ~15 curated, interlinked, recognizable entities,
-built from **real Wikidata data**. At implementation time, each chosen entity is fetched from the
-Wikidata API (`https://www.wikidata.org/wiki/Special:EntityData/<Qid>.json`); the build extracts
+built from **real Wikidata data**.
+
+**The snapshot is built once and committed as a static file, then shipped with the app.** Drummer
+never contacts Wikidata at build time or runtime — at import the mock loads only the committed
+JSON, exactly as `met_snapshot.json` works today. The fetch from Wikidata is a **one-time
+authoring step performed during implementation**, not part of the app's build or startup.
+
+To author the snapshot, a small reproducible builder script (`scripts/build_wikidata_snapshot.py`,
+a dev utility — never imported by the app, never run at build/runtime) fetches each chosen entity
+from the Wikidata API (`https://www.wikidata.org/wiki/Special:EntityData/<Qid>.json`) and extracts
 the real English label, real English description, and the real claim values for the modeled
-properties (P31, P50, P19, P17, P577, P800).
+properties (P31, P50, P19, P17, P577, P800), writing `wikidata_snapshot.json`. Committing the
+script keeps the snapshot regenerable later (e.g. to add entities) without re-deriving the
+fetch logic, but regeneration is a deliberate manual action, not automatic.
 
 - Entities form connected chains so nested queries resolve end to end. Example chain:
   `Q3107329` (The Hitchhiker's Guide to the Galaxy) `author`→ `Q42` (Douglas Adams)
@@ -199,5 +210,6 @@ comments. `graphql-core` added to `pyproject.toml` and the lockfile.
 ## Open considerations (resolve during planning, not blocking)
 
 - Exact entity set: pick the ~15 Q-ids during planning so the three tutorial queries have
-  meaningful, connected data; verify each against the live Wikidata API when building the snapshot.
+  meaningful, connected data; fetch each from the live Wikidata API once when authoring the
+  committed snapshot.
 - `graphql-core` version pin.
