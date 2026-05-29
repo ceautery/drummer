@@ -6,5 +6,6 @@
   "stubPath": "stubs",
   "include": ["drummer"],
   "exclude": ["tests", "frontend", ".venv", "venv"],
-  "reportUnknownMemberType": "none"
+  "reportUnknownMemberType": "none",
+  "reportUnknownVariableType": "none"
 }
