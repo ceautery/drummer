@@ -18,6 +18,10 @@ class Environment(BaseModel):
     variables: dict[str, str] = Field(default_factory=dict)
 
 
+def project_exists(project_dir: Path) -> bool:
+    return (project_dir / ".drummer" / "project.yaml").exists()
+
+
 def load_project(project_dir: Path) -> ProjectMeta:
     config_path = project_dir / ".drummer" / "project.yaml"
     data: dict[str, object] = yaml.safe_load(config_path.read_text(encoding="utf-8"))

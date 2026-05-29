@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from drummer.core.storage import workspaces as ws
+from drummer.core.storage.project import load_project
 
 
 @pytest.fixture
@@ -22,8 +23,9 @@ def test_home_defaults_to_dot_drummer(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_ensure_scratch_creates_special_workspace(drummer_home: Path) -> None:
     ws.ensure_scratch()
-    cfg = drummer_home / "projects" / "scratch" / ".drummer" / "project.yaml"
-    assert cfg.exists()
+    scratch = drummer_home / "projects" / "scratch"
+    assert (scratch / ".drummer" / "project.yaml").exists()
+    assert load_project(scratch).name == "Scratch"
 
 
 def test_ensure_scratch_is_idempotent(drummer_home: Path) -> None:

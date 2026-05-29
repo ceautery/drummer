@@ -1,3 +1,5 @@
+"""Workspace storage: paths, scratch bootstrap, slug helpers, and the WorkspaceInfo model."""
+
 import os
 import re
 from pathlib import Path
@@ -5,7 +7,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from drummer.core.storage.project import create_project
+from drummer.core.storage.project import create_project, project_exists
 
 
 class WorkspaceInfo(BaseModel):
@@ -32,6 +34,6 @@ def slugify(name: str) -> str:
 
 def ensure_scratch() -> None:
     scratch = _projects_dir() / "scratch"
-    if not (scratch / ".drummer" / "project.yaml").exists():
+    if not project_exists(scratch):
         scratch.mkdir(parents=True, exist_ok=True)
         create_project(scratch, "Scratch")
