@@ -1,3 +1,4 @@
+import os
 import socket
 import subprocess
 import sys
@@ -25,11 +26,14 @@ def _wait_for_server(host: str, port: int, timeout: float) -> None:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def drummer_server():
+def drummer_server(tmp_path_factory: pytest.TempPathFactory):
+    drummer_home = tmp_path_factory.mktemp("drummer-home")
+    env = {**os.environ, "DRUMMER_HOME": str(drummer_home)}
     proc = subprocess.Popen(
         [str(_DRUMMER_BIN), "serve", "--project", str(FIXTURE_PROJECT), "--port", str(SERVER_PORT)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
+        env=env,
     )
     try:
         _wait_for_server("127.0.0.1", SERVER_PORT, _STARTUP_TIMEOUT)
