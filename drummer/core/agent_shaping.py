@@ -1,6 +1,6 @@
 import json
 
-from jsonpath_ng.exceptions import JsonPathLexerError, JsonPathParserError
+from jsonpath_ng.exceptions import JSONPathError
 from jsonpath_ng.ext import parse as jsonpath_parse
 
 
@@ -11,8 +11,8 @@ def extract_jsonpath(body_text: str, expr: str) -> tuple[list[object] | None, st
         return None, "response body is not valid JSON"
     try:
         expression = jsonpath_parse(expr)
-    except (JsonPathParserError, JsonPathLexerError) as exc:
-        return None, f"invalid JSONPath expression: {exc}"
+    except JSONPathError as exc:
+        return None, f"invalid JSONPath expression {expr!r}: {exc}"
     return [match.value for match in expression.find(data)], None
 
 

@@ -45,3 +45,10 @@ def test_truncate_body_none_means_full() -> None:
     assert text == "hello world"
     assert truncated is False
     assert total == 11
+
+
+def test_truncate_body_exact_boundary() -> None:
+    text, truncated, total = truncate_body("hello", 5)
+    assert text == "hello"
+    assert truncated is False
+    assert total == 5
