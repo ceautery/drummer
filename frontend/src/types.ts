@@ -38,6 +38,14 @@ export interface RequestSummary {
   url: string;
 }
 
+export interface SentRequest {
+  method: string;
+  url: string;
+  params: Record<string, string>;
+  headers: Record<string, string>;
+  body: string;
+}
+
 export interface CookieConfig {
   mode: CookieMode;
   cookies: Record<string, string>;

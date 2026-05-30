@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { ResponseTab, StreamingState } from "../types";
+import type { ResponseTab, SentRequest, StreamingState } from "../types";
 
 export interface ResponseState {
   streaming: StreamingState;
@@ -15,6 +15,9 @@ export interface ResponseState {
   scriptLogs: string[];
   scriptError: string | null;
   scriptSuggestion: string | null;
+  sentRequest: SentRequest | null;
+  warnings: string[];
+  variablesUsed: Record<string, string>;
 
   reset: () => void;
   setStreaming: (state: StreamingState) => void;
@@ -29,6 +32,11 @@ export interface ResponseState {
   ) => void;
   setError: (error: string) => void;
   setTab: (tab: ResponseTab) => void;
+  setRequestInfo: (
+    sent: SentRequest | null,
+    warnings: string[],
+    variables: Record<string, string>,
+  ) => void;
 }
 
 const initialState = {
@@ -45,6 +53,9 @@ const initialState = {
   scriptLogs: [] as string[],
   scriptError: null,
   scriptSuggestion: null,
+  sentRequest: null as SentRequest | null,
+  warnings: [] as string[],
+  variablesUsed: {} as Record<string, string>,
 };
 
 export const useResponseStore = create<ResponseState>()((set) => ({
@@ -64,4 +75,6 @@ export const useResponseStore = create<ResponseState>()((set) => ({
     }),
   setError: (error) => set({ error, streaming: "error" }),
   setTab: (activeTab) => set({ activeTab }),
+  setRequestInfo: (sentRequest, warnings, variablesUsed) =>
+    set({ sentRequest, warnings, variablesUsed }),
 }));
