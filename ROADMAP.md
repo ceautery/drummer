@@ -28,7 +28,12 @@ Plan for the first slice: `docs/superpowers/plans/2026-05-29-fixes-and-phase-15-
 | F2 — Forget external workspace | `forget_external` core fn + `POST /workspaces/forget` + switcher action; e2e server `DRUMMER_HOME` isolated so fixtures no longer pollute the real registry | ✅ Done |
 | 15 — Request editing & CRUD | **Critical save fix** (PUT round-trips the full request → no more silent auth/params/script loss or white-screen crash), visible Save button, new/delete requests in the tree | ✅ Done (verified in-app) |
 | 16 — Environment & variable editor | Create/delete environments + a per-environment variable table editor (today the UI only selects environments; there's no way to set `{{base_url}}` from the app) | ✅ Done (verified in-app) |
-| 17 — Sent-request inspector | Surface the resolved request (final URL, substituted params/headers, variable set) and unresolved-variable warnings on the response side | ⏳ Planned |
+| 17 — Sent-request inspector | A "Sent" response tab showing the truly-sent request (final URL, params, headers with auth masked, body, variables used) + a persistent unresolved-variable warning banner | 📋 Spec + plan ready, not yet implemented |
 
-**Deferred:** request file **rename** and **move/folders** in the tree — these share a "move file" primitive and are best done together in a later phase. (Editing a request's display name already works through the normal save path.)
+Phase 17 spec: `docs/superpowers/specs/2026-05-30-phase-17-sent-request-inspector-design.md`.
+Phase 17 plan: `docs/superpowers/plans/2026-05-30-phase-17-sent-request-inspector.md`.
+
+**Deferred / follow-up:**
+- **History capture accuracy** (tagged during Phase 17): the history DB record stores the *resolved* (pre-mutation) headers/body, omits query params, and stores the response URL. Follow-up: add a `request_params` column, persist the truly-sent request into history, and show params in the HistoryDrawer. Needs a DB schema change, so it's deferred out of Phase 17.
+- Request file **rename** and **move/folders** in the tree (and environment **rename**) — these share a "move file" primitive, best done together in a later phase. (Editing a request's display name already works through the normal save path.)
 
