@@ -149,3 +149,37 @@ async def test_send_500_status_captured() -> None:
     transport = _MockTransport(status_code=_HTTP_INTERNAL_ERROR, content=b"Internal Server Error")
     result = await send(_make_resolved(), CookieJar(), transport=transport)
     assert result.status_code == _HTTP_INTERNAL_ERROR
+
+
+_PRE_SCRIPT_SET_URL = "dm.request.url = 'https://api.example.com/v2';"
+
+
+async def test_send_result_includes_sent_request() -> None:
+    transport = _MockTransport(status_code=_HTTP_OK, content=b"ok")
+    resolved = ResolvedRequest(
+        name="t",
+        method="GET",
+        url="https://api.example.com/v1",
+        params={"q": "x"},
+        headers={"Accept": "application/json", "Authorization": "Bearer tok"},
+        warnings=["missing_var"],
+        variables={"base_url": "https://api.example.com"},
+    )
+    result = await send(resolved, CookieJar(), transport=transport)
+    assert result.sent is not None
+    assert result.sent.method == "GET"
+    assert result.sent.url == "https://api.example.com/v1"
+    assert result.sent.params == {"q": "x"}
+    assert result.sent.headers.get("Authorization") == "Bearer tok"
+    assert result.warnings == ["missing_var"]
+    assert result.variables == {"base_url": "https://api.example.com"}
+
+
+async def test_send_sent_reflects_pre_script_url_mutation() -> None:
+    transport = _MockTransport(status_code=_HTTP_OK, content=b"ok")
+    resolved = ResolvedRequest(
+        name="t", method="GET", url="https://api.example.com/v1", pre_script=_PRE_SCRIPT_SET_URL
+    )
+    result = await send(resolved, CookieJar(), transport=transport)
+    assert result.sent is not None
+    assert result.sent.url == "https://api.example.com/v2"

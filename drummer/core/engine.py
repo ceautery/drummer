@@ -19,6 +19,14 @@ from drummer.core.storage.formats import (
 )
 
 
+class SentRequest(BaseModel):
+    method: str
+    url: str
+    params: dict[str, str] = Field(default_factory=dict)
+    headers: dict[str, str] = Field(default_factory=dict)
+    body: str = ""
+
+
 class ResolvedRequest(BaseModel):
     name: str
     method: HttpMethod
@@ -48,6 +56,8 @@ class RequestResult(BaseModel):
     script_logs: list[str] = Field(default_factory=list)
     script_error: str | None = None
     script_suggestion: str | None = None
+    sent: SentRequest | None = None
+    variables: dict[str, str] = Field(default_factory=dict)
 
 
 async def send(
@@ -95,6 +105,8 @@ async def send(
                 script_logs=all_logs,
                 script_error=pre.error,
                 script_suggestion=pre.suggestion,
+                sent=None,
+                variables=variables,
             )
         variables.update(pre.env_mutations)
         mut: dict[str, Any] = pre.request_mutations
@@ -122,8 +134,10 @@ async def send(
         content = encode_body(graphql_body, resolved.encoding)
         if not any(k.lower() == "content-type" for k in send_headers):
             send_headers["Content-Type"] = "application/json"
+        sent_body = graphql_body
     else:
         content = encode_body(send_body, resolved.encoding) if send_body else None
+        sent_body = send_body
 
     async with httpx.AsyncClient(
         transport=transport, cookies=cookies, follow_redirects=False
@@ -179,4 +193,12 @@ async def send(
         script_logs=all_logs,
         script_error=script_error,
         script_suggestion=script_suggestion,
+        sent=SentRequest(
+            method=send_method,
+            url=send_url,
+            params=send_params,
+            headers=send_headers,
+            body=sent_body,
+        ),
+        variables=variables,
     )
