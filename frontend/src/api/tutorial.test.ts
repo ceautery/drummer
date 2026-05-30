@@ -27,4 +27,9 @@ describe("stepToRequestDetail", () => {
     const detail = stepToRequestDetail({ ...baseStep, graphql: undefined });
     expect(detail.frontmatter.graphql).toBeUndefined();
   });
+
+  it("coerces a null graphql (the wire value for non-GraphQL steps) to undefined", () => {
+    const detail = stepToRequestDetail({ ...baseStep, graphql: null });
+    expect(detail.frontmatter.graphql).toBeUndefined();
+  });
 });
