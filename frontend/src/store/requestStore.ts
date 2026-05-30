@@ -7,6 +7,7 @@ interface RequestState {
   draft: RequestDetail | null;
   activeTab: RequestTab;
   select: (path: string) => void;
+  deselect: () => void;
   load: (detail: RequestDetail) => void;
   patch: (changes: Partial<RequestFrontmatter> & { body?: string }) => void;
   discard: () => void;
@@ -22,6 +23,8 @@ export const useRequestStore = create<RequestState>()((set, get) => ({
   activeTab: "params",
 
   select: (path) => set({ selectedPath: path, draft: null }),
+
+  deselect: () => set({ selectedPath: null, saved: null, draft: null }),
 
   load: (detail) => set({ saved: detail, draft: null }),
 
