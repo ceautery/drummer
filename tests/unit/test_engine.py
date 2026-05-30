@@ -173,6 +173,7 @@ async def test_send_result_includes_sent_request() -> None:
     assert result.sent.headers.get("Authorization") == "Bearer tok"
     assert result.warnings == ["missing_var"]
     assert result.variables == {"base_url": "https://api.example.com"}
+    assert result.sent.body == ""
 
 
 async def test_send_sent_reflects_pre_script_url_mutation() -> None:
@@ -183,3 +184,16 @@ async def test_send_sent_reflects_pre_script_url_mutation() -> None:
     result = await send(resolved, CookieJar(), transport=transport)
     assert result.sent is not None
     assert result.sent.url == "https://api.example.com/v2"
+
+
+async def test_send_sent_is_none_when_pre_script_errors() -> None:
+    transport = _MockTransport(status_code=_HTTP_OK, content=b"ok")
+    resolved = ResolvedRequest(
+        name="t",
+        method="GET",
+        url="https://api.example.com/v1",
+        pre_script="throw new Error('oops');",
+    )
+    result = await send(resolved, CookieJar(), transport=transport)
+    assert result.status_code == 0
+    assert result.sent is None
