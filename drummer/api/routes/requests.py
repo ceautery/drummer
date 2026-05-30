@@ -37,6 +37,11 @@ class CreateRequestBody(BaseModel):
     body: str = ""
 
 
+class RequestWriteBody(BaseModel):
+    frontmatter: RequestFrontmatter
+    body: str = ""
+
+
 class RequestSummary(BaseModel):
     path: str
     name: str
@@ -84,14 +89,14 @@ async def create_request_route(body: CreateRequestBody, project_dir: ProjectDir)
 
 @router.put("/requests/{path:path}")
 async def update_request_route(
-    path: str, body: CreateRequestBody, project_dir: ProjectDir
-) -> RequestSummary:
+    path: str, body: RequestWriteBody, project_dir: ProjectDir
+) -> RequestDetail:
     full_path = _safe_request_path(project_dir, path)
     if not full_path.exists():
         raise HTTPException(status_code=404, detail=f"Request not found: {path}")
-    fm = RequestFrontmatter(name=body.name, method=body.method, url=body.url, headers=body.headers)
-    write_request_file(RequestFile(frontmatter=fm, body=body.body, path=full_path))
-    return RequestSummary(path=path, name=body.name, method=body.method, url=body.url)
+    write_request_file(RequestFile(frontmatter=body.frontmatter, body=body.body, path=full_path))
+    rf = parse_request_file(full_path)
+    return RequestDetail(path=path, frontmatter=rf.frontmatter, body=rf.body)
 
 
 @router.delete("/requests/{path:path}", status_code=204)

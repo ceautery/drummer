@@ -31,33 +31,58 @@ async def test_create_and_get_request(client: AsyncClient, project_dir: Path) ->
     assert data["body"] == "fetch all users"
 
 
-async def test_update_request(client: AsyncClient) -> None:
+async def test_update_request_full_roundtrip(client: AsyncClient) -> None:
     await client.post(
         "/api/requests",
-        json={
-            "path": "ping.md",
-            "name": "Ping",
-            "method": "GET",
-            "url": "https://x.com",
-            "headers": {},
-            "body": "",
-        },
+        json={"path": "ping.md", "name": "Ping", "method": "GET", "url": "https://x.com"},
     )
     update_resp = await client.put(
         "/api/requests/ping.md",
         json={
-            "path": "ping.md",
-            "name": "Ping Updated",
-            "method": "POST",
-            "url": "https://x.com/ping",
-            "headers": {},
-            "body": "body",
+            "frontmatter": {
+                "name": "Ping Updated",
+                "method": "POST",
+                "url": "https://x.com/ping",
+                "headers": {"Accept": "application/json"},
+            },
+            "body": "payload",
         },
     )
     assert update_resp.status_code == HTTPStatus.OK
+    data = update_resp.json()
+    # The PUT response must be a full RequestDetail, not a bare summary.
+    assert data["frontmatter"]["name"] == "Ping Updated"
+    assert data["frontmatter"]["method"] == "POST"
+    assert data["body"] == "payload"
+
     get_resp = await client.get("/api/requests/ping.md")
-    assert get_resp.json()["frontmatter"]["name"] == "Ping Updated"
-    assert get_resp.json()["frontmatter"]["method"] == "POST"
+    assert get_resp.json()["frontmatter"]["url"] == "https://x.com/ping"
+
+
+async def test_update_request_preserves_auth_params_and_scripts(client: AsyncClient) -> None:
+    await client.post(
+        "/api/requests",
+        json={"path": "secure.md", "name": "Secure", "method": "GET", "url": "https://x.com"},
+    )
+    rich_frontmatter = {
+        "name": "Secure",
+        "method": "GET",
+        "url": "https://x.com",
+        "params": {"q": "search"},
+        "auth": {"type": "bearer", "token": "secret-token"},
+        "post_script": "dm.log('done')",
+    }
+    await client.put("/api/requests/secure.md", json={"frontmatter": rich_frontmatter, "body": ""})
+    # Save again changing ONLY the url, sending the full frontmatter back.
+    changed = {**rich_frontmatter, "url": "https://x.com/v2"}
+    await client.put("/api/requests/secure.md", json={"frontmatter": changed, "body": ""})
+
+    fm = (await client.get("/api/requests/secure.md")).json()["frontmatter"]
+    assert fm["url"] == "https://x.com/v2"
+    assert fm["params"] == {"q": "search"}
+    assert fm["auth"]["type"] == "bearer"
+    assert fm["auth"]["token"] == "secret-token"
+    assert fm["post_script"] == "dm.log('done')"
 
 
 async def test_delete_request(client: AsyncClient, project_dir: Path) -> None:
