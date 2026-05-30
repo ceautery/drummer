@@ -112,3 +112,30 @@ async def test_forget_external_route(client: AsyncClient, tmp_path: Path) -> Non
     body = forget.json()
     assert all(w["id"] != ext_id for w in body["workspaces"])
     assert body["active"] == "scratch"
+
+
+async def test_forget_external_repoints_project_dir_to_scratch(
+    client: AsyncClient, tmp_path: Path
+) -> None:
+    # An external workspace with its own request file, made active.
+    external = tmp_path / "ext-active"
+    external.mkdir()
+    reg = await client.post("/api/workspaces/register", json={"path": str(external)})
+    ext_id = reg.json()["id"]
+    (Path(reg.json()["path"]) / "ext-only.md").write_text(
+        "---\nname: Ext Only\nurl: https://ext.example.com\n---\n", encoding="utf-8"
+    )
+    await client.post("/api/workspaces/active", json={"id": ext_id})
+    paths = {item["path"] for item in (await client.get("/api/requests")).json()}
+    assert "ext-only.md" in paths  # visible while external is active
+
+    # Forgetting the active external must repoint requests to scratch.
+    await client.post("/api/workspaces/forget", json={"id": ext_id})
+    paths = {item["path"] for item in (await client.get("/api/requests")).json()}
+    assert "ext-only.md" not in paths
+
+
+async def test_forget_unknown_id_is_idempotent(client: AsyncClient) -> None:
+    r = await client.post("/api/workspaces/forget", json={"id": "/nope/never-registered"})
+    assert r.status_code == HTTPStatus.OK
+    assert r.json()["active"] == "scratch"
