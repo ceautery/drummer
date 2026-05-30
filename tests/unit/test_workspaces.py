@@ -205,3 +205,16 @@ def test_forget_external_keeps_active_when_other_forgotten(
 
 def test_forget_external_unknown_id_is_noop(drummer_home: Path, tmp_path: Path) -> None:
     ws.forget_external(str(tmp_path / "never-registered"))  # must not raise
+
+
+def test_forget_external_resets_active_for_non_canonical_id(
+    drummer_home: Path, tmp_path: Path
+) -> None:
+    external = tmp_path / "repo"
+    external.mkdir()
+    info = ws.register_external(external)
+    ws.set_active(info.id)
+    # A non-canonical path that resolves to the same active workspace.
+    non_canonical = str(external / ".." / "repo")
+    ws.forget_external(non_canonical)
+    assert ws.get_active() == "scratch"

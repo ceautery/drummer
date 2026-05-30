@@ -150,7 +150,7 @@ def forget_external(workspace_id: str) -> None:
     remaining = [entry for entry in registry if str(Path(entry).resolve()) != resolved]
     if remaining != registry:
         _write_registry(remaining)
-    if get_active() == workspace_id:
+    if get_active() == resolved:
         set_active("scratch")
 
 
