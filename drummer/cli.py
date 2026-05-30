@@ -13,7 +13,12 @@ _ATTRIBUTION = (
     "Drummer includes data from the Metropolitan Museum of Art Open Access collection.\n"
     "License: Creative Commons Zero (CC0)\n"
     "Source: https://www.metmuseum.org/about-the-met/policies-and-documents/open-access\n"
-    "The Met makes its Open Access data available for unrestricted use."
+    "The Met makes its Open Access data available for unrestricted use.\n"
+    "\n"
+    "Drummer includes a snapshot of data from Wikidata.\n"
+    "License: Creative Commons Zero (CC0)\n"
+    "Source: https://www.wikidata.org\n"
+    "Wikidata data is dedicated to the public domain."
 )
 
 app = typer.Typer(name="drummer", help="Drummer — a local REST client.")

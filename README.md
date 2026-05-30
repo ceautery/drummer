@@ -101,7 +101,7 @@ Select an environment in the sidebar, pick a request, click **Send**.
 
 ## Tutorial
 
-Run `drummer`, then click the **Tutorial** button in the top bar. The tutorial walks through all of Drummer's features using an offline mock API backed by Metropolitan Museum of Art Open Access data — no internet required.
+Run `drummer`, then click the **Tutorial** button in the top bar. The tutorial walks through all of Drummer's features using offline mock APIs backed by Metropolitan Museum of Art Open Access data and a snapshot of Wikidata — no internet required.
 
 ---
 
@@ -229,4 +229,4 @@ make build-frontend
 
 ## License
 
-MIT. Tutorial data from the [Metropolitan Museum of Art Open Access](https://metmuseum.org/about-the-met/policies-and-documents/open-access) collection (CC0).
+MIT. Tutorial data from the [Metropolitan Museum of Art Open Access](https://metmuseum.org/about-the-met/policies-and-documents/open-access) collection (CC0) and [Wikidata](https://www.wikidata.org) (CC0).

@@ -15,4 +15,4 @@
 | 11 — Workspaces | Central `~/.drummer` storage, Scratch catchall, external folders, bare `drummer` launches, top-bar workspace switcher | ✅ Done |
 | 12 — Theming | Dark / light / system-auto toggle across the app and tutorial | ✅ Done |
 | 13 — Tutorial cohesion | Tutorial drives the real request/response panes; unified Workspace/Tutorial tabs in the AppBar | ✅ Done |
-| 14 — Wikidata GraphQL | Wikidata GraphQL dataset + GraphQL tutorial step | ⬜ Planned |
+| 14 — Wikidata GraphQL | Wikidata GraphQL dataset + GraphQL tutorial step | ✅ Done |

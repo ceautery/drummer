@@ -40,6 +40,8 @@ def test_attribution_option_exists():
     result = runner.invoke(app, ["--attribution"])
     assert result.exit_code == 0
     assert "Metropolitan Museum" in result.output
+    assert "Wikidata" in result.output
+    assert "wikidata.org" in result.output
 
 
 def test_version_flag():
