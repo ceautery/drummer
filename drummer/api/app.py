@@ -10,6 +10,7 @@ from fastapi_mcp import FastApiMCP
 from drummer.api.db.cookie_persistence import CookiePersistence
 from drummer.api.db.session import async_session_factory, init_db
 from drummer.api.mcp.tools import register_mcp_tools
+from drummer.api.routes import agent as agent_routes
 from drummer.api.routes import cookies as cookie_routes
 from drummer.api.routes import environments as env_routes
 from drummer.api.routes import graphql_routes
@@ -53,6 +54,7 @@ def create_app(
     app.include_router(env_routes.router, prefix="/api")
     app.include_router(graphql_routes.router, prefix="/api")
     app.include_router(send_routes.router, prefix="/api")
+    app.include_router(agent_routes.router, prefix="/api")
     app.include_router(history_routes.router, prefix="/api")
     app.include_router(cookie_routes.router, prefix="/api")
     app.include_router(mock_routes.router)
