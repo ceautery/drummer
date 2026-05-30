@@ -16,3 +16,19 @@
 | 12 — Theming | Dark / light / system-auto toggle across the app and tutorial | ✅ Done |
 | 13 — Tutorial cohesion | Tutorial drives the real request/response panes; unified Workspace/Tutorial tabs in the AppBar | ✅ Done |
 | 14 — Wikidata GraphQL | Wikidata GraphQL dataset + GraphQL tutorial step | ✅ Done |
+
+## Post-1.0 Hardening Arc
+
+Spec: `docs/superpowers/specs/2026-05-29-post-1.0-hardening-arc-design.md`.
+Plan for the first slice: `docs/superpowers/plans/2026-05-29-fixes-and-phase-15-request-editing.md`.
+
+| Item | Description | Status |
+|---|---|---|
+| F1 — Raw tab | Raw response tab is a pure hexdump (dropped redundant body panel) | ✅ Done |
+| F2 — Forget external workspace | `forget_external` core fn + `POST /workspaces/forget` + switcher action; e2e server `DRUMMER_HOME` isolated so fixtures no longer pollute the real registry | ✅ Done |
+| 15 — Request editing & CRUD | **Critical save fix** (PUT round-trips the full request → no more silent auth/params/script loss or white-screen crash), visible Save button, new/delete requests in the tree | ✅ Done (code) — manual app verification pending |
+| 16 — Environment & variable editor | Create/delete environments + a per-environment variable table editor (today the UI only selects environments; there's no way to set `{{base_url}}` from the app) | ⏳ Planned |
+| 17 — Sent-request inspector | Surface the resolved request (final URL, substituted params/headers, variable set) and unresolved-variable warnings on the response side | ⏳ Planned |
+
+**Deferred:** request file **rename** and **move/folders** in the tree — these share a "move file" primitive and are best done together in a later phase. (Editing a request's display name already works through the normal save path.)
+
