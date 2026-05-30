@@ -56,6 +56,14 @@ describe("EnvironmentManager", () => {
     });
   });
 
+  it("+ New shows an inline error for a duplicate name and does not create", () => {
+    vi.spyOn(window, "prompt").mockReturnValue("staging");
+    render(<EnvironmentManager open onClose={vi.fn()} />);
+    fireEvent.click(screen.getByTestId("env-new-button"));
+    expect(screen.getByRole("alert")).toHaveTextContent(/already exists/i);
+    expect(h.createMutate).not.toHaveBeenCalled();
+  });
+
   it("Delete removes the selected environment after confirm", () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     render(<EnvironmentManager open onClose={vi.fn()} />);

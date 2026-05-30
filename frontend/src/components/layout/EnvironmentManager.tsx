@@ -6,7 +6,7 @@ import {
   useEnvironments,
   useSaveEnvironment,
 } from "../../api/environments";
-import { useSessionStore } from "../../store/sessionStore";
+import { DEFAULT_ENVIRONMENT, useSessionStore } from "../../store/sessionStore";
 import { KeyValueTable } from "../request/KeyValueTable";
 import { Dialog, DialogPopup, DialogTitle } from "../ui/dialog";
 import {
@@ -101,7 +101,7 @@ export function EnvironmentManager({ open, onClose }: EnvironmentManagerProps) {
           .map((e) => e.name)
           .filter((n) => n !== deleted);
         if (activeEnvironment === deleted) {
-          setActiveEnvironment(remaining[0] ?? "local");
+          setActiveEnvironment(remaining[0] ?? DEFAULT_ENVIRONMENT);
         }
         setEditingName(remaining[0] ?? "");
       },

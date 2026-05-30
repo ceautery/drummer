@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+export const DEFAULT_ENVIRONMENT = "local";
+
 interface SessionState {
   activeEnvironment: string;
   variables: Record<string, string>;
@@ -8,7 +10,7 @@ interface SessionState {
 }
 
 export const useSessionStore = create<SessionState>()((set) => ({
-  activeEnvironment: "local",
+  activeEnvironment: DEFAULT_ENVIRONMENT,
   variables: {},
   setActiveEnvironment: (activeEnvironment) => set({ activeEnvironment }),
   setVariables: (variables) => set({ variables }),
