@@ -1,0 +1,3 @@
+from jsonpath_ng import JSONPath
+
+def parse(path: str) -> JSONPath: ...
