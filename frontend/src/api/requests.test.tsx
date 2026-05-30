@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RequestDetail } from "../types";
 import { apiFetch } from "./client";
-import { useSaveRequest } from "./requests";
+import { useCreateRequest, useSaveRequest } from "./requests";
 
 vi.mock("./client", () => ({ apiFetch: vi.fn() }));
 
@@ -69,5 +69,33 @@ describe("useSaveRequest", () => {
     expect(sent.frontmatter.auth.token).toBe("secret-token");
     expect(sent.frontmatter.post_script).toBe("dm.log('x')");
     expect(sent.body).toBe("the body");
+  });
+});
+
+describe("useCreateRequest", () => {
+  beforeEach(() => {
+    vi.mocked(apiFetch).mockReset();
+  });
+
+  it("POSTs path and name to /api/requests", async () => {
+    vi.mocked(apiFetch).mockResolvedValue({
+      path: "new-request.md",
+      name: "New Request",
+      method: "GET",
+      url: "",
+    });
+    const { result } = renderHook(() => useCreateRequest(), { wrapper });
+    await result.current.mutateAsync({
+      path: "new-request.md",
+      name: "New Request",
+    });
+    await waitFor(() => expect(apiFetch).toHaveBeenCalledTimes(1));
+    expect(apiFetch).toHaveBeenCalledWith(
+      "/api/requests",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ path: "new-request.md", name: "New Request" }),
+      }),
+    );
   });
 });

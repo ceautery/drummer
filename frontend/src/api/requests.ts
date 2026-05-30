@@ -18,6 +18,20 @@ export function useRequest(path: string | null) {
   });
 }
 
+export function useCreateRequest() {
+  const queryClient = useQueryClient();
+  return useMutation<RequestSummary, Error, { path: string; name: string }>({
+    mutationFn: ({ path, name }) =>
+      apiFetch<RequestSummary>("/api/requests", {
+        method: "POST",
+        body: JSON.stringify({ path, name }),
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["requests"] });
+    },
+  });
+}
+
 export function useSaveRequest() {
   const queryClient = useQueryClient();
   return useMutation<
