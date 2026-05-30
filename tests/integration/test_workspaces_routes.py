@@ -98,3 +98,17 @@ async def test_switch_workspace_changes_request_list(client: AsyncClient) -> Non
     assert r.status_code == HTTPStatus.OK
     paths = {item["path"] for item in r.json()}
     assert "other-request.md" in paths
+
+
+async def test_forget_external_route(client: AsyncClient, tmp_path: Path) -> None:
+    external = tmp_path / "ext-to-forget"
+    external.mkdir()
+    register = await client.post("/api/workspaces/register", json={"path": str(external)})
+    assert register.status_code == HTTPStatus.OK
+    ext_id = register.json()["id"]
+
+    forget = await client.post("/api/workspaces/forget", json={"id": ext_id})
+    assert forget.status_code == HTTPStatus.OK
+    body = forget.json()
+    assert all(w["id"] != ext_id for w in body["workspaces"])
+    assert body["active"] == "scratch"

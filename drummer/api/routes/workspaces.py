@@ -27,6 +27,10 @@ class RegisterBody(BaseModel):
     path: str
 
 
+class ForgetBody(BaseModel):
+    id: str
+
+
 @router.get("/workspaces")
 async def list_workspaces_route() -> WorkspaceListResponse:
     return WorkspaceListResponse(workspaces=ws.list_workspaces(), active=ws.get_active())
@@ -43,6 +47,14 @@ async def create_workspace_route(body: CreateBody) -> ws.WorkspaceInfo:
 @router.post("/workspaces/register")
 async def register_workspace_route(body: RegisterBody) -> ws.WorkspaceInfo:
     return ws.register_external(Path(body.path))
+
+
+@router.post("/workspaces/forget")
+async def forget_workspace_route(body: ForgetBody, request: Request) -> WorkspaceListResponse:
+    ws.forget_external(body.id)
+    active = ws.get_active()
+    request.app.state.project_dir = ws.resolve_workspace(active)
+    return WorkspaceListResponse(workspaces=ws.list_workspaces(), active=active)
 
 
 @router.post("/workspaces/active")
