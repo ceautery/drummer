@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import {
   useCreateWorkspace,
+  useForgetWorkspace,
   useRegisterWorkspace,
   useSwitchWorkspace,
   useWorkspaces,
@@ -19,17 +20,21 @@ import type { WorkspaceInfo } from "../../types";
 
 const NEW = "__new__";
 const ADD = "__add__";
+const FORGET = "__forget__";
 
 export function WorkspaceSwitcher() {
   const { data } = useWorkspaces();
   const switchWorkspace = useSwitchWorkspace();
   const createWorkspace = useCreateWorkspace();
   const registerWorkspace = useRegisterWorkspace();
+  const forgetWorkspace = useForgetWorkspace();
   const isDirty = useRequestStore((s) => s.isDirty);
   const discard = useRequestStore((s) => s.discard);
 
   const active = data?.active ?? "scratch";
   const workspaces = data?.workspaces ?? [];
+  const activeIsExternal =
+    workspaces.find((w) => w.id === active)?.kind === "external";
 
   const guarded = (run: () => void) => {
     if (isDirty()) {
@@ -54,6 +59,14 @@ export function WorkspaceSwitcher() {
       const path = window.prompt("Path to existing project folder:")?.trim();
       if (path) {
         guarded(() => registerWorkspace.mutate(path, { onSuccess: switchTo }));
+      }
+      return;
+    }
+    if (value === FORGET) {
+      if (
+        window.confirm("Forget this external workspace? Files are not deleted.")
+      ) {
+        forgetWorkspace.mutate(active);
       }
       return;
     }
@@ -89,6 +102,9 @@ export function WorkspaceSwitcher() {
         <SelectSeparator />
         <SelectItem value={NEW}>+ New workspace…</SelectItem>
         <SelectItem value={ADD}>⊕ Add existing folder…</SelectItem>
+        {activeIsExternal && (
+          <SelectItem value={FORGET}>✕ Forget external workspace…</SelectItem>
+        )}
       </SelectContent>
     </Select>
   );

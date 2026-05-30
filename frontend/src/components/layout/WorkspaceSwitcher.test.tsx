@@ -27,11 +27,19 @@ vi.mock("../../api/workspaces", () => ({
   useSwitchWorkspace: () => ({ mutate: vi.fn() }),
   useCreateWorkspace: () => ({ mutate: vi.fn() }),
   useRegisterWorkspace: () => ({ mutate: vi.fn() }),
+  useForgetWorkspace: () => ({ mutate: vi.fn() }),
 }));
 
 describe("WorkspaceSwitcher", () => {
   it("shows the active workspace in the trigger", () => {
     render(<WorkspaceSwitcher />);
     expect(screen.getByText(/Scratch/)).toBeInTheDocument();
+  });
+
+  it("does not offer Forget when the active workspace is not external", () => {
+    render(<WorkspaceSwitcher />);
+    expect(
+      screen.queryByText(/Forget external workspace/),
+    ).not.toBeInTheDocument();
   });
 });
