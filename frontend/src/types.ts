@@ -142,4 +142,5 @@ export interface TutorialStep {
   pre_script: string;
   post_script: string;
   variable_overrides: Record<string, string>;
+  graphql?: GraphQLConfig | null;
 }

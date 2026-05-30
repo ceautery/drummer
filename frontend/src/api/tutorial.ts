@@ -79,6 +79,7 @@ export function stepToRequestDetail(step: TutorialStep): RequestDetail {
         client_secret: "",
         scope: "",
       },
+      graphql: step.graphql ?? undefined,
       pre_script: step.pre_script,
       post_script: step.post_script,
       script_timeout_ms: null,
