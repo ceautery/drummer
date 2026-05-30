@@ -62,8 +62,7 @@ export function RequestResponseWorkbench({
   const { variables } = useSessionStore();
 
   const current = draft ?? saved;
-  const canSave =
-    draft !== null && JSON.stringify(draft) !== JSON.stringify(saved);
+  const canSave = useRequestStore((s) => s.isDirty());
   const contentType =
     responseHeaders.find(([k]) => k.toLowerCase() === "content-type")?.[1] ??
     "";

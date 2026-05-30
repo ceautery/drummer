@@ -53,7 +53,7 @@ export function TreeNode({ request, onSelect, onDelete }: TreeNodeProps) {
       <button
         type="button"
         aria-label={`Delete ${request.name}`}
-        className="px-1.5 text-xs text-muted-foreground opacity-0 hover:text-red-600 group-hover:opacity-100"
+        className="px-1.5 text-xs text-muted-foreground opacity-0 hover:text-red-600 group-hover:opacity-100 group-focus-within:opacity-100"
         onClick={() => onDelete(request.path)}
       >
         ✕
