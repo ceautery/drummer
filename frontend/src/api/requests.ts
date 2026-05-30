@@ -29,11 +29,7 @@ export function useSaveRequest() {
       apiFetch<RequestDetail>(`/api/requests/${path}`, {
         method: "PUT",
         body: JSON.stringify({
-          path,
-          name: detail.frontmatter.name,
-          method: detail.frontmatter.method,
-          url: detail.frontmatter.url,
-          headers: detail.frontmatter.headers,
+          frontmatter: detail.frontmatter,
           body: detail.body,
         }),
       }),
