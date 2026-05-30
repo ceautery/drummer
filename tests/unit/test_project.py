@@ -7,6 +7,7 @@ from drummer.core.storage.project import (
     Environment,
     ProjectMeta,
     create_project,
+    delete_environment,
     list_environments,
     list_requests,
     load_environment,
@@ -164,3 +165,13 @@ def test_load_project_parses_script_timeout(tmp_path: Path) -> None:
     )
     meta = load_project(tmp_path)
     assert meta.script_timeout_ms == timeout_value
+
+
+def test_delete_environment_removes_file(tmp_path: Path) -> None:
+    create_project(tmp_path, "P")
+    save_environment(Environment(name="staging", variables={"k": "v"}), tmp_path)
+    env_file = tmp_path / ".drummer" / "environments" / "staging.yaml"
+    assert env_file.exists()
+
+    delete_environment("staging", tmp_path)
+    assert not env_file.exists()

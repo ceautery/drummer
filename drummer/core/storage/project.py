@@ -65,6 +65,11 @@ def save_environment(env: Environment, project_dir: Path) -> None:
     )
 
 
+def delete_environment(name: str, project_dir: Path) -> None:
+    env_path = project_dir / ".drummer" / "environments" / f"{name}.yaml"
+    env_path.unlink()
+
+
 def list_environments(project_dir: Path) -> list[Environment]:
     env_dir = project_dir / ".drummer" / "environments"
     if not env_dir.exists():
