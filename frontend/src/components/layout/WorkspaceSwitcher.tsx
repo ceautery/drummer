@@ -74,7 +74,7 @@ export function WorkspaceSwitcher() {
   };
 
   const itemLabels = useMemo<Record<string, React.ReactNode>>(
-    // Sentinel action items (NEW/ADD) are intentionally omitted here, so the trigger
+    // Sentinel action items (NEW/ADD/FORGET) are intentionally omitted here, so the trigger
     // label only ever resolves to a real workspace name — never "+ New workspace…".
     () => Object.fromEntries(workspaces.map((w) => [w.id, w.name] as const)),
     [workspaces],
