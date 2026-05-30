@@ -22,6 +22,7 @@ export type ResponseTab =
   | "body"
   | "headers"
   | "raw"
+  | "sent"
   | "script-output"
   | "history";
 export type StreamingState = "idle" | "streaming" | "done" | "error";

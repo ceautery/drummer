@@ -15,6 +15,8 @@ import { HistoryDrawer } from "../response/HistoryDrawer";
 import { RawViewer } from "../response/RawViewer";
 import { ResponseMeta } from "../response/ResponseMeta";
 import { ScriptOutput } from "../response/ScriptOutput";
+import { SentViewer } from "../response/SentViewer";
+import { UnresolvedWarningBanner } from "../response/UnresolvedWarningBanner";
 import { TwoPanel } from "./PanelGroup";
 
 const REQUEST_TABS: { id: RequestTab; label: string }[] = [
@@ -30,6 +32,7 @@ const RESPONSE_TABS: { id: ResponseTab; label: string }[] = [
   { id: "body", label: "Body" },
   { id: "headers", label: "Headers" },
   { id: "raw", label: "Raw" },
+  { id: "sent", label: "Sent" },
   { id: "script-output", label: "Script Output" },
   { id: "history", label: "History" },
 ];
@@ -116,6 +119,7 @@ export function RequestResponseWorkbench({
         bodyLength={body?.length ?? null}
         streaming={streaming}
       />
+      <UnresolvedWarningBanner />
       <div className="flex gap-0 border-b px-2">
         {RESPONSE_TABS.map((tab) => (
           <button
@@ -140,6 +144,7 @@ export function RequestResponseWorkbench({
           <HeadersViewer headers={responseHeaders} />
         )}
         {responseTab === "raw" && <RawViewer body={body} />}
+        {responseTab === "sent" && <SentViewer />}
         {responseTab === "script-output" && <ScriptOutput />}
         {responseTab === "history" && <HistoryDrawer />}
       </div>
