@@ -18,7 +18,7 @@ _ATTRIBUTION = (
     "Drummer includes a snapshot of data from Wikidata.\n"
     "License: Creative Commons Zero (CC0)\n"
     "Source: https://www.wikidata.org\n"
-    "Wikidata data is dedicated to the public domain."
+    "Wikidata makes its data available for unrestricted reuse."
 )
 
 app = typer.Typer(name="drummer", help="Drummer — a local REST client.")
