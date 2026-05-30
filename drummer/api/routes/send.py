@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 from drummer.api.db.models import ResponseHistoryRecord
 from drummer.api.deps import get_cookie_jar, get_oauth_cache, get_project_dir
 from drummer.core.cookies import CookieJar
+from drummer.core.engine import RequestResult
 from drummer.core.engine import send as engine_send
 from drummer.core.oauth import OAuthError, OAuthTokenCache
 from drummer.core.storage.formats import parse_request_file
@@ -38,6 +39,19 @@ def _safe_path(project_dir: Path, user_path: str) -> Path:
             status_code=HTTPStatus.BAD_REQUEST, detail="Invalid path: outside project directory"
         )
     return resolved
+
+
+def _request_event(result: RequestResult) -> dict[str, str]:
+    return {
+        "event": "request",
+        "data": json.dumps(
+            {
+                "sent": result.sent.model_dump() if result.sent else None,
+                "warnings": result.warnings,
+                "variables": result.variables,
+            }
+        ),
+    }
 
 
 class SendRequest(BaseModel):
@@ -79,16 +93,7 @@ async def send_request_route(
             )
 
             if result.script_error and result.status_code == 0:
-                yield {
-                    "event": "request",
-                    "data": json.dumps(
-                        {
-                            "sent": result.sent.model_dump() if result.sent else None,
-                            "warnings": result.warnings,
-                            "variables": result.variables,
-                        }
-                    ),
-                }
+                yield _request_event(result)
                 yield {
                     "event": "done",
                     "data": json.dumps(
@@ -117,16 +122,7 @@ async def send_request_route(
                     }
                 ),
             }
-            yield {
-                "event": "request",
-                "data": json.dumps(
-                    {
-                        "sent": result.sent.model_dump() if result.sent else None,
-                        "warnings": result.warnings,
-                        "variables": result.variables,
-                    }
-                ),
-            }
+            yield _request_event(result)
 
             record_id = str(uuid4())
             async with db_factory() as session:

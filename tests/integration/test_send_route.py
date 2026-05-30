@@ -45,6 +45,7 @@ async def test_send_success_emits_sse_events(project_dir: Path) -> None:
     assert "status" in event_names
     assert "headers" in event_names
     assert "body" in event_names
+    assert "request" in event_names
     assert "done" in event_names
 
     status_event = next(e for e in events if e["event"] == "status")
