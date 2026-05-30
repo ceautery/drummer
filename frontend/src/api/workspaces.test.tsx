@@ -25,9 +25,12 @@ describe("useForgetWorkspace", () => {
     const { result } = renderHook(() => useForgetWorkspace(), { wrapper });
     await result.current.mutateAsync("/abs/path");
     await waitFor(() => expect(apiFetch).toHaveBeenCalledTimes(1));
-    const [url, opts] = vi.mocked(apiFetch).mock.calls[0]!;
-    expect(url).toBe("/api/workspaces/forget");
-    expect(opts?.method).toBe("POST");
-    expect(JSON.parse(opts?.body as string)).toEqual({ id: "/abs/path" });
+    expect(apiFetch).toHaveBeenCalledWith(
+      "/api/workspaces/forget",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ id: "/abs/path" }),
+      }),
+    );
   });
 });
