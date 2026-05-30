@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from drummer.api.deps import get_project_dir
 from drummer.core.storage.project import (
     Environment,
+    delete_environment,
     list_environments,
     load_environment,
     save_environment,
@@ -93,3 +94,11 @@ async def update_environment_route(
     env = Environment(name=name, variables=body.variables)
     save_environment(env, project_dir)
     return EnvironmentDetail(name=env.name, variables=env.variables)
+
+
+@router.delete("/environments/{name}", status_code=HTTPStatus.NO_CONTENT)
+async def delete_environment_route(name: str, project_dir: ProjectDir) -> None:
+    env_path = _safe_env_path(project_dir, name)
+    if not env_path.exists():
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=_ENV_NOT_FOUND)
+    delete_environment(name, project_dir)

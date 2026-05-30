@@ -80,3 +80,16 @@ async def test_create_environment_rejects_nested_name(client: AsyncClient) -> No
 async def test_create_environment_rejects_overlong_name(client: AsyncClient) -> None:
     resp = await client.post("/api/environments", json={"name": "x" * 256, "variables": {}})
     assert resp.status_code == HTTPStatus.BAD_REQUEST
+
+
+async def test_delete_environment(client: AsyncClient) -> None:
+    await client.post("/api/environments", json={"name": "staging", "variables": {}})
+    resp = await client.delete("/api/environments/staging")
+    assert resp.status_code == HTTPStatus.NO_CONTENT
+    listed = {e["name"] for e in (await client.get("/api/environments")).json()}
+    assert "staging" not in listed
+
+
+async def test_delete_missing_environment_returns_404(client: AsyncClient) -> None:
+    resp = await client.delete("/api/environments/ghost")
+    assert resp.status_code == HTTPStatus.NOT_FOUND
