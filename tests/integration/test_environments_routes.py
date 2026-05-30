@@ -55,7 +55,8 @@ async def test_create_environment(client: AsyncClient) -> None:
 
 
 async def test_create_environment_duplicate_conflicts(client: AsyncClient) -> None:
-    await client.post("/api/environments", json={"name": "staging", "variables": {}})
+    first = await client.post("/api/environments", json={"name": "staging", "variables": {}})
+    assert first.status_code == HTTPStatus.CREATED
     resp = await client.post("/api/environments", json={"name": "staging", "variables": {}})
     assert resp.status_code == HTTPStatus.CONFLICT
 
@@ -67,4 +68,15 @@ async def test_create_environment_rejects_blank_name(client: AsyncClient) -> Non
 
 async def test_create_environment_rejects_path_name(client: AsyncClient) -> None:
     resp = await client.post("/api/environments", json={"name": "../escape", "variables": {}})
+    assert resp.status_code == HTTPStatus.BAD_REQUEST
+
+
+async def test_create_environment_rejects_nested_name(client: AsyncClient) -> None:
+    # A non-escaping separator must still be rejected (no nested env files).
+    resp = await client.post("/api/environments", json={"name": "a/b", "variables": {}})
+    assert resp.status_code == HTTPStatus.BAD_REQUEST
+
+
+async def test_create_environment_rejects_overlong_name(client: AsyncClient) -> None:
+    resp = await client.post("/api/environments", json={"name": "x" * 256, "variables": {}})
     assert resp.status_code == HTTPStatus.BAD_REQUEST

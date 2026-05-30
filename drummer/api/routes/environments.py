@@ -18,6 +18,7 @@ router = APIRouter()
 ProjectDir = Annotated[Path, Depends(get_project_dir)]
 
 _ENV_NOT_FOUND = "Environment not found"
+_MAX_ENV_NAME_LEN = 255
 
 
 class EnvironmentSummary(BaseModel):
@@ -55,7 +56,13 @@ async def create_environment_route(
     body: CreateEnvironmentBody, project_dir: ProjectDir
 ) -> EnvironmentDetail:
     name = body.name.strip()
-    if not name or "/" in name or "\\" in name or name in {".", ".."}:
+    if (
+        not name
+        or len(name) > _MAX_ENV_NAME_LEN
+        or "/" in name
+        or "\\" in name
+        or name in {".", ".."}
+    ):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Invalid environment name")
     env_path = _safe_env_path(project_dir, name)
     if env_path.exists():
