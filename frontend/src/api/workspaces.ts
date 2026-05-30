@@ -57,3 +57,15 @@ export function useRegisterWorkspace() {
     onSuccess: () => invalidateWorkspaceData(qc),
   });
 }
+
+export function useForgetWorkspace() {
+  const qc = useQueryClient();
+  return useMutation<WorkspaceListResponse, Error, string>({
+    mutationFn: (id) =>
+      apiFetch<WorkspaceListResponse>("/api/workspaces/forget", {
+        method: "POST",
+        body: JSON.stringify({ id }),
+      }),
+    onSuccess: () => invalidateWorkspaceData(qc),
+  });
+}
