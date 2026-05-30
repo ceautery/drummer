@@ -9,11 +9,11 @@
 - Phase 16 — environment & variable editor (backend create/delete, Dialog primitive, EnvironmentManager
   modal from a sidebar gear button). Verified in-app.
 
-**Phase 17 — Sent-request inspector: SPEC + PLAN WRITTEN, NOT YET IMPLEMENTED.**
-- Spec: `docs/superpowers/specs/2026-05-30-phase-17-sent-request-inspector-design.md`
-- Plan: `docs/superpowers/plans/2026-05-30-phase-17-sent-request-inspector.md` (8 TDD tasks)
-- Next session: execute the plan (subagent-driven), then in-app verify (Sent tab + warning banner), then close out.
-- This is the final planned phase of the arc.
+- Phase 17 — Sent-request inspector: "Sent" response tab (truly-sent URL/params/headers with
+  auth+cookie masked/body/variables) + a persistent unresolved-variable warning banner. Verified
+  in-app (substituted URL, masked auth header, banner names stray vars).
+
+**Post-1.0 hardening arc is COMPLETE** (F1, F2, Phases 15–17). Next up: the Agent API Toolkit arc (below).
 
 ## Follow-up work (tagged, not yet planned)
 - **History capture accuracy** (tagged during Phase 17 design): the history DB record
@@ -22,6 +22,10 @@
   add a `request_params` column (DB schema change), persist the truly-sent request
   (`RequestResult.sent`, available after Phase 17) into the history record, and surface params
   in the `HistoryDrawer`. Deferred out of Phase 17 because it needs a schema migration.
+- **Secret variable values shown in the Sent tab** (noticed during Phase 17 verification): the
+  Authorization/Cookie headers are masked, but a secret-bearing variable (e.g. `token`) shows its
+  value in the "Variables used" section. Acceptable for a local single-user tool; a future hardening
+  could mask known-secret variable names.
 
 ## Next arc (designed, not started)
 - **Agent API Toolkit** — make Drummer beat curl for an agent refactoring/testing APIs over MCP.
