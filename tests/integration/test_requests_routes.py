@@ -57,6 +57,7 @@ async def test_update_request_full_roundtrip(client: AsyncClient) -> None:
 
     get_resp = await client.get("/api/requests/ping.md")
     assert get_resp.json()["frontmatter"]["url"] == "https://x.com/ping"
+    assert get_resp.json()["frontmatter"]["headers"] == {"Accept": "application/json"}
 
 
 async def test_update_request_preserves_auth_params_and_scripts(client: AsyncClient) -> None:
@@ -106,6 +107,13 @@ async def test_delete_request(client: AsyncClient, project_dir: Path) -> None:
 async def test_get_missing_request_returns_404(client: AsyncClient) -> None:
     response = await client.get("/api/requests/does-not-exist.md")
     assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+async def test_update_missing_request_returns_404(client: AsyncClient) -> None:
+    resp = await client.put(
+        "/api/requests/does-not-exist.md", json={"frontmatter": {"name": "Ghost"}, "body": ""}
+    )
+    assert resp.status_code == HTTPStatus.NOT_FOUND
 
 
 async def test_list_requests_returns_summaries(client: AsyncClient) -> None:
