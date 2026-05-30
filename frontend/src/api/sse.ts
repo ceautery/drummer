@@ -1,4 +1,5 @@
 import type { ResponseState } from "../store/responseStore";
+import type { SentRequest } from "../types";
 
 export async function* parseSSE(
   response: Response,
@@ -47,6 +48,13 @@ export async function consumeSSE(
         elapsed_ms: number;
       };
       response.setBody(p.body, p.encoding, p.elapsed_ms);
+    } else if (event === "request") {
+      const p = payload as {
+        sent: SentRequest | null;
+        warnings: string[];
+        variables: Record<string, string>;
+      };
+      response.setRequestInfo(p.sent, p.warnings ?? [], p.variables ?? {});
     } else if (event === "done") {
       const p = payload as {
         history_id: string | null;
