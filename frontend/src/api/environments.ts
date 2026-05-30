@@ -30,3 +30,32 @@ export function useSaveEnvironment() {
     },
   });
 }
+
+export function useCreateEnvironment() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    EnvironmentDetail,
+    Error,
+    { name: string; variables: Record<string, string> }
+  >({
+    mutationFn: ({ name, variables }) =>
+      apiFetch<EnvironmentDetail>("/api/environments", {
+        method: "POST",
+        body: JSON.stringify({ name, variables }),
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["environments"] });
+    },
+  });
+}
+
+export function useDeleteEnvironment() {
+  const queryClient = useQueryClient();
+  return useMutation<void, Error, string>({
+    mutationFn: (name) =>
+      apiFetch<void>(`/api/environments/${name}`, { method: "DELETE" }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["environments"] });
+    },
+  });
+}
