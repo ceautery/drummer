@@ -7,8 +7,9 @@ from typing import TYPE_CHECKING, Annotated, cast
 from uuid import uuid4
 
 import httpx
+import yaml
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -64,6 +65,9 @@ class AgentSendResult(BaseModel):
     body_total_chars: int = 0
     extracted: list[object] | None = None
     extract_error: str | None = None
+    script_logs: list[str] = Field(default_factory=list[str])
+    script_error: str | None = None
+    script_suggestion: str | None = None
 
 
 @router.post("/agent/send", operation_id="agent_send")
@@ -82,10 +86,15 @@ async def agent_send_route(
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail=f"Request not found: {body.path}"
         )
-    request_file = parse_request_file(req_path)
-
     env_path = project_dir / ".drummer" / "environments" / f"{environment}.yaml"
-    env = load_environment(env_path) if env_path.exists() else None
+    try:
+        request_file = parse_request_file(req_path)
+        env = load_environment(env_path) if env_path.exists() else None
+    except (ValidationError, OSError, yaml.YAMLError) as exc:
+        raise HTTPException(
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            detail=f"Invalid request or environment file: {exc}",
+        ) from exc
     variables: dict[str, str] = {**(env.variables if env else {}), **body.overrides}
 
     project_timeout_ms: int | None = None
@@ -179,4 +188,7 @@ async def agent_send_route(
         body_total_chars=total_chars,
         extracted=extracted,
         extract_error=extract_error,
+        script_logs=result.script_logs,
+        script_error=result.script_error,
+        script_suggestion=result.script_suggestion,
     )

@@ -95,3 +95,16 @@ async def test_agent_send_surfaces_unresolved_warnings(
 async def test_agent_send_missing_request_404(client_with_mock: AsyncClient) -> None:
     resp = await client_with_mock.post("/api/agent/send", json={"path": "nope.md"})
     assert resp.status_code == HTTPStatus.NOT_FOUND
+
+
+async def test_agent_send_rejects_path_traversal(client_with_mock: AsyncClient) -> None:
+    resp = await client_with_mock.post("/api/agent/send", json={"path": "../escape.md"})
+    assert resp.status_code == HTTPStatus.BAD_REQUEST
+
+
+async def test_agent_send_malformed_request_file_422(
+    client_with_mock: AsyncClient, project_dir: Path
+) -> None:
+    (project_dir / "bad.md").write_text("---\nthis: is: not: valid: yaml\n---\n", encoding="utf-8")
+    resp = await client_with_mock.post("/api/agent/send", json={"path": "bad.md"})
+    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
