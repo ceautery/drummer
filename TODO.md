@@ -27,12 +27,16 @@
   value in the "Variables used" section. Acceptable for a local single-user tool; a future hardening
   could mask known-secret variable names.
 
-## Next arc (designed, not started)
-- **Agent API Toolkit** — make Drummer beat curl for an agent refactoring/testing APIs over MCP.
-  Arc design: `docs/superpowers/specs/2026-05-30-agent-api-toolkit-arc-design.md`. Four sub-phases:
-  18 (agent-ergonomic send: dry-run + extraction + truncation), 19 (assertions & captures),
-  20 (suite runs & chaining), 21 (snapshot & diff). Each needs its own spec → plan. Start with 18
-  (smallest; reuses Phase 17's sent-request data). Sequence after Phase 17 lands.
+## Agent API Toolkit arc (in progress)
+Arc design: `docs/superpowers/specs/2026-05-30-agent-api-toolkit-arc-design.md`.
+- **Phase 18 — agent-ergonomic send: DONE** (verified). `POST /api/agent/send` (clean JSON MCP tool):
+  dry-run, JSONPath extraction (jsonpath-ng), body truncation, structured result with sent request +
+  warnings + script errors. Spec/plan: `docs/superpowers/{specs,plans}/2026-05-30-phase-18-agent-ergonomic-send*.md`.
+- **Next:** Phase 19 (assertions & captures) → 20 (suite runs & chaining) → 21 (snapshot & diff). Each needs its own spec → plan.
+
+### Phase 18 follow-ups (minor)
+- Extract the triplicated `_safe_path` helper (`send.py` / `agent.py` / `mcp/tools.py`) into one shared util.
+- Add an integration test for the agent route's 502 (transport-error) path.
 
 ## Deferred
 - Request file **rename** + environment **rename** + tree **move/folders** — shared "move file" primitive, a later phase.

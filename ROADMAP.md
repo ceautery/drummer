@@ -48,10 +48,14 @@ its own spec/plan. Dependency chain 18 → 19 → 20; 21 after 18.
 
 | Phase | Description | Status |
 |---|---|---|
-| 18 — Agent-ergonomic send | Dry-run (resolved request, no send), JSONPath field extraction, body truncation/summarization — compact MCP output that doesn't flood agent context | ⏳ Planned (arc spec only) |
+| 18 — Agent-ergonomic send | `POST /api/agent/send` (clean JSON MCP tool): dry-run, JSONPath field extraction, body truncation, structured result with the sent request + warnings + script errors | ✅ Done (verified) |
 | 19 — Assertions & captures | Declarative frontmatter assertions (status/JSONPath/time/schema) + captures (JSONPath → variable); engine returns structured pass/fail | ⏳ Planned (arc spec only) |
 | 20 — Suite runs & chaining | Run a folder in order, thread captured variables between steps, aggregate report via an MCP `run_suite` tool | ⏳ Planned (arc spec only) |
 | 21 — Snapshot & diff | Baseline a response, re-run after a change, structured contract diff with noise filters | ⏳ Planned (arc spec only) |
 
 Out of scope for the arc: import (OpenAPI/curl/HAR), load testing, parallel execution.
+
+**Phase 18 follow-ups (tagged, minor):**
+- Extract the triplicated `_safe_path` helper (`send.py`, `agent.py`, `mcp/tools.py`) into one shared util.
+- Add an integration test for the agent route's 502 (transport-error) path.
 
