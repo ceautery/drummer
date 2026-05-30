@@ -43,7 +43,10 @@ frontend/         ← React + Vite; compiled to drummer/api/static/
 
 ## Build phases
 
-This project is built in 14 phases, each with its own plan in `docs/superpowers/plans/`.
-Do not implement features from a later phase while working in an earlier one.
+The original 14-phase build arc is complete. Work since then proceeds in follow-on arcs,
+each phase with its own spec + plan in `docs/superpowers/`. Don't implement a later phase
+while working an earlier one.
 
-Current phase: **14 — Wikidata GraphQL**
+**See `ROADMAP.md` and `TODO.md` for live status.** As of this writing: the post-1.0
+hardening arc (F1, F2, Phases 15–17) is complete, and the Agent API Toolkit arc is in
+progress — Phase 18 (agent-ergonomic send) done; **next is Phase 19 (assertions & captures)**.
