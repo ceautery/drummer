@@ -133,4 +133,4 @@ async def test_graphql_step_sends_and_returns_data(tmp_path: Path) -> None:
     assert response.status_code == HTTPStatus.OK
     events = parse_sse(response.text)
     body_event = next(e for e in events if e["event"] == "body")
-    assert "Douglas Adams" in body_event["data"]["body"]  # type: ignore[index]
+    assert "Douglas Adams" in body_event["data"]["body"]
