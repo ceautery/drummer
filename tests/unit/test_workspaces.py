@@ -169,3 +169,39 @@ def test_set_theme_preserves_active_workspace(drummer_home: Path) -> None:
     data = yaml.safe_load(config.read_text())
     assert data["active_workspace"] == "scratch"
     assert data["theme"] == "light"
+
+
+def test_forget_external_removes_registry_entry(drummer_home: Path, tmp_path: Path) -> None:
+    external = tmp_path / "repo"
+    external.mkdir()
+    info = ws.register_external(external)
+    ws.forget_external(info.id)
+    externals = [w for w in ws.list_workspaces() if w.kind == "external"]
+    assert externals == []
+
+
+def test_forget_external_resets_active_to_scratch(drummer_home: Path, tmp_path: Path) -> None:
+    external = tmp_path / "repo"
+    external.mkdir()
+    info = ws.register_external(external)
+    ws.set_active(info.id)
+    ws.forget_external(info.id)
+    assert ws.get_active() == "scratch"
+
+
+def test_forget_external_keeps_active_when_other_forgotten(
+    drummer_home: Path, tmp_path: Path
+) -> None:
+    keep = tmp_path / "keep"
+    keep.mkdir()
+    drop = tmp_path / "drop"
+    drop.mkdir()
+    kept = ws.register_external(keep)
+    dropped = ws.register_external(drop)
+    ws.set_active(kept.id)
+    ws.forget_external(dropped.id)
+    assert ws.get_active() == kept.id
+
+
+def test_forget_external_unknown_id_is_noop(drummer_home: Path, tmp_path: Path) -> None:
+    ws.forget_external(str(tmp_path / "never-registered"))  # must not raise

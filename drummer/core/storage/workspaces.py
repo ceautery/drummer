@@ -144,6 +144,16 @@ def register_external(path: Path) -> WorkspaceInfo:
     )
 
 
+def forget_external(workspace_id: str) -> None:
+    resolved = str(Path(workspace_id).expanduser().resolve())
+    registry = _read_registry()
+    remaining = [entry for entry in registry if str(Path(entry).resolve()) != resolved]
+    if remaining != registry:
+        _write_registry(remaining)
+    if get_active() == workspace_id:
+        set_active("scratch")
+
+
 def resolve_workspace(workspace_id: str) -> Path:
     candidate = Path(workspace_id)
     return candidate if candidate.is_absolute() else _projects_dir() / workspace_id
