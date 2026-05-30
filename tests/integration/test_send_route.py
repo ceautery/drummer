@@ -190,3 +190,21 @@ async def test_failing_post_script_still_returns_response(project_dir: Path) -> 
     assert "body" in event_names
     done = next(e for e in events if e["event"] == "done")
     assert done["data"]["script_error"] is not None
+
+
+async def test_send_emits_request_event_with_sent_and_warnings(project_dir: Path) -> None:
+    (project_dir / "u.md").write_text(
+        "---\nname: U\nmethod: GET\nurl: https://api.test/{{missing}}\n---\n", encoding="utf-8"
+    )
+    app = _make_app(project_dir)
+    await _init_db_for(project_dir)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post("/api/send", json={"path": "u.md"})
+    assert response.status_code == HTTPStatus.OK
+    events = parse_sse(response.text)
+    request_events = [e for e in events if e["event"] == "request"]
+    assert len(request_events) == 1
+    data = request_events[0]["data"]
+    assert data["sent"] is not None
+    assert "{{missing}}" in data["sent"]["url"]
+    assert "missing" in data["warnings"]

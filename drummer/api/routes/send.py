@@ -80,6 +80,16 @@ async def send_request_route(
 
             if result.script_error and result.status_code == 0:
                 yield {
+                    "event": "request",
+                    "data": json.dumps(
+                        {
+                            "sent": result.sent.model_dump() if result.sent else None,
+                            "warnings": result.warnings,
+                            "variables": result.variables,
+                        }
+                    ),
+                }
+                yield {
                     "event": "done",
                     "data": json.dumps(
                         {
@@ -104,6 +114,16 @@ async def send_request_route(
                         "body": result.body,
                         "encoding": result.encoding,
                         "elapsed_ms": result.elapsed_ms,
+                    }
+                ),
+            }
+            yield {
+                "event": "request",
+                "data": json.dumps(
+                    {
+                        "sent": result.sent.model_dump() if result.sent else None,
+                        "warnings": result.warnings,
+                        "variables": result.variables,
                     }
                 ),
             }
