@@ -37,3 +37,18 @@ Phase 17 plan: `docs/superpowers/plans/2026-05-30-phase-17-sent-request-inspecto
 - **History capture accuracy** (tagged during Phase 17): the history DB record stores the *resolved* (pre-mutation) headers/body, omits query params, and stores the response URL. Follow-up: add a `request_params` column, persist the truly-sent request into history, and show params in the HistoryDrawer. Needs a DB schema change, so it's deferred out of Phase 17.
 - Request file **rename** and **move/folders** in the tree (and environment **rename**) — these share a "move file" primitive, best done together in a later phase. (Editing a request's display name already works through the normal save path.)
 
+## Agent API Toolkit Arc (planned)
+
+Make Drummer a better-than-curl tool for an AI agent refactoring and testing APIs (driven over MCP).
+Arc design: `docs/superpowers/specs/2026-05-30-agent-api-toolkit-arc-design.md`. Each sub-phase gets
+its own spec/plan. Dependency chain 18 → 19 → 20; 21 after 18.
+
+| Phase | Description | Status |
+|---|---|---|
+| 18 — Agent-ergonomic send | Dry-run (resolved request, no send), JSONPath field extraction, body truncation/summarization — compact MCP output that doesn't flood agent context | ⏳ Planned (arc spec only) |
+| 19 — Assertions & captures | Declarative frontmatter assertions (status/JSONPath/time/schema) + captures (JSONPath → variable); engine returns structured pass/fail | ⏳ Planned (arc spec only) |
+| 20 — Suite runs & chaining | Run a folder in order, thread captured variables between steps, aggregate report via an MCP `run_suite` tool | ⏳ Planned (arc spec only) |
+| 21 — Snapshot & diff | Baseline a response, re-run after a change, structured contract diff with noise filters | ⏳ Planned (arc spec only) |
+
+Out of scope for the arc: import (OpenAPI/curl/HAR), load testing, parallel execution.
+

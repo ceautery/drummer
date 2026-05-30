@@ -23,6 +23,13 @@
   (`RequestResult.sent`, available after Phase 17) into the history record, and surface params
   in the `HistoryDrawer`. Deferred out of Phase 17 because it needs a schema migration.
 
+## Next arc (designed, not started)
+- **Agent API Toolkit** — make Drummer beat curl for an agent refactoring/testing APIs over MCP.
+  Arc design: `docs/superpowers/specs/2026-05-30-agent-api-toolkit-arc-design.md`. Four sub-phases:
+  18 (agent-ergonomic send: dry-run + extraction + truncation), 19 (assertions & captures),
+  20 (suite runs & chaining), 21 (snapshot & diff). Each needs its own spec → plan. Start with 18
+  (smallest; reuses Phase 17's sent-request data). Sequence after Phase 17 lands.
+
 ## Deferred
 - Request file **rename** + environment **rename** + tree **move/folders** — shared "move file" primitive, a later phase.
 
