@@ -27,7 +27,7 @@ Plan for the first slice: `docs/superpowers/plans/2026-05-29-fixes-and-phase-15-
 | F1 — Raw tab | Raw response tab is a pure hexdump (dropped redundant body panel) | ✅ Done |
 | F2 — Forget external workspace | `forget_external` core fn + `POST /workspaces/forget` + switcher action; e2e server `DRUMMER_HOME` isolated so fixtures no longer pollute the real registry | ✅ Done |
 | 15 — Request editing & CRUD | **Critical save fix** (PUT round-trips the full request → no more silent auth/params/script loss or white-screen crash), visible Save button, new/delete requests in the tree | ✅ Done (verified in-app) |
-| 16 — Environment & variable editor | Create/delete environments + a per-environment variable table editor (today the UI only selects environments; there's no way to set `{{base_url}}` from the app) | ⏳ Planned |
+| 16 — Environment & variable editor | Create/delete environments + a per-environment variable table editor (today the UI only selects environments; there's no way to set `{{base_url}}` from the app) | ✅ Done (verified in-app) |
 | 17 — Sent-request inspector | Surface the resolved request (final URL, substituted params/headers, variable set) and unresolved-variable warnings on the response side | ⏳ Planned |
 
 **Deferred:** request file **rename** and **move/folders** in the tree — these share a "move file" primitive and are best done together in a later phase. (Editing a request's display name already works through the normal save path.)
