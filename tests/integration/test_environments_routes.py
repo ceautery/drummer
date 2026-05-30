@@ -42,3 +42,29 @@ async def test_update_missing_environment_returns_404(client: AsyncClient) -> No
     payload = {"name": "staging", "variables": {"base_url": "https://staging.example.com"}}
     response = await client.put("/api/environments/staging", json=payload)
     assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+async def test_create_environment(client: AsyncClient) -> None:
+    resp = await client.post(
+        "/api/environments", json={"name": "staging", "variables": {"base_url": "https://s"}}
+    )
+    assert resp.status_code == HTTPStatus.CREATED
+    assert resp.json() == {"name": "staging", "variables": {"base_url": "https://s"}}
+    listed = {e["name"] for e in (await client.get("/api/environments")).json()}
+    assert "staging" in listed
+
+
+async def test_create_environment_duplicate_conflicts(client: AsyncClient) -> None:
+    await client.post("/api/environments", json={"name": "staging", "variables": {}})
+    resp = await client.post("/api/environments", json={"name": "staging", "variables": {}})
+    assert resp.status_code == HTTPStatus.CONFLICT
+
+
+async def test_create_environment_rejects_blank_name(client: AsyncClient) -> None:
+    resp = await client.post("/api/environments", json={"name": "   ", "variables": {}})
+    assert resp.status_code == HTTPStatus.BAD_REQUEST
+
+
+async def test_create_environment_rejects_path_name(client: AsyncClient) -> None:
+    resp = await client.post("/api/environments", json={"name": "../escape", "variables": {}})
+    assert resp.status_code == HTTPStatus.BAD_REQUEST

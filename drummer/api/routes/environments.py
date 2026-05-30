@@ -30,6 +30,11 @@ class EnvironmentDetail(BaseModel):
     variables: dict[str, str] = Field(default_factory=dict)
 
 
+class CreateEnvironmentBody(BaseModel):
+    name: str
+    variables: dict[str, str] = Field(default_factory=dict)
+
+
 def _safe_env_path(project_dir: Path, name: str) -> Path:
     env_path = (project_dir / ".drummer" / "environments" / f"{name}.yaml").resolve()
     if not env_path.is_relative_to(project_dir.resolve()):
@@ -43,6 +48,23 @@ async def list_environments_route(project_dir: ProjectDir) -> list[EnvironmentSu
         EnvironmentSummary(name=env.name, variable_count=len(env.variables))
         for env in list_environments(project_dir)
     ]
+
+
+@router.post("/environments", status_code=HTTPStatus.CREATED)
+async def create_environment_route(
+    body: CreateEnvironmentBody, project_dir: ProjectDir
+) -> EnvironmentDetail:
+    name = body.name.strip()
+    if not name or "/" in name or "\\" in name or name in {".", ".."}:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Invalid environment name")
+    env_path = _safe_env_path(project_dir, name)
+    if env_path.exists():
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT, detail=f"Environment '{name}' already exists"
+        )
+    env = Environment(name=name, variables=body.variables)
+    save_environment(env, project_dir)
+    return EnvironmentDetail(name=env.name, variables=env.variables)
 
 
 @router.get("/environments/{name}")
