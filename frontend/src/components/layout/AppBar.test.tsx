@@ -27,6 +27,7 @@ vi.mock("../../api/workspaces", () => ({
   useSwitchWorkspace: () => ({ mutate: vi.fn() }),
   useCreateWorkspace: () => ({ mutate: vi.fn() }),
   useRegisterWorkspace: () => ({ mutate: vi.fn() }),
+  useForgetWorkspace: () => ({ mutate: vi.fn() }),
 }));
 
 describe("AppBar", () => {
