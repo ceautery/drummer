@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useRef } from "react";
-import { useRequest, useRequests, useSaveRequest } from "../api/requests";
+import {
+  useCreateRequest,
+  useDeleteRequest,
+  useRequest,
+  useRequests,
+  useSaveRequest,
+} from "../api/requests";
 import { useSend } from "../api/useSend";
 import { TwoPanel } from "../components/layout/PanelGroup";
 import { RequestResponseWorkbench } from "../components/layout/RequestResponseWorkbench";
@@ -21,12 +27,15 @@ export function WorkspaceView() {
   const discardRequest = useRequestStore((s) => s.discard);
   const markSaved = useRequestStore((s) => s.markSaved);
   const isDirty = useRequestStore((s) => s.isDirty);
+  const deselect = useRequestStore((s) => s.deselect);
 
   const { data: requests = [] } = useRequests({
     enabled: project !== null,
   });
   const { data: requestDetail } = useRequest(selectedPath);
   const saveRequest = useSaveRequest();
+  const createRequest = useCreateRequest();
+  const deleteRequest = useDeleteRequest();
   const { send, cancel } = useSend();
 
   // Load request into store when data arrives
@@ -65,6 +74,29 @@ export function WorkspaceView() {
     markSaved(result);
   }, [selectedPath, draft, saved, saveRequest, markSaved]);
 
+  const handleNewRequest = useCallback(async () => {
+    const name = window.prompt("New request name:")?.trim();
+    if (!name) return;
+    const slug =
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "") || "request";
+    const path = `${slug}.md`;
+    await createRequest.mutateAsync({ path, name });
+    handleRequestSelect(path);
+  }, [createRequest, handleRequestSelect]);
+
+  const handleRequestDelete = useCallback(
+    async (path: string) => {
+      if (!window.confirm("Delete this request? This cannot be undone."))
+        return;
+      await deleteRequest.mutateAsync(path);
+      if (selectedPath === path) deselect();
+    },
+    [deleteRequest, selectedPath, deselect],
+  );
+
   const handleSaveRef = useRef(handleSave);
   useEffect(() => {
     handleSaveRef.current = handleSave;
@@ -82,10 +114,20 @@ export function WorkspaceView() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  const sidebar = <Sidebar onRequestSelect={handleRequestSelect} />;
+  const sidebar = (
+    <Sidebar
+      onRequestSelect={handleRequestSelect}
+      onRequestDelete={handleRequestDelete}
+      onNewRequest={handleNewRequest}
+    />
+  );
 
   const mainArea = (
-    <RequestResponseWorkbench onSend={handleSend} onCancel={cancel} />
+    <RequestResponseWorkbench
+      onSend={handleSend}
+      onCancel={cancel}
+      onSave={handleSave}
+    />
   );
 
   return (

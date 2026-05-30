@@ -5,9 +5,15 @@ import { RequestTree } from "../tree/RequestTree";
 
 interface SidebarProps {
   onRequestSelect: (path: string) => void;
+  onRequestDelete: (path: string) => void;
+  onNewRequest: () => void;
 }
 
-export function Sidebar({ onRequestSelect }: SidebarProps) {
+export function Sidebar({
+  onRequestSelect,
+  onRequestDelete,
+  onNewRequest,
+}: SidebarProps) {
   const project = useProjectStore((s) => s.project);
   const requests = useProjectStore((s) => s.requests);
   const activeEnvironment = useSessionStore((s) => s.activeEnvironment);
@@ -48,8 +54,26 @@ export function Sidebar({ onRequestSelect }: SidebarProps) {
         </div>
       )}
 
+      <div className="flex items-center justify-between border-b px-3 py-1.5">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          Requests
+        </span>
+        <button
+          type="button"
+          className="rounded px-1.5 py-0.5 text-xs text-primary hover:bg-primary/10"
+          onClick={onNewRequest}
+          data-testid="new-request-button"
+        >
+          + New
+        </button>
+      </div>
+
       <div className="flex-1 overflow-y-auto px-1 py-1">
-        <RequestTree requests={requests} onSelect={onRequestSelect} />
+        <RequestTree
+          requests={requests}
+          onSelect={onRequestSelect}
+          onDelete={onRequestDelete}
+        />
       </div>
     </div>
   );

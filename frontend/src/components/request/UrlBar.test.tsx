@@ -12,6 +12,8 @@ describe("UrlBar", () => {
         onUrlChange={vi.fn()}
         onSend={vi.fn()}
         onCancel={vi.fn()}
+        onSave={vi.fn()}
+        canSave={false}
         isStreaming={false}
         variables={{}}
       />,
@@ -30,6 +32,8 @@ describe("UrlBar", () => {
         onUrlChange={vi.fn()}
         onSend={onSend}
         onCancel={vi.fn()}
+        onSave={vi.fn()}
+        canSave={false}
         isStreaming={false}
         variables={{}}
       />,
@@ -47,6 +51,8 @@ describe("UrlBar", () => {
         onUrlChange={vi.fn()}
         onSend={vi.fn()}
         onCancel={vi.fn()}
+        onSave={vi.fn()}
+        canSave={false}
         isStreaming={true}
         variables={{}}
       />,

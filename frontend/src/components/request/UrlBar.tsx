@@ -34,6 +34,8 @@ interface UrlBarProps {
   onUrlChange: (url: string) => void;
   onSend: () => void;
   onCancel: () => void;
+  onSave: () => void;
+  canSave: boolean;
   isStreaming: boolean;
   variables: Record<string, string>;
 }
@@ -45,6 +47,8 @@ export function UrlBar({
   onUrlChange,
   onSend,
   onCancel,
+  onSave,
+  canSave,
   isStreaming,
   variables,
 }: UrlBarProps) {
@@ -152,6 +156,16 @@ export function UrlBar({
         className="cm-url-bar flex-1 rounded border focus-within:ring-2 focus-within:ring-primary"
         data-testid="url-input"
       />
+
+      <button
+        type="button"
+        className="rounded border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
+        onClick={onSave}
+        disabled={!canSave}
+        data-testid="save-button"
+      >
+        Save
+      </button>
 
       {isStreaming ? (
         <button

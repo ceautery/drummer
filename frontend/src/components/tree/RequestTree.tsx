@@ -4,9 +4,14 @@ import { TreeNode } from "./TreeNode";
 interface RequestTreeProps {
   requests: RequestSummary[];
   onSelect: (path: string) => void;
+  onDelete: (path: string) => void;
 }
 
-export function RequestTree({ requests, onSelect }: RequestTreeProps) {
+export function RequestTree({
+  requests,
+  onSelect,
+  onDelete,
+}: RequestTreeProps) {
   if (requests.length === 0) {
     return (
       <p className="px-2 py-4 text-xs text-muted-foreground">
@@ -18,7 +23,12 @@ export function RequestTree({ requests, onSelect }: RequestTreeProps) {
   return (
     <div className="flex flex-col gap-0.5 py-1" data-testid="request-tree">
       {requests.map((r) => (
-        <TreeNode key={r.path} request={r} onSelect={onSelect} />
+        <TreeNode
+          key={r.path}
+          request={r}
+          onSelect={onSelect}
+          onDelete={onDelete}
+        />
       ))}
     </div>
   );

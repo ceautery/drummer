@@ -130,6 +130,7 @@ export function TutorialView() {
           <RequestResponseWorkbench
             onSend={() => void send(currentStep)}
             onCancel={cancel}
+            onSave={() => undefined}
           />
         ) : (
           <div className="flex h-full items-center justify-center">

@@ -37,11 +37,13 @@ const RESPONSE_TABS: { id: ResponseTab; label: string }[] = [
 interface RequestResponseWorkbenchProps {
   onSend: () => void;
   onCancel: () => void;
+  onSave: () => void;
 }
 
 export function RequestResponseWorkbench({
   onSend,
   onCancel,
+  onSave,
 }: RequestResponseWorkbenchProps) {
   const saved = useRequestStore((s) => s.saved);
   const draft = useRequestStore((s) => s.draft);
@@ -60,6 +62,8 @@ export function RequestResponseWorkbench({
   const { variables } = useSessionStore();
 
   const current = draft ?? saved;
+  const canSave =
+    draft !== null && JSON.stringify(draft) !== JSON.stringify(saved);
   const contentType =
     responseHeaders.find(([k]) => k.toLowerCase() === "content-type")?.[1] ??
     "";
@@ -73,6 +77,8 @@ export function RequestResponseWorkbench({
         onUrlChange={(url) => patchRequest({ url })}
         onSend={onSend}
         onCancel={onCancel}
+        onSave={onSave}
+        canSave={canSave}
         isStreaming={streaming === "streaming"}
         variables={variables}
       />
