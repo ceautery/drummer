@@ -39,10 +39,12 @@ export function SentViewer() {
   }
 
   const displayHeaders: Record<string, string> = Object.fromEntries(
-    Object.entries(sent.headers).map(([k, v]) => [
-      k,
-      k.toLowerCase() === "authorization" ? maskAuth(v) : v,
-    ]),
+    Object.entries(sent.headers).map(([k, v]) => {
+      const lower = k.toLowerCase();
+      if (lower === "authorization") return [k, maskAuth(v)];
+      if (lower === "cookie") return [k, "••••••"];
+      return [k, v];
+    }),
   );
 
   return (

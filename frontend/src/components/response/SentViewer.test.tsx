@@ -17,6 +17,7 @@ describe("SentViewer", () => {
         headers: {
           Accept: "application/json",
           Authorization: "Bearer secret-token",
+          Cookie: "session=supersecret",
         },
         body: "",
       },
@@ -24,10 +25,12 @@ describe("SentViewer", () => {
       {},
     );
     render(<SentViewer />);
+    expect(screen.getByText("GET")).toBeInTheDocument();
     expect(screen.getByText("https://api.example.com/v1")).toBeInTheDocument();
     expect(screen.getByText("search")).toBeInTheDocument();
     expect(screen.getByText("application/json")).toBeInTheDocument();
     expect(screen.queryByText(/secret-token/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/supersecret/)).not.toBeInTheDocument();
   });
 
   it("shows a message when no request was sent", () => {
